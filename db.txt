@@ -1,0 +1,97 @@
+-- Drop old tables if they exist
+DROP TABLE IF EXISTS toner_usage CASCADE;
+DROP TABLE IF EXISTS printers CASCADE;
+DROP TABLE IF EXISTS jobs CASCADE;
+DROP TABLE IF EXISTS user_monthly_targets CASCADE;
+DROP TABLE IF EXISTS devices CASCADE;
+DROP TABLE IF EXISTS users CASCADE;
+
+-- ======================================
+-- 1. Users Table
+-- ======================================
+CREATE TABLE users (
+    user_id SERIAL PRIMARY KEY,
+    username VARCHAR(100) NOT NULL,
+    email VARCHAR(150) UNIQUE NOT NULL,
+    name VARCHAR(20),
+    role VARCHAR(50),
+    profile_picture VARCHAR(255)
+);
+
+-- ======================================
+-- 2. Devices Table
+-- ======================================
+CREATE TABLE devices (
+    device_id SERIAL PRIMARY KEY,
+    device_name VARCHAR(150) NOT NULL,
+    device_type VARCHAR(100) NOT NULL
+);
+
+-- ======================================
+-- 3. Jobs Table
+-- ======================================
+CREATE TABLE jobs (
+    id SERIAL PRIMARY KEY,
+    job_id VARCHAR(20) NOT NULL,
+    job_code VARCHAR(100),
+    bank VARCHAR(100) NOT NULL,
+    device_id INT REFERENCES devices(device_id) ON DELETE SET NULL,
+    query TEXT,
+    user_id INT REFERENCES users(user_id) ON DELETE SET NULL,
+    range_start INT NOT NULL,
+    range_end INT NOT NULL,
+    remaining INT GENERATED ALWAYS AS (range_end - range_start) STORED,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- ======================================
+-- 4. Toner Usage Table
+-- ======================================
+CREATE TABLE toner_usage (
+    toner_id SERIAL PRIMARY KEY,
+    toner_code VARCHAR(50) UNIQUE NOT NULL,
+    device_id INT REFERENCES devices(device_id) ON DELETE CASCADE,
+    user_id INT REFERENCES users(user_id) ON DELETE SET NULL,
+    install_date DATE NOT NULL,
+    replace_date DATE,
+    total_prints INT DEFAULT 0,
+    job_id INT REFERENCES jobs(id)
+);
+
+-- ======================================
+-- 5. User Monthly Targets Table
+-- ======================================
+CREATE TABLE user_monthly_targets (
+    id SERIAL PRIMARY KEY,
+    user_id INT REFERENCES users(user_id) ON DELETE CASCADE,
+    month_year VARCHAR(20) NOT NULL,
+    target_amount NUMERIC(12,2) NOT NULL,
+    current_amount NUMERIC(12,2) DEFAULT 0,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    UNIQUE(user_id, month_year)
+);
+
+-- ======================================
+-- 6. Seed Devices
+-- ======================================
+INSERT INTO devices (device_name, device_type) VALUES
+('Matica A', 'Card Machine'),
+('Matica B', 'Card Machine'),
+('MS5000', 'Card Machine'),
+('Konica A', 'Printer'),
+('Konica B', 'Printer'),
+('HP Copier 1', 'Printer'),
+('HP Copier 2', 'Printer'),
+('HP Copier 3', 'Printer'),
+('HP Copier 4', 'Printer');
+
+-- ======================================
+-- 7. Seed Users
+-- ======================================
+INSERT INTO users (user_id, username, email, profile_picture, role, name) VALUES
+(1, 'johndoe',    'johndoe@example.com',   'https://randomuser.me/api/portraits/men/1.jpg',   'machine_operator', 'John Doe'),
+(2, 'marysmith',  'marysmith@example.com', 'https://randomuser.me/api/portraits/women/2.jpg', 'email_officer',    'Mary Smith'),
+(3, 'davlee',     'davlee@example.com',    'https://randomuser.me/api/portraits/men/3.jpg',   'machine_operator', 'David Lee'),
+(4, 'emilyj',     'emilyj@example.com',    'https://randomuser.me/api/portraits/women/4.jpg', 'email_officer',    'Emily Johnson'),
+(5, 'michaelb',   'michaelb@example.com',  'https://randomuser.me/api/portraits/men/5.jpg',   'machine_operator', 'Michael Brown'),
+(6, 'sarahw',     'sarahw@example.com',    'https://randomuser.me/api/portraits/women/6.jpg', 'email_officer',    'Sarah Williams');

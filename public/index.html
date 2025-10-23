@@ -1,0 +1,2197 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Professional Department Dashboard</title>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"/>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" rel="stylesheet"/>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<style>
+    body {
+        background-color: #f4f6f9;
+        font-family: 'Segoe UI', sans-serif;
+        font-size: 0.9rem;
+        overflow-x: hidden;
+    }
+    .sidebar {
+        background: linear-gradient(180deg, #4b6cb7, #182848);
+        color: white;
+        height: 100vh;
+        transition: all 0.3s ease;
+        position: fixed;
+        left: 0;
+        top: 0;
+        overflow-y: auto;
+        z-index: 2000;
+        width: 65px;
+        display: flex;
+        flex-direction: column;
+    }
+    .sidebar.expanded { width: 200px; }
+    .logo-container {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        padding: 10px;
+        order: 0;
+    }
+    .logo-container img { width: 35px; height: 35px; border-radius: 6px; }
+    .logo-container span { font-weight: bold; font-size: 0.85rem; white-space: nowrap; }
+    .sidebar:not(.expanded) .logo-container { order: 99; margin-top: auto; padding-bottom: 15px; }
+    .sidebar:not(.expanded) .logo-container span { display: none; }
+    .toggle-btn {
+        background: none;
+        border: none;
+        color: white;
+        font-size: 1rem;
+        padding: 8px 20px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        width: 100%;
+        text-align: left;
+        margin-bottom: 15px;
+    }
+    .toggle-btn span { font-size: 0.85rem; }
+    .sidebar:not(.expanded) .toggle-btn span { display: none; }
+    .nav-link {
+        color: #d1d5db;
+        padding: 8px 10px;
+        display: flex;
+        align-items: center;
+        transition: background 0.2s;
+        font-size: 0.85rem;
+    }
+    .nav-link:hover { background: rgba(255, 255, 255, 0.1); color: white; }
+    .nav-link i {
+        font-size: 0.9rem;
+        background: white;
+        color: #182848;
+        border-radius: 50%;
+        padding: 6px;
+        margin-right: 10px;
+        border: 1px solid white;
+    }
+    .sidebar:not(.expanded) .nav-link span { display: none; }
+    .sidebar:not(.expanded) .nav-link i { margin-right: 0; }
+    .content { margin-left: 65px; transition: margin-left 0.3s; }
+    .sidebar.expanded ~ .content { margin-left: 200px; }
+    .top-bar {
+        background: white;
+        padding: 10px 20px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        border-bottom: 1px solid #ddd;
+    }
+    .user-menu {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        cursor: pointer;
+    }
+    .user-menu img { width: 35px; height: 35px; border-radius: 50%; }
+    @media(max-width: 768px) {
+        .sidebar { left: -200px; width: 200px; box-shadow: 2px 0 8px rgba(0,0,0,0.2); }
+        .sidebar.expanded { left: 0; }
+        .top-bar { justify-content: flex-start; gap: 10px; }
+        .hamburger-btn {
+            background: none; border: none; font-size: 1.2rem; color: #182848;
+        }
+        .content { margin-left: 0 !important; }
+        .overlay {
+            display: none;
+            position: fixed; top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: rgba(0,0,0,0.4);
+            z-index: 1999;
+        }
+        .overlay.active { display: block; }
+    }
+     .gradient-card {
+    border-radius: 1rem;
+    padding: 1rem;
+    transition: transform 0.2s;
+  }
+  .gradient-card:hover {
+    transform: translateY(-5px);
+  }
+  .bg-gradient-primary {
+    background: linear-gradient(135deg,#0d6efd,#85c1ff);
+  }
+
+
+  .icon {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+  }
+
+  .bg-gradient-primary { background: linear-gradient(135deg,#0d6efd,#85c1ff);}
+  .bg-gradient-success { background: linear-gradient(135deg,#28a745,#85e085);}
+  .bg-gradient-warning { background: linear-gradient(135deg,#ffc107,#ffe085);}
+  .bg-gradient-danger { background: linear-gradient(135deg,#dc3545,#ff7f7f);}
+  .summary-card, .filter-box, .card, .table-responsive {
+    transition: transform 0.2s;
+  }
+  .summary-card:hover, .filter-box:hover, .card:hover, .table-responsive:hover {
+    transform: translateY(-5px);
+  }
+
+
+
+</style>
+</head>
+<body>
+
+<!-- Overlay for Mobile -->
+<div id="overlay" class="overlay" onclick="toggleSidebar()"></div>
+
+<!-- Sidebar -->
+<div id="sidebar" class="sidebar">
+    <button class="toggle-btn" onclick="toggleSidebar()">
+        <i class="fas fa-bars"></i>
+        <span>Menu</span>
+    </button>
+
+    <nav class="nav flex-column flex-grow-1">
+        <a href="#" class="nav-link" data-target="homePanel"><i class="fas fa-house"></i> <span>Home</span></a>
+
+        <!-- Product Dropdown -->
+        <div class="nav-item">
+            <a href="#" class="nav-link" data-bs-toggle="collapse" data-bs-target="#productSubmenu" aria-expanded="false">
+                <i class="fas fa-box"></i> <span>Production Management</span>
+                <i class="fas fa-caret-down ms-auto"></i>
+            </a>
+            <div class="collapse" id="productSubmenu">
+                <a href="#" class="nav-link ps-4" data-target="deviceUsagePanel">Device Usage</a>
+                <a href="#" class="nav-link ps-4" data-target="personTeamPanel">Person Team</a>
+                <a href="#" class="nav-link ps-4" data-target="cardRecordsPanel">Card Records</a>
+                <a href="#" class="nav-link ps-4" data-target="machineReportPanel">Machine Report</a>
+            </div>
+        </div>
+        <!-- Staff Management Dropdown -->
+<div class="nav-item">
+  <a href="#" class="nav-link" data-bs-toggle="collapse" data-bs-target="#staffSubmenu" aria-expanded="false">
+    <i class="fas fa-users"></i> <span>Staff Management</span>
+    <i class="fas fa-caret-down ms-auto"></i>
+  </a>
+  <div class="collapse" id="staffSubmenu">
+    <a href="#" class="nav-link ps-4" data-target="staffListPanel">Manage Staff</a>
+  </div>
+</div>
+
+    </nav>
+
+    <div class="logo-container">
+        <img src="https://via.placeholder.com/50" alt="Company Logo">
+        <span>MyCompany</span>
+    </div>
+</div>
+
+<!-- Main Content -->
+<div class="content">
+    <div class="top-bar">
+        <button class="hamburger-btn d-md-none" onclick="toggleSidebar()">
+            <i class="fas fa-bars"></i>
+        </button>
+        <h6 class="m-0 d-none d-md-block">📊 Department Management Dashboard</h6>
+        <div class="dropdown ms-auto">
+            <div class="user-menu" data-bs-toggle="dropdown">
+                <img src="https://via.placeholder.com/40" alt="User">
+                <span>John Doe</span>
+                <i class="fas fa-caret-down"></i>
+            </div>
+            <ul class="dropdown-menu dropdown-menu-end">
+                <li><a class="dropdown-item" href="#">Profile</a></li>
+                <li><a class="dropdown-item" href="#">Settings</a></li>
+                <li><hr class="dropdown-divider"></li>
+                <li><a class="dropdown-item" href="#">Logout</a></li>
+            </ul>
+        </div>
+    </div>
+
+    <!-- Panels -->
+    <div id="homePanel" class="p-3 department-panel">
+        <h3>🏠 Home</h3>
+        <p>Welcome to the Department Management Dashboard. Select a menu option to view details.</p>
+    </div>
+
+<div id="deviceUsagePanel" class="p-4 bg-light rounded-4 shadow-sm department-panel">
+
+    <!-- Title Section -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h3 class="fw-bold mb-1"><i class="bi bi-bar-chart-line"></i> Device Usage</h3>
+            <small class="text-muted">Monitor printing activity & analytics</small>
+        </div>
+        <div class="d-flex gap-2">
+            <button class="btn btn-outline-primary btn-sm"><i class="bi bi-download"></i> Export PDF</button>
+            <button class="btn btn-outline-success btn-sm"><i class="bi bi-file-earmark-spreadsheet"></i> Export Excel</button>
+        </div>
+    </div>
+<!-- ================================
+     TOTAL PRINTS SECTION
+================================ -->
+<!-- ================================> !-->
+
+
+  <!--- Device & Date Range Selector -->
+  <div class="row g-3 mb-4">
+    <!-- Device Selector -->
+    <div class="col-md-3">
+      <label for="totalPrintDevice" class="form-label fw-semibold">Select Device:</label>
+      <select id="totalPrintDevice" class="form-select">
+        <option value="">-- Select Device --</option>
+        <!-- JS will populate options -->
+      </select>
+    </div>
+
+    <!-- Start Date -->
+    <div class="col-md-3">
+      <label for="customStartDate" class="form-label fw-semibold">Start Date:</label>
+      <input type="date" id="customStartDate" class="form-control">
+    </div>
+
+    <!-- End Date -->
+    <div class="col-md-3">
+      <label for="customEndDate" class="form-label fw-semibold">End Date:</label>
+      <input type="date" id="customEndDate" class="form-control">
+    </div>
+
+    <!-- Run Button -->
+    <div class="col-md-3 d-flex align-items-end">
+      <button id="runCustomQuery" class="btn btn-primary w-100">Run</button>
+    </div>
+  </div>
+
+  <!-- Side by Side: Total & Breakdown -->
+  <div class="row g-3">
+    <!-- Total Prints Card -->
+    <div class="col-md-4">
+      <div id="startCustomTotalCard" class="p-4 rounded shadow-sm text-center" style="background: linear-gradient(135deg, #f0f8ff, #d0e4ff);">
+        <div class="text-muted mb-2">Total Prints (Custom)</div>
+        <div id="startCustomTotalValue" class="fs-1 fw-bold text-primary">0</div>
+      </div>
+    </div>
+
+    <!-- Divider Line -->
+    <div class="col-md-1 d-none d-md-flex align-items-center justify-content-center">
+      <div style="width: 1px; background-color: #dee2e6; height: 100%;"></div>
+    </div>
+
+    <!-- Daily Breakdown Panel -->
+    <div class="col-md-7">
+      <div id="startCustomRawData" class="p-3 rounded shadow-sm" style="background: #fff; font-family: monospace; font-size: 0.9rem; color: #333; overflow-x: auto; white-space: pre-wrap; word-break: break-word;">
+        Select a device and date range to see daily breakdown...
+      </div>
+    </div>
+  </div>
+
+</section>
+
+
+
+    <div class="row g-4">
+
+        <!-- Left Panel: Filters + Chart -->
+        <div class="col-lg-8">
+
+            <!-- Filters Card -->
+            <div class="card shadow-sm border-0 mb-4">
+                <div class="card-body">
+                    <div class="row g-3 align-items-end">
+
+                        <!-- Device Select -->
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold" for="deviceSelect">Select Device</label>
+                            <select class="form-select" id="deviceSelect">
+                                <option value="">-- Select Device --</option>
+                            </select>
+                        </div>
+
+                        <!-- Time Range -->
+                        <div class="col-md-3">
+                            <label class="form-label fw-semibold" for="timeRangeSelect">View By</label>
+                            <select class="form-select" id="timeRangeSelect">
+                                <option value="week">Week</option>
+                                <option value="month">Month</option>
+                            </select>
+                        </div>
+
+                        <!-- Date Picker -->
+                        <div class="col-md-3">
+                            <label class="form-label fw-semibold">Select Date</label>
+                            <input type="week" class="form-control" id="weekPicker">
+                            <input type="month" class="form-control" id="monthPicker" style="display:none;">
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+
+           <!-- Chart Card -->
+<div class="card shadow-sm border-0">
+  <div class="card-body">
+    <!-- Title switches dynamically -->
+    <h5 id="chartTitle" class="card-title mb-3 fw-semibold">Printing Trends</h5>
+    <canvas id="deviceUsageChart" height="250"></canvas>
+  </div>
+</div>
+
+
+        </div>
+
+        <!-- Right Panel: Jobs Table & Search -->
+        <div class="col-lg-4">
+
+            <!-- Search Cards -->
+            <div class="card shadow-sm border-0 mb-3">
+                <div class="card-body">
+                    <!-- Job Search -->
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold" for="jobSearch">Search Job ID</label>
+                        <div class="input-group">
+                            <input type="text" class="form-control" id="jobSearchs" placeholder="Enter Job ID">
+                            <button class="btn btn-primary" id="jobSearchBtn"><i class="bi bi-search"></i></button>
+                        </div>
+                    </div>
+
+                    <!-- Custom Date Search -->
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold" for="customDate">Custom Date</label>
+                        <input type="date" class="form-control mb-2" id="customDate">
+                        <button class="btn btn-info w-100" id="customDateSearchBtn"><i class="bi bi-calendar-event"></i> Search by Date</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Jobs Table -->
+            <div class="card shadow-sm border-0 mb-3">
+                <div class="card-body">
+                    <h5 class="card-title mb-3 fw-semibold">Recent Jobs</h5>
+                    <div class="table-responsive" style="max-height: 400px; overflow-y: auto;">
+                        <table class="table table-sm table-striped align-middle table-hover">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Job ID</th>
+                                    <th>Date & Time</th>
+                                    <th>Range</th>
+                                    <th>Total Prints</th>
+                                    <th>Bank</th>
+                                </tr>
+                            </thead>
+                            <tbody id="jobsTableBody"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+    </div>
+
+ <div  class="p-4 bg-light rounded-4 shadow-sm mt-5">
+
+    <!-- Title Section -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h3 class="fw-bold mb-1" id="tonerTitle" ><i class="bi bi-printer"></i> Toner Usage</h3>
+            <small class="text-muted">Track toner install & replacement history</small>
+        </div>
+        <div class="d-flex gap-2">
+            <button class="btn btn-outline-primary btn-sm" id="exportPdfBtn"><i class="bi bi-download"></i> Export PDF</button>
+            <button class="btn btn-outline-success btn-sm" id="exportExcelBtn"><i class="bi bi-file-earmark-spreadsheet"></i> Export Excel</button>
+        </div>
+    </div>
+
+    <!-- Filters -->
+    <div class="row g-3 mb-4">
+        <!-- Device Filter -->
+        <div class="col-md-4">
+            <label class="form-label fw-semibold" for="tonerDeviceSelect">Select Device</label>
+            <select class="form-select" id="tonerDeviceSelect">
+                <option value="">-- All Devices --</option>
+            </select>
+        </div>
+
+        <!-- Toner Code Search -->
+        <div class="col-md-4">
+            <label class="form-label fw-semibold" for="tonerSearch">Search Toner Code</label>
+            <div class="input-group">
+                <input type="text" class="form-control" id="tonerSearch" placeholder="Enter toner code">
+                <button class="btn btn-primary" id="tonerSearchBtn"><i class="bi bi-search"></i></button>
+            </div>
+        </div>
+
+        <!-- Date Range Filter -->
+        <div class="col-md-4">
+            <label class="form-label fw-semibold" for="tonerDateRange">Custom Date</label>
+            <input type="date" class="form-control mb-2" id="tonerDateRangeStart" placeholder="Start Date">
+            <input type="date" class="form-control" id="tonerDateRangeEnd" placeholder="End Date">
+            <button class="btn btn-info w-100 mt-2" id="tonerDateSearchBtn"><i class="bi bi-calendar-event"></i> Filter by Date</button>
+        </div>
+    </div>
+
+    <!-- Toner Table -->
+    <div class="card shadow-sm border-0">
+        <div class="card-body">
+            <h5 class="card-title mb-3 fw-semibold" >Toner History</h5>
+            <div class="table-responsive" style="max-height: 400px; overflow-y: auto;">
+                <table class="table table-sm table-striped align-middle table-hover">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Toner Code</th>
+                            <th>Device</th>
+                            <th>Install Date</th>
+                            <th>Replace Date</th>
+                            <th>Total Prints</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tonerTableBody"></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+
+</div>
+
+
+<!-- Person Team Panel -->
+<div id="personTeamPanel" class="p-4 department-panel bg-white shadow-lg rounded-3" style="display:none;">
+
+    <!-- Title -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h3 class="fw-bold mb-0">👥 Perso Team</h3>
+        <small class="text-muted">Track staff printing activity, jobs, and targets</small>
+    </div>
+
+    <!-- Staff Selection + Search -->
+    <div class="row g-4 align-items-end mb-4">
+        <!-- Select Staff -->
+        <div class="col-md-4">
+            <label class="form-label fw-semibold">Select Staff</label>
+            <select id="staffSelect" class="form-select">
+                <!-- Dynamic options inserted by JS -->
+            </select>
+        </div>
+
+        <!-- Search Staff -->
+        <!-- <div class="col-md-4">
+            <label class="form-label fw-semibold">Search Staff</label>
+            <div class="input-group">
+                <input type="text" id="staffSearch" class="form-control" placeholder="Search staff...">
+                <button class="btn btn-primary" id="staffSearchBtn">Search</button>
+            </div>
+        </div> -->
+
+        <!-- Performance View -->
+        <!-- <div class="col-md-4">
+            <label class="form-label fw-semibold">Performance View</label>
+            <select id="performanceView" class="form-select">
+                <option value="weekly">Weekly</option>
+                <option value="monthly" selected>Monthly</option>
+            </select>
+        </div> -->
+    </div>
+
+    <!-- Optional: Custom Date Filter -->
+    <div class="row g-3 mb-4">
+        <div class="col-md-6">
+            <label class="form-label fw-semibold">Start Date</label>
+            <input type="date" id="customDateStart" class="form-control">
+        </div>
+        <div class="col-md-6">
+            <label class="form-label fw-semibold">End Date</label>
+            <input type="date" id="customDateEnd" class="form-control">
+        </div>
+        <div class="col-md-12 mt-2">
+            <button class="btn btn-secondary" id="customDateSearchBtnjob">Filter by Date</button>
+        </div>
+    </div>
+
+    <!-- Main Layout -->
+    <div class="row g-4">
+        <!-- LEFT: Job Table -->
+        <div class="col-lg-6">
+            <div class="card shadow-sm border-0">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h5 class="fw-semibold">Job Records</h5>
+                        <div class="input-group input-group-sm w-auto">
+                            <input type="text" id="jobSearchjob" class="form-control" placeholder="Search Job ID">
+                            <button class="btn btn-outline-primary" id="jobSearchBtnjob">Search</button>
+                        </div>
+                    </div>
+                    <div class="table-responsive" style="max-height: 280px; overflow-y:auto;">
+                        <table class="table table-sm table-striped align-middle" id="jobTable">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Job ID</th>
+                                    <th>Time</th>
+                                    <th>Date</th>
+                                    <th>Qty Printed</th>
+                                    <th>Amount</th>
+                                    <th>Range</th>
+                                    <th>Printer Used</th>
+                                </tr>
+                            </thead>
+                            <tbody id="staffJobsTableBody">
+                                <!-- Dynamically filled via JS -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- RIGHT: Staff Performance Graph -->
+        <div class="col-lg-6">
+            <div class="card shadow-sm border-0 mb-4">
+                <div class="card-body">
+                    <h5 class="card-title mb-3 fw-semibold">📊 Staff Work Performance</h5>
+                    <canvas id="staffJobChart" height="250"></canvas>
+                </div>
+            </div>
+
+            <!-- Summary Cards -->
+            <div class="row g-3" id="summaryCards">
+                <div class="col-md-4">
+                    <div class="p-3 bg-light rounded shadow-sm text-center">
+                        <h6 class="text-muted mb-1">Most Printed Job ID</h6>
+                        <h5 class="fw-bold text-primary mb-0" id="mostPrintedJob">#2001</h5>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="p-3 bg-light rounded shadow-sm text-center">
+                        <h6 class="text-muted mb-1">Total Prints (Month)</h6>
+                        <h5 class="fw-bold text-success mb-0" id="totalPrintsMonth">0</h5>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="p-3 bg-light rounded shadow-sm text-center">
+                        <h6 class="text-muted mb-1">Total Prints (Week)</h6>
+                        <h5 class="fw-bold text-warning mb-0" id="totalPrintsWeek">0</h5>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Active Days & Target -->
+    <div class="card shadow-sm border-0 mt-4">
+        <div class="card-body">
+            <h5 class="card-title mb-3 fw-semibold">📅 Active Days & Monthly Target</h5>
+            <canvas id="activeDaysChart" height="200"></canvas>
+            <div class="mt-3">
+                <label class="form-label fw-semibold">Target Progress</label>
+                <div class="progress">
+                    <div class="progress-bar bg-success" id="targetProgressBar" style="width: 0%;">0% of Target Reached</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+<div id="cardRecordsPanel" class="p-4 department-panel">
+
+  <!-- ================= Overall Section ================= -->
+  <div class="overall-summary mb-5">
+    <h2 class="fw-bold mb-4">💳 Overall Card Printing Summary</h2>
+
+    <!-- Summary Cards -->
+    <div class="row g-3 mb-4">
+      <div class="col-md-3">
+        <div class="summary-card shadow-sm rounded-4 p-3 d-flex align-items-center gap-3">
+          <div class="icon bg-gradient-primary text-white">
+            <i class="bi bi-card-text fs-3"></i>
+          </div>
+          <div>
+            <h6 class="mb-0 text-muted">Cards Today</h6>
+            <h3 id="todayCount" class="fw-bold">0</h3>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-3">
+        <div class="summary-card shadow-sm rounded-4 p-3 d-flex align-items-center gap-3">
+          <div class="icon bg-gradient-success text-white">
+            <i class="bi bi-calendar-week fs-3"></i>
+          </div>
+          <div>
+            <h6 class="mb-0 text-muted">This Week</h6>
+            <h3 id="weekCount" class="fw-bold">0</h3>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-3">
+        <div class="summary-card shadow-sm rounded-4 p-3 d-flex align-items-center gap-3">
+          <div class="icon bg-gradient-warning text-white">
+            <i class="bi bi-calendar2-month fs-3"></i>
+          </div>
+          <div>
+            <h6 class="mb-0 text-muted">This Month</h6>
+            <h3 id="monthCount" class="fw-bold">0</h3>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-3">
+        <div class="summary-card shadow-sm rounded-4 p-3 d-flex align-items-center gap-3">
+          <div class="icon bg-gradient-danger text-white">
+            <i class="bi bi-bank fs-3"></i>
+          </div>
+          <div>
+            <h6 class="mb-0 text-muted">Top Bank</h6>
+            <h3 id="topBank" class="fw-bold">N/A</h3>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Filter Box for Overall Graph -->
+    <div class="filter-box shadow-sm rounded-4 p-3 mb-4 d-flex flex-wrap align-items-center gap-2 bg-white">
+      <select id="overallBankSelect" class="form-select form-select-sm"></select>
+      <select id="overallFilterType" class="form-select form-select-sm">
+        <option value="day">Daily</option>
+        <option value="week">Weekly</option>
+        <option value="month">Monthly</option>
+      </select>
+      <input id="overallDate" type="date" class="form-control form-control-sm">
+      <button id="applyOverall" class="btn btn-sm btn-primary">Apply</button>
+    </div>
+
+    <!-- Overall Graph -->
+    <div class="card shadow-sm rounded-4 mb-5">
+      <div class="card-header bg-gradient-primary text-white">📊 Overall Print Trend</div>
+      <div class="card-body">
+        <canvas id="overallPrintChart" height="150"></canvas>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= Bank Section ================= -->
+  <div id="bankSections">
+    <div class="row g-4">
+      <!-- Left: Bank Print Trend -->
+     <div class="col-lg-7">
+  <!-- ================= Bank Records Panel ================= -->
+ <div id="customBankRecordsPanel" class="p-3">
+  <div class="card shadow-sm rounded-4 border-0 mb-4">
+    
+    <!-- ================= HEADER ================= -->
+    <div class="card-header bg-success bg-gradient text-white py-3 d-flex justify-content-between align-items-center">
+      <h6 class="mb-0 fw-semibold">💳 Bank Print Summary</h6>
+      <div class="d-flex gap-2">
+        <button id="exportExcel_custom" class="btn btn-light btn-sm fw-semibold">
+          <i class="bi bi-file-earmark-excel"></i> Excel
+        </button>
+        <button id="exportPDF_custom" class="btn btn-light btn-sm fw-semibold">
+          <i class="bi bi-file-earmark-pdf"></i> PDF
+        </button>
+      </div>
+    </div>
+
+    <!-- ================= FILTERS ================= -->
+    <div class="card-body border-bottom bg-light">
+      <div class="row g-3 align-items-end">
+
+        <!-- Bank -->
+        <div class="col-6 col-md-4">
+          <label for="bankSelect_custom" class="form-label fw-semibold small text-muted mb-1">Bank</label>
+          <select id="bankSelect_custom" class="form-select form-select-sm shadow-sm">
+            <option value="">Select Bank</option>
+          </select>
+        </div>
+
+        <!-- Month -->
+        <div class="col-6 col-md-4">
+          <label for="bankMonth_custom" class="form-label fw-semibold small text-muted mb-1">Month</label>
+          <input id="bankMonth_custom" type="month" class="form-control form-control-sm shadow-sm">
+        </div>
+
+        <!-- Week -->
+        <div class="col-6 col-md-4">
+          <label for="bankWeek_custom" class="form-label fw-semibold small text-muted mb-1">Week</label>
+          <input id="bankWeek_custom" type="week" class="form-control form-control-sm shadow-sm">
+        </div>
+
+        <!-- Day -->
+        <div class="col-6 col-md-4">
+          <label for="bankDay_custom" class="form-label fw-semibold small text-muted mb-1">Day</label>
+          <input id="bankDay_custom" type="date" class="form-control form-control-sm shadow-sm">
+        </div>
+
+        <!-- Custom Range -->
+        <div class="col-md-8">
+          <label class="form-label fw-semibold small text-muted mb-1">Custom Range</label>
+          <div class="d-flex gap-2">
+            <input id="bankStart_custom" type="date" class="form-control form-control-sm shadow-sm">
+            <input id="bankEnd_custom" type="date" class="form-control form-control-sm shadow-sm">
+          </div>
+        </div>
+
+        <!-- Apply Button -->
+        <div class="col-12 text-end mt-3">
+          <button id="bankApply_custom" class="btn btn-primary btn-sm px-4">
+            <i class="bi bi-funnel-fill"></i> Apply
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ================= RESULTS TABLE ================= -->
+    <div class="card-body p-0">
+      <div class="table-responsive" style="max-height: 380px; overflow-y: auto;">
+        <table class="table table-hover align-middle mb-0 text-center">
+          <thead class="table-success sticky-top">
+            <tr>
+              <th>Date / Period</th>
+              <th>Total Cards Printed</th>
+            </tr>
+          </thead>
+          <tbody id="bankSummary_custom">
+            <!-- Dynamic rows injected by JS -->
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+</div>
+
+
+      <!-- Right: Bank Records Table -->
+      <div class="col-lg-5">
+        <div class="card shadow-sm rounded-4 h-100 p-4 bg-white">
+          <div class="mb-3">
+            <label for="bankSelect" class="form-label fw-bold">Select Bank</label>
+            <select id="bankSelect" class="form-select form-select-md"></select>
+          </div>
+
+          <div class="d-flex flex-wrap gap-2 mb-3 align-items-center">
+            <input id="searchInput" type="text" class="form-control form-control-sm" placeholder="🔍 Search by Job ID or Staff" style="flex: 1 1 150px;">
+            <input id="dateInput" type="date" class="form-control form-control-sm" style="flex: 1 1 120px;">
+            <button id="applyBankJobs" class="btn btn-primary btn-sm">Apply</button>
+            <button class="btn btn-outline-success btn-sm ms-auto">📄 Export Excel</button>
+            <button class="btn btn-outline-danger btn-sm">🖨️ Export PDF</button>
+          </div>
+
+          <div class="table-responsive" style="max-height: 400px; overflow-y:auto;">
+            <table class="table table-hover align-middle mb-0">
+              <thead class="table-light sticky-top">
+                <tr>
+                  <th>Date</th>
+                  <th>Quantity</th>
+                  <th>Job ID</th>
+                  <th>Staff</th>
+                  <th>Machine</th>
+                </tr>
+              </thead>
+              <tbody id="bankJobsTableBody"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- Machine Report Panel -->
+<div id="machineReportPanel" class="p-4 department-panel bg-light" style="display:none; border-radius:12px;">
+  <h3 class="mb-4 text-primary fw-bold">⚙️ Machine Report</h3>
+
+  <!-- Filters Row -->
+  <div class="row g-3 mb-4">
+    <!-- Keyword Search 1 -->
+    <div class="col-md-3">
+      <input type="text" id="keywordSearch1" class="form-control shadow-sm" placeholder="🔍 Search by keyword...">
+    </div>
+
+    <!-- Keyword Search 2 (Report ID or Job ID) -->
+    <div class="col-md-3">
+      <input type="text" id="keywordSearch2" class="form-control shadow-sm" placeholder="🔍 Search by Report ID...">
+    </div>
+
+    <!-- Date Picker -->
+    <div class="col-md-3">
+      <input type="date" id="datePicker" class="form-control shadow-sm">
+    </div>
+
+    <!-- Dropdown: Machine -->
+    <div class="col-md-3">
+      <select id="machineSelect" class="form-select shadow-sm">
+        <option value="">-- Choose Machine --</option>
+        <option value="A">Machine A</option>
+        <option value="B">Machine B</option>
+        <option value="C">Machine C</option>
+      </select>
+    </div>
+  </div>
+
+  <!-- Report List -->
+<div id="machineReportList" class="d-flex flex-column gap-3">
+
+    <!-- Example Report Card: Breakdown -->
+    <div class="card shadow-sm border-0 rounded-3">
+      <div class="card-body">
+        <div class="d-flex justify-content-between align-items-center mb-2">
+          <h6 class="card-title text-secondary mb-0">Report ID: MR-002</h6>
+          <span class="badge bg-danger">Breakdown</span>
+        </div>
+        <p class="mb-1"><strong>Date of Breakdown:</strong> 2025-08-30</p>
+        <p class="text-muted">Machine B required lubrication. Temperature stable at 67°C.</p>
+      </div>
+    </div>
+
+    <!-- Example Report Card: Maintenance -->
+    <div class="card shadow-sm border-0 rounded-3">
+      <div class="card-body">
+        <div class="d-flex justify-content-between align-items-center mb-2">
+          <h6 class="card-title text-secondary mb-0">Report ID: MR-003</h6>
+          <span class="badge bg-warning text-dark">Maintenance</span>
+        </div>
+        <p class="mb-1"><strong>Date of Maintenance:</strong> 2025-08-31</p>
+        <p class="text-muted">Machine C showed vibration increase. Scheduled inspection needed.</p>
+      </div>
+    </div>
+
+    <!-- Example Report Card: Operational -->
+    <div class="card shadow-sm border-0 rounded-3">
+      <div class="card-body">
+        <div class="d-flex justify-content-between align-items-center mb-2">
+          <h6 class="card-title text-secondary mb-0">Report ID: MR-004</h6>
+          <span class="badge bg-success">Operational</span>
+        </div>
+        <p class="mb-1"><strong>Status Date:</strong> 2025-09-01</p>
+        <p class="text-muted">Machine A running normally. No issues detected.</p>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ✅ Staff Management Panel -->
+<div id="staffListPanel" class="p-4 bg-light rounded-4 shadow-sm department-panel" style="display:none;">
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+      <h3 class="fw-bold mb-1"><i class="fas fa-users"></i> Staff Members</h3>
+      <small class="text-muted">View and manage registered staff</small>
+    </div>
+    <button class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#inviteStaffModal">
+      <i class="fas fa-user-plus"></i> Invite Staff
+    </button>
+  </div>
+
+  <div class="card shadow-sm border-0">
+    <div class="card-body">
+      <!-- Search -->
+      <div class="input-group mb-3">
+        <input type="text" class="form-control" id="staffSearch" placeholder="Search by name or email">
+        <button class="btn btn-outline-secondary"><i class="fas fa-search"></i></button>
+      </div>
+
+      <!-- Modern Staff Table -->
+      <div class="table-responsive" style="max-height: 450px; overflow-y: auto;">
+        <table class="table table-hover table-striped align-middle">
+          <thead class="table-dark">
+            <tr>
+              <th>#</th>
+              <th>Joined</th>
+              <th>Firebase UID</th>
+              <th>Profile</th>
+              <th>Name</th>
+              <th>Email</th>
+              <th>Role</th>
+              <th>Department</th>
+              <th>Position</th> <!-- ✅ Added this -->
+              <th class="text-center">Actions</th>
+            </tr>
+          </thead>
+          <tbody id="staffTableBody">
+            <!-- Filled dynamically with JS -->
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ✅ Invite Staff Modal -->
+<div class="modal fade" id="inviteStaffModal" tabindex="-1">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content rounded-4 shadow-lg">
+      <div class="modal-header bg-primary text-white">
+        <h5 class="modal-title"><i class="fas fa-user-plus"></i> Invite New Staff</h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+      </div>
+      <form id="inviteStaffForm">
+        <div class="modal-body">
+          <div class="mb-3">
+            <label class="form-label">Email</label>
+            <input type="email" class="form-control" id="inviteEmail" required>
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Role</label>
+            <input type="text" class="form-control" id="inviteRole" required>
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Department</label>
+            <select class="form-select" id="inviteDepartment">
+              <option value="">Select Department</option>
+              <option value="1">IT</option>
+              <option value="2">HR</option>
+              <option value="3">Finance</option>
+            </select>
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Position</label>
+            <select class="form-select" id="invitePosition" required>
+              <option value="">Select Position</option>
+              <option value="QC Officer">QC Officer</option>
+              <option value="Mailer Officer">Mailer Officer</option>
+              <option value="Card Distributor">Card Distributor</option>
+              <option value="Machine Operator">Machine Operator</option>
+              <option value="Admin">Admin</option>
+              <option value="HR">HR</option>
+              <option value="Production Manager">Production Manager</option>
+              <option value="Graphics/CTP">Graphics/CTP</option>
+              <option value="Personnel">Personnel</option>
+            </select>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+          <button type="submit" class="btn btn-primary">Send Invite</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+
+<!-- ✅ Edit Staff Modal -->
+<div class="modal fade" id="editStaffModal" tabindex="-1">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content rounded-4 shadow-lg">
+      <div class="modal-header bg-warning">
+        <h5 class="modal-title"><i class="fas fa-edit"></i> Edit Staff</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <form id="editStaffForm">
+        <div class="modal-body">
+          <input type="hidden" id="editStaffId">
+          <div class="mb-3">
+            <label class="form-label">Name</label>
+            <input type="text" id="editStaffName" class="form-control">
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Role</label>
+            <input type="text" id="editStaffRole" class="form-control">
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Department</label>
+            <select id="editStaffDepartment" class="form-select"></select>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+          <button type="submit" class="btn btn-warning">Save Changes</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- ✅ Delete Confirmation Modal -->
+<div class="modal fade" id="deleteStaffModal" tabindex="-1">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content rounded-4 shadow-lg">
+      <div class="modal-header bg-danger text-white">
+        <h5 class="modal-title"><i class="fas fa-trash"></i> Delete Staff</h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        Are you sure you want to delete this staff member?
+        <input type="hidden" id="deleteStaffId">
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+        <button id="confirmDeleteStaff" class="btn btn-danger">Delete</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ✅ Toasts -->
+<div class="toast-container position-fixed top-0 end-0 p-3" style="z-index: 2000;">
+  <div id="successToast" class="toast align-items-center text-white bg-success border-0" role="alert">
+    <div class="d-flex">
+      <div class="toast-body" id="successToastBody">Success!</div>
+      <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
+    </div>
+  </div>
+
+  <div id="errorToast" class="toast align-items-center text-white bg-danger border-0" role="alert">
+    <div class="d-flex">
+      <div class="toast-body" id="errorToastBody">Something went wrong.</div>
+      <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
+    </div>
+  </div>
+</div>
+
+
+</div>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+// ✅ Toast Functions
+function showSuccess(message = "Success!") {
+  document.getElementById('successToastBody').textContent = message;
+  new bootstrap.Toast(document.getElementById('successToast')).show();
+}
+
+function showError(message = "Something went wrong.") {
+  document.getElementById('errorToastBody').textContent = message;
+  new bootstrap.Toast(document.getElementById('errorToast')).show();
+}
+
+// ✅ Populate Department Dropdown dynamically
+async function populateDepartmentDropdown() {
+  try {
+    const res = await fetch('/api/departments');
+    const departments = await res.json();
+
+    const select = document.getElementById('inviteDepartment');
+    select.innerHTML = '<option value="">Select Department</option>';
+
+    departments.forEach(dept => {
+      const option = document.createElement('option');
+      option.value = dept.id;
+      option.textContent = dept.name;
+      select.appendChild(option);
+    });
+  } catch (err) {
+    console.error("Failed to load departments:", err);
+  }
+}
+
+// ✅ Load departments whenever modal opens
+const inviteModal = document.getElementById('inviteStaffModal');
+if (inviteModal) {
+  inviteModal.addEventListener('show.bs.modal', populateDepartmentDropdown);
+}
+
+// ✅ Handle Staff Invite Form Submission
+document.getElementById('inviteStaffForm').addEventListener('submit', async function (e) {
+  e.preventDefault();
+
+  const email = document.getElementById('inviteEmail').value.trim();
+  const role = document.getElementById('inviteRole').value;
+  const department_id = document.getElementById('inviteDepartment').value || null;
+  const position = document.getElementById('invitePosition').value; // 🆕 Added position
+
+  try {
+    const response = await fetch('/api/staff/invite', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      // 🆕 Include position in JSON body
+      body: JSON.stringify({ email, role, department_id, position })
+    });
+
+    const resultText = await response.text();
+    let result;
+
+    try {
+      result = JSON.parse(resultText);
+    } catch {
+      throw new Error('Server returned non-JSON: ' + resultText.slice(0, 100));
+    }
+
+    if (response.ok) {
+      showSuccess("Invitation email sent successfully!");
+      document.getElementById('inviteStaffForm').reset();
+      const modal = bootstrap.Modal.getInstance(inviteModal);
+      modal.hide();
+
+      if (typeof loadStaffList === 'function') loadStaffList();
+    } else {
+      const errorMessage = result.error || result.message || 'Something went wrong';
+      showError(errorMessage);
+    }
+  } catch (err) {
+    showError('Network or unexpected error: ' + err.message);
+    console.error(err);
+  }
+});
+
+// ✅ Load staff list into table
+async function loadStaffList() {
+  try {
+    const res = await fetch('/api/staff/all'); // GET all staff
+    const staff = await res.json();
+
+    const tbody = document.getElementById('staffTableBody');
+    tbody.innerHTML = '';
+
+    staff.forEach((s, index) => {
+      const joinedDate = new Date(s.created_at).toLocaleDateString('en-GB'); // DD/MM/YYYY
+      const tr = document.createElement('tr');
+
+      tr.innerHTML = `
+        <td>${index + 1}</td>
+        <td>${joinedDate}</td>
+        <td>${s.firebase_uid}</td>
+        <td>
+          <img src="${s.profile_picture || 'https://via.placeholder.com/40'}" 
+               alt="Profile" class="rounded-circle" width="40" height="40">
+        </td>
+        <td>${s.name}</td>
+        <td>${s.email}</td>
+        <td>${s.role}</td>
+        <td>${s.department_id || '-'}</td>
+        <td>${s.position || '-'}</td> <!-- ✅ Added Position column -->
+        <td class="text-center">
+          <button class="btn btn-sm btn-warning me-2" 
+            onclick="openEditModal(${s.id}, '${s.name}', '${s.username}', '${s.profile_picture || ''}')">
+            <i class="fas fa-edit"></i>
+          </button>
+          <button class="btn btn-sm btn-danger" onclick="openDeleteModal(${s.id})">
+            <i class="fas fa-trash"></i>
+          </button>
+        </td>
+      `;
+
+      tbody.appendChild(tr);
+    });
+  } catch (err) {
+    showError('Failed to load staff list');
+    console.error(err);
+  }
+}
+
+
+// ✅ Edit Staff Modal
+function openEditModal(id, name, username, profile_picture) {
+  document.getElementById('editStaffId').value = id;
+  document.getElementById('editStaffName').value = name;
+  document.getElementById('editStaffUsername').value = username;
+  document.getElementById('editStaffProfile').value = profile_picture || '';
+
+  const modal = new bootstrap.Modal(document.getElementById('editStaffModal'));
+  modal.show();
+}
+
+document.getElementById('editStaffForm').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const id = document.getElementById('editStaffId').value;
+  const name = document.getElementById('editStaffName').value;
+  const username = document.getElementById('editStaffUsername').value;
+  const profile_picture = document.getElementById('editStaffProfile').value;
+
+  try {
+    const res = await fetch('/api/staff/edit', {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ id, name, username, profile_picture })
+    });
+    const data = await res.json();
+
+    if (res.ok) {
+      showSuccess(data.message);
+      loadStaffList();
+      const modal = bootstrap.Modal.getInstance(document.getElementById('editStaffModal'));
+      modal.hide();
+    } else {
+      showError(data.error || data.message);
+    }
+  } catch (err) {
+    showError('Failed to edit staff');
+    console.error(err);
+  }
+});
+
+// ✅ Delete Staff Modal
+function openDeleteModal(id) {
+  document.getElementById('deleteStaffId').value = id;
+  const modal = new bootstrap.Modal(document.getElementById('deleteStaffModal'));
+  modal.show();
+}
+
+document.getElementById('confirmDeleteStaff').addEventListener('click', async () => {
+  const id = document.getElementById('deleteStaffId').value;
+  try {
+    const res = await fetch(`/api/staff/delete/${id}`, { method: 'DELETE' });
+    const data = await res.json();
+
+    if (res.ok) {
+      showSuccess(data.message);
+      loadStaffList();
+      const modal = bootstrap.Modal.getInstance(document.getElementById('deleteStaffModal'));
+      modal.hide();
+    } else {
+      showError(data.error || data.message);
+    }
+  } catch (err) {
+    showError('Failed to delete staff');
+    console.error(err);
+  }
+});
+
+// ✅ Initial load
+loadStaffList();
+
+
+
+//card dashboard function...card 
+document.addEventListener("DOMContentLoaded", () => {
+  // ============================================================
+  // 📊 OVERALL SUMMARY
+  // ============================================================
+  async function loadOverallSummary() {
+    try {
+      const res = await fetch("/api/card-jobs/summary");
+      const data = await res.json();
+      document.getElementById("todayCount").textContent = data.today;
+      document.getElementById("weekCount").textContent = data.week;
+      document.getElementById("monthCount").textContent = data.month;
+      document.getElementById("topBank").textContent = data.topBank;
+
+      // Set default bank for Bank Trend based on top bank
+      const bankSelect = document.getElementById("bankSelect");
+      const filterType = document.getElementById("filterType").value;
+      if (filterType === "week" && data.topWeekBank) bankSelect.value = data.topWeekBank;
+      else if (filterType === "month" && data.topMonthBank) bankSelect.value = data.topMonthBank;
+
+    } catch (err) {
+      console.error("Error loading summary:", err);
+    }
+  }
+
+  // ============================================================
+  // 🏦 MULTI-BANK TREND (COMPARE BANKS)
+  // ============================================================
+  let overallChart;
+  async function loadOverallTrend() {
+    const bankId = document.getElementById("overallBankSelect").value;
+    const filterType = document.getElementById("overallFilterType").value;
+    const date = document.getElementById("overallDate").value;
+    if (!filterType || !date) return;
+
+    const res = await fetch(`/api/card-jobs/multi-bank?filterType=${filterType}&date=${date}&bankId=${bankId}`);
+    const data = await res.json();
+
+    let labels = [], datasets = [];
+
+    if (filterType === "day") {
+      labels = data.map(d => d.bank_name);
+      datasets = [{
+        label: "Cards Printed",
+        data: data.map(d => d.total),
+        backgroundColor: "rgba(54,162,235,0.6)",
+        tension: 0.4
+      }];
+    } else if (filterType === "week") {
+      labels = [...new Set(data.map(d => d.actual_date))];
+      const banks = [...new Set(data.map(d => d.bank_name))];
+      datasets = banks.map(bank => ({
+        label: bank,
+        data: labels.map(date => {
+          const found = data.find(d => d.bank_name === bank && d.actual_date === date);
+          return found ? found.total : 0;
+        }),
+        borderWidth: 2,
+        fill: false,
+        tension: 0.4
+      }));
+    } else if (filterType === "month") {
+      labels = data.map(d => "Week " + d.week);
+      const banks = [...new Set(data.map(d => d.bank_name))];
+      datasets = banks.map(bank => ({
+        label: bank,
+        data: labels.map(w => {
+          const weekNum = parseInt(w.split(" ")[1]);
+          const found = data.find(d => d.bank_name === bank && d.week == weekNum);
+          return found ? found.total : 0;
+        }),
+        borderWidth: 2,
+        fill: false,
+        tension: 0.4
+      }));
+    }
+
+    const ctx = document.getElementById("overallPrintChart").getContext("2d");
+    if (overallChart) overallChart.destroy();
+    overallChart = new Chart(ctx, {
+      type: filterType === "day" ? "bar" : "line",
+      data: { labels, datasets },
+      options: { responsive: true, plugins: { legend: { position: "top" } } }
+    });
+  }
+
+  // ============================================================
+  // 💳 BANK TREND (PER BANK)
+  // ============================================================
+  let bankChart;
+  async function loadBankTrend() {
+    let bankSelect = document.getElementById("bankSelect");
+    let bankId = bankSelect.value;
+
+    // If bank not chosen, get top from summary
+    if (!bankId) {
+      const summaryRes = await fetch("/api/card-jobs/summary");
+      const summaryData = await summaryRes.json();
+      const filterType = document.getElementById("filterType").value;
+      if (filterType === "week" && summaryData.topWeekBank) bankId = summaryData.topWeekBank;
+      else if (filterType === "month" && summaryData.topMonthBank) bankId = summaryData.topMonthBank;
+      else bankId = summaryData.topBank;
+      bankSelect.value = bankId;
+    }
+
+    const filterType = document.getElementById("filterType").value;
+    const date = document.getElementById("datePicker").value;
+    if (!bankId || !date) return;
+
+    const res = await fetch(`/api/card-jobs/bank-trend?bankId=${bankId}&filterType=${filterType}&date=${date}`);
+    const data = await res.json();
+
+    const labels = filterType === "month" ? data.map(d => "Week " + d.week) : data.map(d => d.day);
+    const values = data.map(d => d.total);
+
+    const ctx = document.getElementById("bankPrintChart").getContext("2d");
+    if (bankChart) bankChart.destroy();
+    bankChart = new Chart(ctx, {
+      type: "line",
+      data: {
+        labels,
+        datasets: [{
+          label: "Cards Printed",
+          data: values,
+          borderColor: "blue",
+          borderWidth: 2,
+          fill: false,
+          tension: 0.4
+        }]
+      },
+      options: { responsive: true }
+    });
+  }
+
+  // ============================================================
+  // 🧾 BANK JOBS TABLE
+  // ============================================================
+  async function loadBankJobs() {
+    const bankId = document.getElementById("bankSelect").value;
+    if (!bankId) return;
+
+    const url = new URL("/api/card-jobs/bank-jobs", window.location.origin);
+    url.searchParams.append("bankId", bankId);
+    const search = document.getElementById("searchInput").value;
+    const date = document.getElementById("dateInput").value;
+    if (search) url.searchParams.append("search", search);
+    if (date) url.searchParams.append("date", date);
+
+    const res = await fetch(url);
+    const data = await res.json();
+
+    const tbody = document.getElementById("bankJobsTableBody");
+    tbody.innerHTML = data.map(row => `
+      <tr>
+        <td>${row.created_at.split("T")[0]}</td>
+        <td>${row.completed_qty}</td>
+        <td>${row.job_code}</td>
+        <td>${row.staff || "N/A"}</td>
+        <td>${row.device_name || "N/A"}</td>
+      </tr>
+    `).join("");
+  }
+
+  // ============================================================
+  // 🧩 LOAD BANKS + DEFAULT SETUP
+  // ============================================================
+  async function loadBanks() {
+    const res = await fetch("/api/banks");
+    const banks = await res.json();
+    const overallSelect = document.getElementById("overallBankSelect");
+    const bankSelect = document.getElementById("bankSelect");
+
+    [overallSelect, bankSelect].forEach(sel => {
+      sel.innerHTML = `<option value="">Choose Bank</option>` +
+        banks.map(b => `<option value="${b.bank_id}">${b.bank_name}</option>`).join("");
+    });
+
+    await loadOverallSummary();
+
+    // Set default date type
+    const datePicker = document.getElementById("datePicker");
+    const filterType = document.getElementById("filterType").value;
+    const now = new Date();
+    if (filterType === "month") {
+      datePicker.value = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}`;
+    } else if (filterType === "week") {
+      const weekNum = Math.ceil((((now - new Date(now.getFullYear(), 0, 1)) / 86400000 + new Date(now.getFullYear(),0,1).getDay()+1)/7));
+      datePicker.value = `${now.getFullYear()}-W${String(weekNum).padStart(2,"0")}`;
+    } else {
+      datePicker.value = now.toISOString().split("T")[0];
+    }
+
+    loadBankTrend();
+    loadBankJobs();
+  }
+
+  // ============================================================
+  // 📅 BANK CUSTOM SUMMARY (STAFF / MACHINE / CUSTOM DATES)
+  // ============================================================
+  async function loadBankCustomSummary() {
+    const bankId = document.getElementById("bankSelect_custom").value;
+    const filterType = document.getElementById("filterType_custom").value;
+    const start = document.getElementById("startDate_custom").value;
+    const end = document.getElementById("endDate_custom").value;
+
+    if (!bankId || (!filterType && (!start || !end))) {
+      return alert("Please select a bank and valid date/filter.");
+    }
+
+    let query = "";
+    if (filterType) query = `filterType=${filterType}&date=${start || new Date().toISOString().split("T")[0]}`;
+    else query = `filterType=custom&start=${start}&end=${end}`;
+
+    const res = await fetch(`/api/card-jobs/bank-calendar-summary?bankId=${bankId}&${query}`);
+    const data = await res.json();
+    const tbody = document.getElementById("bankSummary_custom");
+    if (!data.length) {
+      tbody.innerHTML = `<tr><td colspan="2" class="text-muted">No records found</td></tr>`;
+      return;
+    }
+
+    tbody.innerHTML = data.map(d => `
+      <tr>
+        <td>${d.day || d.actual_date || ("Week " + d.week)}</td>
+        <td><span class="badge bg-success-subtle text-success">${d.total}</span></td>
+      </tr>
+    `).join("");
+  }
+
+  // ============================================================
+  // 🎛️ EVENT LISTENERS
+  // ============================================================
+  document.getElementById("applyOverall").addEventListener("click", loadOverallTrend);
+  document.getElementById("bankSelect").addEventListener("change", () => { loadBankTrend(); loadBankJobs(); });
+  document.getElementById("applyBankJobs").addEventListener("click", loadBankJobs);
+  document.getElementById("filterType").addEventListener("change", () => {
+    const datePicker = document.getElementById("datePicker");
+    datePicker.type = document.getElementById("filterType").value === "week" ? "week" : "month";
+    loadBankTrend();
+  });
+  document.getElementById("datePicker").addEventListener("change", loadBankTrend);
+  document.getElementById("applyBankCustom").addEventListener("click", loadBankCustomSummary);
+
+  // ============================================================
+  // 🚀 INIT
+  // ============================================================
+  loadBanks();
+});
+
+
+
+
+
+</script>
+
+<script>
+    // Sidebar Toggle
+    function toggleSidebar() {
+        const sidebar = document.getElementById('sidebar');
+        const overlay = document.getElementById('overlay');
+        sidebar.classList.toggle('expanded');
+        if (window.innerWidth <= 768) {
+            overlay.classList.toggle('active', sidebar.classList.contains('expanded'));
+        }
+    }
+    
+    // Navigation Panel Switching
+    document.querySelectorAll('.nav-link').forEach(link => {
+        link.addEventListener('click', function(e) {
+            e.preventDefault();
+            const targetId = this.getAttribute('data-target');
+            if (!targetId) return;
+            document.querySelectorAll('.department-panel').forEach(panel => panel.style.display = 'none');
+            document.getElementById(targetId).style.display = 'block';
+            if (window.innerWidth <= 768) toggleSidebar();
+        });
+    });
+
+
+
+// deviceUsage.js
+window.addEventListener("DOMContentLoaded", () => {
+  // ================================
+  // DOM ELEMENTS
+  // ================================
+  const deviceSelect = document.getElementById("deviceSelect");
+  const timeRangeSelect = document.getElementById("timeRangeSelect");
+  const weekPicker = document.getElementById("weekPicker");
+  const monthPicker = document.getElementById("monthPicker");
+  const chartCanvas = document.getElementById("deviceUsageChart");
+  const chartTitle = document.getElementById("chartTitle");
+  const jobsTableBody = document.getElementById("jobsTableBody");
+  const jobsTableHeader = jobsTableBody.closest("table").querySelector("thead tr");
+
+  const tonerDeviceSelect = document.getElementById("tonerDeviceSelect");
+  const tonerTableBody = document.getElementById("tonerTableBody");
+  const tonerSearchInput = document.getElementById("tonerSearch");
+  const tonerSearchBtn = document.getElementById("tonerSearchBtn");
+  const tonerDateStart = document.getElementById("tonerDateRangeStart");
+  const tonerDateEnd = document.getElementById("tonerDateRangeEnd");
+  const tonerDateSearchBtn = document.getElementById("tonerDateSearchBtn");
+
+  // ================================
+  // STATE
+  // ================================
+  let deviceChart = null;
+  let allJobs = [];
+  let allToners = [];
+  let currentDeviceType = "printer";
+
+  // ================================
+  // LOAD DEVICES
+  // ================================
+  async function loadDevices() {
+    try {
+      const res = await fetch("/api/devices");
+      const devices = await res.json();
+
+      deviceSelect.innerHTML = `<option value="">-- Select Device --</option>`;
+      tonerDeviceSelect.innerHTML = `<option value="">-- Select Device --</option>`;
+
+      devices.forEach(d => {
+        const opt1 = document.createElement("option");
+        opt1.value = d.device_id;
+        opt1.textContent = `${d.device_name} (${d.device_type})`;
+        opt1.dataset.type = d.device_type;
+        deviceSelect.appendChild(opt1);
+
+        const opt2 = document.createElement("option");
+        opt2.value = d.device_id;
+        opt2.textContent = `${d.device_name} (${d.device_type})`;
+        opt2.dataset.type = d.device_type;
+        tonerDeviceSelect.appendChild(opt2);
+      });
+    } catch (err) {
+      console.error("❌ Failed to load devices:", err);
+    }
+  }
+
+  // ================================
+  // JOBS TABLE
+  // ================================
+  function updateJobsTableHeader(deviceType) {
+    if (deviceType === "printer") {
+      jobsTableHeader.innerHTML = `
+        <th>Job Code</th>
+        <th>Range Start</th>
+        <th>Range End</th>
+        <th>Completed Qty</th>
+      `;
+    } else {
+      jobsTableHeader.innerHTML = `
+        <th>Job Code</th>
+        <th>Date & Time</th>
+        <th>Card Type</th>
+        <th>Completed Qty</th>
+        <th>Rejected Qty</th>
+      `;
+    }
+  }
+
+  function renderJobs(jobs, deviceType) {
+    jobsTableBody.innerHTML = "";
+    if (!jobs.length) {
+      jobsTableBody.innerHTML = `<tr><td colspan="5" class="text-center text-muted">No jobs found</td></tr>`;
+      return;
+    }
+
+    jobs.forEach(j => {
+      const tr = document.createElement("tr");
+      if (deviceType === "printer") {
+        tr.innerHTML = `
+          <td>${j.job_code}</td>
+          <td>${j.range_start || 0}</td>
+          <td>${j.range_end || 0}</td>
+          <td>${j.completed_qty || (j.range_end - j.range_start + 1) || 0}</td>
+        `;
+      } else {
+        tr.innerHTML = `
+          <td>${j.job_code}</td>
+          <td>${new Date(j.created_at).toLocaleString()}</td>
+          <td>${j.card_type || "N/A"}</td>
+          <td>${j.completed_qty || 0}</td>
+          <td>${j.rejected_qty || 0}</td>
+        `;
+      }
+      jobsTableBody.appendChild(tr);
+    });
+  }
+
+  // ================================
+  // TONER TABLE
+  // ================================
+  function renderTonerTable(records) {
+    tonerTableBody.innerHTML = "";
+    if (!records.length) {
+      tonerTableBody.innerHTML = `<tr><td colspan="5" class="text-center text-muted">No records found</td></tr>`;
+      return;
+    }
+
+    records.sort((a, b) => new Date(b.install_date) - new Date(a.install_date))
+      .forEach(t => {
+        const tr = document.createElement("tr");
+        tr.innerHTML = `
+          <td>${t.toner_code || t.encoder_code || "N/A"}</td>
+          <td>${t.device_name || "N/A"}</td>
+          <td>${new Date(t.install_date).toLocaleDateString()}</td>
+          <td>${t.replace_date ? new Date(t.replace_date).toLocaleDateString() : ""}</td>
+          <td>${t.total || t.total_prints || 0}</td>
+        `;
+        tonerTableBody.appendChild(tr);
+      });
+  }
+
+  // ================================
+  // GRAPH HELPERS
+  // ================================
+  function getWeekNumber(d) {
+    const date = new Date(d);
+    const start = new Date(date.getFullYear(), 0, 1);
+    const diff = date - start + ((start.getDay() + 6) % 7) * 86400000;
+    return Math.ceil(diff / 604800000);
+  }
+
+  function getDayName(d) {
+    return new Date(d).toLocaleDateString("en-US", { weekday: "short" });
+  }
+
+  function buildGraphData(jobs, deviceType, viewType, selectedDate) {
+    const data = {};
+
+    if (!jobs || jobs.length === 0) return data;
+
+    if (viewType === "week") {
+      jobs.forEach(j => {
+        const jobDate = new Date(j.created_at);
+        const week = getWeekNumber(jobDate);
+        if (selectedDate && parseInt(selectedDate) !== week) return;
+        const day = getDayName(jobDate);
+        if (!data[day]) data[day] = 0;
+
+        const qty = j.completed_qty || (deviceType === "printer" ? (j.range_end - j.range_start + 1) : 0);
+        data[day] += qty;
+      });
+    } else if (viewType === "month") {
+      jobs.forEach(j => {
+        const jobDate = new Date(j.created_at);
+        const firstDayOfMonth = new Date(jobDate.getFullYear(), jobDate.getMonth(), 1);
+        const weekOfMonth = Math.ceil((jobDate.getDate() + firstDayOfMonth.getDay()) / 7);
+        const key = `Week ${weekOfMonth}`;
+        if (!data[key]) data[key] = 0;
+
+        const qty = j.completed_qty || (deviceType === "printer" ? (j.range_end - j.range_start + 1) : 0);
+        data[key] += qty;
+      });
+    }
+
+    return data;
+  }
+
+  function renderChart(graphData, deviceType, viewType) {
+    if (!graphData || Object.keys(graphData).length === 0) {
+      chartCanvas.style.display = "none";
+      return;
+    }
+
+    chartCanvas.style.display = "block";
+    const labels = Object.keys(graphData);
+    const dataValues = labels.map(label => graphData[label]);
+
+    if (deviceChart) deviceChart.destroy();
+    deviceChart = new Chart(chartCanvas, {
+      type: "line",
+      data: {
+        labels,
+        datasets: [{
+          label: `${deviceType.toUpperCase()} Usage`,
+          data: dataValues,
+          borderWidth: 2,
+          fill: false,
+          tension: 0.3,
+          borderColor: "#0d6efd"
+        }]
+      },
+      options: {
+        responsive: true,
+        plugins: {
+          legend: { position: "bottom" },
+          title: { display: true, text: `${deviceType.toUpperCase()} Usage Trend (${viewType})` }
+        },
+        scales: { y: { beginAtZero: true } }
+      }
+    });
+
+    chartTitle.textContent = `${deviceType.toUpperCase()} Usage Trend (${viewType})`;
+  }
+
+  // ================================
+  // FETCH DEVICE DATA
+  // ================================
+  async function fetchDeviceData() {
+    const deviceId = deviceSelect.value;
+    if (!deviceId) return;
+
+    const viewType = timeRangeSelect.value;
+    const selectedDate = viewType === "week" ? weekPicker.value : monthPicker.value;
+
+    try {
+      const historyRes = await fetch(`/api/devices/${deviceId}/history?view=${viewType}`);
+      if (!historyRes.ok) throw new Error(`Server responded with status ${historyRes.status}`);
+      const historyData = await historyRes.json();
+
+      allJobs = historyData.jobs || [];
+      currentDeviceType = historyData.deviceType || "printer";
+
+      updateJobsTableHeader(currentDeviceType);
+      renderJobs(allJobs, currentDeviceType);
+
+      const graphData = buildGraphData(allJobs, currentDeviceType, viewType, selectedDate);
+      renderChart(graphData, currentDeviceType, viewType);
+    } catch (err) {
+      console.error("❌ Device data fetch error:", err);
+      jobsTableBody.innerHTML = `<tr><td colspan="5" class="text-center text-danger">Failed to load jobs</td></tr>`;
+    }
+  }
+
+  // ================================
+  // FETCH TONERS
+  // ================================
+  async function fetchToners() {
+    const deviceId = tonerDeviceSelect.value;
+    if (!deviceId) {
+      tonerTableBody.innerHTML = `<tr><td colspan="5" class="text-center text-muted">Please select a device</td></tr>`;
+      return;
+    }
+
+    currentDeviceType = tonerDeviceSelect.selectedOptions[0]?.dataset.type || "printer";
+
+    try {
+      tonerTableBody.innerHTML = `<tr><td colspan="5" class="text-center">Loading...</td></tr>`;
+      const res = await fetch(`/api/devices/${deviceId}/usage`);
+      if (!res.ok) throw new Error(`Server responded with status ${res.status}`);
+      const data = await res.json();
+      allToners = data.usage || [];
+      renderTonerTable(allToners);
+    } catch (err) {
+      console.error("❌ Failed to fetch toner/encoder usage:", err);
+      tonerTableBody.innerHTML = `<tr><td colspan="5" class="text-center text-danger">Failed to load records</td></tr>`;
+    }
+  }
+
+  // ================================
+  // EVENTS
+  // ================================
+  deviceSelect.addEventListener("change", fetchDeviceData);
+  timeRangeSelect.addEventListener("change", () => {
+    if (timeRangeSelect.value === "week") {
+      weekPicker.style.display = "block";
+      monthPicker.style.display = "none";
+    } else {
+      weekPicker.style.display = "none";
+      monthPicker.style.display = "block";
+    }
+    fetchDeviceData();
+  });
+
+  weekPicker.addEventListener("change", fetchDeviceData);
+  monthPicker.addEventListener("change", fetchDeviceData);
+
+  tonerDeviceSelect.addEventListener("change", fetchToners);
+  tonerSearchBtn.addEventListener("click", () => {
+    const val = tonerSearchInput.value.trim().toLowerCase();
+    if (!val) return renderTonerTable(allToners);
+    const filtered = allToners.filter(t => (t.toner_code || t.encoder_code || "").toLowerCase().includes(val));
+    renderTonerTable(filtered);
+  });
+  tonerDateSearchBtn.addEventListener("click", () => {
+    const start = tonerDateStart.value ? new Date(tonerDateStart.value) : null;
+    const end = tonerDateEnd.value ? new Date(tonerDateEnd.value) : null;
+    const filtered = allToners.filter(t => {
+      const d = new Date(t.install_date);
+      if (start && d < start) return false;
+      if (end && d > end) return false;
+      return true;
+    });
+    renderTonerTable(filtered);
+  });
+
+  // ================================
+  // INITIAL LOAD
+  // ================================
+  loadDevices();
+});
+
+
+
+
+
+//function for job list for stafff dashbpard
+window.addEventListener('DOMContentLoaded', () => {
+    // ✅ DOM Elements
+    const staffSelect = document.getElementById('staffSelect');
+    const jobTableBody = document.getElementById('staffJobsTableBody');
+    const jobSearchInput = document.getElementById('jobSearchjob');
+    const jobSearchBtn = document.getElementById('jobSearchBtnjob');
+    const customDateStart = document.getElementById('customDateStart');
+    const customDateEnd = document.getElementById('customDateEnd');
+    const customDateBtn = document.getElementById('customDateSearchBtnjob');
+    const staffChartCanvas = document.getElementById('staffJobChart');
+
+    if (!staffSelect || !jobTableBody || !staffChartCanvas) {
+        console.error('❌ Missing required DOM elements.');
+        return;
+    }
+
+    let allStaff = [];
+    let allJobs = [];
+    let currentStaff = null;
+
+    // 🔹 Load all staff (Mailer Officers + Machine Operators)
+    async function loadStaff() {
+        try {
+            const res = await fetch('/api/person-team/staff');
+            allStaff = await res.json();
+            staffSelect.innerHTML = '<option value="">-- Select Staff --</option>';
+
+            allStaff.forEach(s => {
+                const opt = document.createElement('option');
+                opt.value = s.id;
+                opt.textContent = `${s.name} (${s.position})`;
+                staffSelect.appendChild(opt);
+            });
+        } catch (err) {
+            console.error('❌ Failed to load staff:', err);
+        }
+    }
+
+    // 🔹 Fetch jobs for selected staff (initial load, no date filter)
+    async function fetchJobsForStaff() {
+        const userId = staffSelect.value;
+        if (!userId) return;
+
+        currentStaff = allStaff.find(s => s.id == userId);
+        if (!currentStaff) return;
+
+        try {
+            let url = currentStaff.position.toLowerCase().includes('operator')
+                ? `/api/person-team/staff/${userId}/cardjobs`
+                : `/api/person-team/staff/${userId}/jobs`;
+
+            console.log('🔹 Fetching jobs for staff:', url);
+
+            const res = await fetch(url);
+            const data = await res.json();
+
+            allJobs = Array.isArray(data) ? data : data.jobs || [];
+
+            renderJobTable(allJobs, data.noJobDays);
+            renderJobChart(allJobs);
+        } catch (err) {
+            console.error('❌ Failed to fetch jobs:', err);
+        }
+    }
+
+    // 🔹 Fetch jobs with custom date filter
+    async function fetchJobsByDate() {
+        const userId = staffSelect.value;
+        if (!userId) {
+            alert('Please select a staff first');
+            return;
+        }
+
+        currentStaff = allStaff.find(s => s.id == userId);
+        if (!currentStaff) return;
+
+        let url = currentStaff.position.toLowerCase().includes('operator')
+            ? `/api/person-team/staff/${userId}/cardjobs`
+            : `/api/person-team/staff/${userId}/jobs`;
+
+        const params = new URLSearchParams();
+        if (customDateStart.value) params.append('startDate', customDateStart.value);
+        if (customDateEnd.value) params.append('endDate', customDateEnd.value);
+        if ([...params].length > 0) url += '?' + params.toString();
+
+        console.log('🔹 Fetching jobs with date filter:', url);
+
+        try {
+            const res = await fetch(url);
+            const data = await res.json();
+            const filteredJobs = Array.isArray(data) ? data : data.jobs || [];
+
+            renderJobTable(filteredJobs, data.noJobDays);
+            renderJobChart(filteredJobs);
+        } catch (err) {
+            console.error('❌ Failed to fetch jobs by date:', err);
+        }
+    }
+
+    // 🔹 Render job table (for both Mailer & Operator)
+    function renderJobTable(jobs, noJobDays = []) {
+        jobTableBody.innerHTML = '';
+        const tableHead = document.querySelector('#jobTable thead');
+        if (!tableHead) return;
+
+        // 🟠 If no jobs but backend provided "no job days"
+        if ((!jobs || jobs.length === 0) && noJobDays.length > 0) {
+            tableHead.innerHTML = `<tr><th>Date</th><th>Status</th></tr>`;
+            noJobDays.forEach(day => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `<td>${day.day}</td><td>${day.message}</td>`;
+                jobTableBody.appendChild(tr);
+            });
+            return;
+        }
+
+        if (!jobs.length) {
+            jobTableBody.innerHTML = `<tr><td colspan="8" class="text-center text-muted">No jobs found</td></tr>`;
+            return;
+        }
+
+        const isCardJob = !!jobs[0].card_job_id;
+
+        if (isCardJob) {
+            // 🟢 Machine Operator jobs
+            tableHead.innerHTML = `
+                <tr>
+                    <th>Time/Date</th>
+                    <th>Job Code</th>
+                    <th>Card Type</th>
+                    <th>Qty</th>
+                    <th>Completed</th>
+                    <th>Rejected</th>
+                    <th>Bank</th>
+                    <th>Device</th>
+                </tr>
+            `;
+            jobs.forEach(j => {
+                const createdAt = new Date(j.created_at);
+                const dateStr = createdAt.toLocaleDateString('en-US', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
+                const timeStr = createdAt.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true });
+                const formatted = `${dateStr} at ${timeStr}`;
+
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td>${formatted}</td>
+                    <td>${j.job_code}</td>
+                    <td>${j.card_type}</td>
+                    <td>${j.card_quantity}</td>
+                    <td>${j.completed_qty}</td>
+                    <td>${j.rejected_qty}</td>
+                    <td>${j.bank_name || j.bank_id}</td>
+                    <td>${j.device_name || j.device_id}</td>
+                `;
+                jobTableBody.appendChild(tr);
+            });
+        } else {
+            // 🔵 Mailer Officer jobs
+            tableHead.innerHTML = `
+                <tr>
+                    <th>Job Code</th>
+                    <th>Time</th>
+                    <th>Date</th>
+                    <th>Qty Printed</th>
+                    <th>Amount</th>
+                    <th>Range</th>
+                    <th>Device</th>
+                    <th>Staff</th>
+                </tr>
+            `;
+            jobs.forEach(j => {
+                const qty = j.range_end != null && j.range_start != null ? j.range_end - j.range_start : 0;
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td>${j.job_code}</td>
+                    <td>${new Date(j.created_at).toLocaleTimeString()}</td>
+                    <td>${new Date(j.created_at).toLocaleDateString()}</td>
+                    <td>${qty}</td>
+                    <td>-</td>
+                    <td>${j.range_start}-${j.range_end}</td>
+                    <td>${j.device_name || j.device_id}</td>
+                    <td>${j.operator_name || currentStaff.name}</td>
+                `;
+                jobTableBody.appendChild(tr);
+            });
+        }
+    }
+
+    // 🔹 Render chart
+    function renderJobChart(jobs) {
+        const ctx = staffChartCanvas.getContext('2d');
+        const days = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+        const data = days.map(() => 0);
+
+        jobs.forEach(j => {
+            const day = new Date(j.created_at).getDay(); // 0=Sun
+            let qty = 0;
+            if (j.range_start != null && j.range_end != null) qty = j.range_end - j.range_start;
+            else if (j.completed_qty != null) qty = j.completed_qty;
+            else if (j.card_quantity != null) qty = j.card_quantity;
+            if (day >= 1 && day <= 6) data[day - 1] += qty;
+        });
+
+        if (window.staffChart) window.staffChart.destroy();
+
+        window.staffChart = new Chart(ctx, {
+            type: 'bar',
+            data: { labels: days, datasets: [{ label: 'Qty', data, backgroundColor: 'rgba(54,162,235,0.6)' }] },
+            options: {
+                responsive: true,
+                plugins: { legend: { display: false } },
+                scales: { y: { beginAtZero: true, title: { display: true, text: 'Quantity' } } },
+            },
+        });
+    }
+
+    // 🔹 Search Job Code
+    jobSearchBtn.addEventListener('click', () => {
+        const val = jobSearchInput.value.trim().toLowerCase();
+        if (!val) {
+            renderJobTable(allJobs); // Reset if input empty
+            return;
+        }
+
+        const filtered = allJobs.filter(j =>
+            (j.job_code || j.job_id || '').toLowerCase().includes(val)
+        );
+
+        if (filtered.length === 0) {
+            jobTableBody.innerHTML = `<tr><td colspan="8" class="text-center text-muted">No job found for "${val}"</td></tr>`;
+            return;
+        }
+
+        renderJobTable(filtered);
+    });
+
+    // 🔹 Event Listeners
+    staffSelect.addEventListener('change', fetchJobsForStaff);
+    customDateBtn.addEventListener('click', fetchJobsByDate);
+
+    // 🔹 Initialize
+    loadStaff();
+});
+
+
+
+// fetch sumary data for devices total, jobh id printed 
+//for it
+window.addEventListener("DOMContentLoaded", async () => {
+  const deviceSelect = document.getElementById("totalPrintDevice");
+  const startDateInput = document.getElementById("customStartDate");
+  const endDateInput = document.getElementById("customEndDate");
+  const runBtn = document.getElementById("runCustomQuery");
+  const totalValueEl = document.getElementById("startCustomTotalValue");
+  const rawDataEl = document.getElementById("startCustomRawData");
+
+  // ================================
+  // Load Devices into dropdown
+  // ================================
+  async function loadDevices() {
+    try {
+      const res = await fetch("/api/devices");
+      const devices = await res.json();
+
+      deviceSelect.innerHTML = `<option value="">-- Select Device --</option>`;
+      devices.forEach(d => {
+        const opt = document.createElement("option");
+        opt.value = d.device_id;
+        opt.textContent = `${d.device_name} (${d.device_type})`;
+        opt.dataset.type = d.device_type.toLowerCase(); // printer or card
+        deviceSelect.appendChild(opt);
+      });
+    } catch (err) {
+      console.error("Failed to load devices:", err);
+    }
+  }
+
+  // ================================
+  // Fetch prints for selected device/date range
+  // ================================
+  async function fetchCustomPrints() {
+    const deviceId = deviceSelect.value;
+    const deviceType = deviceSelect.selectedOptions[0]?.dataset.type;
+    const start = startDateInput.value;
+    const end = endDateInput.value;
+
+    if (!deviceId || !start || !end) {
+      alert("Please select device, start date, and end date.");
+      return;
+    }
+
+    try {
+      rawDataEl.textContent = "Loading data...";
+      totalValueEl.textContent = "0";
+
+      const url = `/api/checktotal/${deviceId}/custom-prints?start=${start}&end=${end}`;
+      const res = await fetch(url);
+      if (!res.ok) throw new Error(`Server error: ${res.status}`);
+      const data = await res.json();
+
+      const recordsByDay = data.recordsByDay || {};
+      const totalPrints = data.totalPrints || 0;
+
+      // Update the total prints div
+      totalValueEl.textContent = totalPrints;
+
+      // Build breakdown text
+      let breakdownText = "";
+      Object.keys(recordsByDay).sort().forEach(day => {
+        const dayData = recordsByDay[day];
+        breakdownText += `${day} - Total: ${dayData.dayTotal} prints\n`;
+
+        dayData.jobs.forEach(job => {
+          const jobText = deviceType === "printer"
+            ? `  ${job.job_code}: ${job.prints} prints`
+            : `  ${job.job_code}: ${job.prints} prints (Rejected: ${job.rejected_qty || 0})`;
+          breakdownText += jobText + "\n";
+        });
+      });
+
+      rawDataEl.textContent = breakdownText || "No prints found for this range.";
+
+    } catch (err) {
+      console.error("Failed to fetch custom prints:", err);
+      rawDataEl.textContent = "Error fetching data. Check console.";
+    }
+  }
+
+  // ================================
+  // Event Listeners
+  // ================================
+  runBtn.addEventListener("click", fetchCustomPrints);
+
+  // Load devices on page load
+  loadDevices();
+});
+
+
+
+</script>
+ 
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

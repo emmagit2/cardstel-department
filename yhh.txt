@@ -1,0 +1,545 @@
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+const deviceSelect = document.querySelector('#deviceUsagePanel select.form-select'); // device dropdown
+const timeRangeSelect = document.querySelector('#deviceUsagePanel select:nth-of-type(2)'); // time range
+const jobsTableBody = document.querySelector('#deviceUsagePanel tbody');
+let deviceChart;
+
+// Fetch devices for dropdown
+async function loadDevices() {
+    try {
+        const res = await fetch('/api/devices');
+        const devices = await res.json();
+        deviceSelect.innerHTML = '<option value="">-- Select Device --</option>';
+        devices.forEach(d => {
+            const opt = document.createElement('option');
+            opt.value = d.device_id;
+            opt.textContent = `${d.device_name} (${d.device_type})`;
+            deviceSelect.appendChild(opt);
+        });
+    } catch(err) {
+        console.error('Failed to load devices:', err);
+    }
+}
+
+// Render chart & table
+async function fetchDeviceUsage(deviceId, view='week') {
+    if (!deviceId) return;
+    try {
+        const res = await fetch(`/api/devices/usage/${deviceId}?view=${view}`);
+        const data = await res.json();
+
+        // --- JOB TABLE ---
+        jobsTableBody.innerHTML = '';
+        data.usage.forEach(job => {
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
+                <td>${job.job_id || '#'}</td>
+                <td>${new Date(job.install_date).toLocaleDateString()}</td>
+                <td>${view}</td>
+                <td>${job.total_prints}</td>
+            `;
+            jobsTableBody.appendChild(tr);
+        });
+
+        // --- CHART DATA ---
+        let labels = [];
+        let datasets = [];
+
+        if(view === 'week') {
+            labels = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
+            const dayTotals = labels.map(d => data.graphData[d] || 0);
+            datasets = [{
+                label: 'Total Prints',
+                data: dayTotals,
+                borderColor: '#4e73df',
+                fill: false,
+                tension: 0.3
+            }];
+        } else if(view === 'month') {
+            labels = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
+            datasets = Object.keys(data.graphData).map((weekKey, i) => {
+                const weekData = labels.map(day => data.graphData[weekKey][day] || 0);
+                return {
+                    label: weekKey,
+                    data: weekData,
+                    borderColor: `hsl(${i*90},70%,40%)`,
+                    fill: false,
+                    tension: 0.3
+                };
+            });
+        }
+
+        // Destroy previous chart
+        if(deviceChart) deviceChart.destroy();
+
+        // Create chart
+        const ctx = document.getElementById('deviceUsageChart').getContext('2d');
+        deviceChart = new Chart(ctx, {
+            type: 'line',
+            data: { labels, datasets },
+            options: {
+                responsive: true,
+                plugins: { legend: { position: 'bottom' } },
+                scales: { y: { beginAtZero: true } }
+            }
+        });
+
+    } catch(err) {
+        console.error('Failed to fetch device usage:', err);
+    }
+}
+
+// Event listeners
+deviceSelect.addEventListener('change', () => fetchDeviceUsage(deviceSelect.value, timeRangeSelect.value));
+timeRangeSelect.addEventListener('change', () => fetchDeviceUsage(deviceSelect.value, timeRangeSelect.value));
+
+// Initialize
+window.addEventListener('DOMContentLoaded', loadDevices);
+</script>
+<div id="deviceUsagePanel" class="p-4 department-panel bg-white shadow-lg rounded-3" style="display:none;">
+
+    <!-- Title -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h3 class="fw-bold mb-0">📊 Device Usage</h3>
+        <small class="text-muted">Monitor daily, weekly, or monthly printing activity</small>
+    </div>
+
+    <!-- Filters Row -->
+    <div class="row g-3 align-items-center mb-4">
+
+        <!-- Device Dropdown -->
+        <div class="col-md-3">
+            <label class="form-label fw-semibold" for="deviceSelect">Select Device</label>
+            <select class="form-select" id="deviceSelect"></select>
+        </div>
+
+        <!-- Search -->
+        <div class="col-md-3">
+            <label class="form-label fw-semibold" for="deviceSearch">Search Device</label>
+            <div class="input-group">
+                <input type="text" class="form-control" id="deviceSearch" placeholder="Search for device">
+                <button class="btn btn-primary" id="searchBtn">Search</button>
+            </div>
+        </div>
+
+        <!-- Time Range Dropdown -->
+        <div class="col-md-2">
+            <label class="form-label fw-semibold" for="timeRangeSelect">Time Range</label>
+            <select class="form-select" id="timeRangeSelect">
+                <option value="day">Day</option>
+                <option value="week" selected>Week</option>
+                <option value="month">Month</option>
+            </select>
+        </div>
+
+        <!-- Custom Date Range -->
+        <div class="col-md-4">
+            <label class="form-label fw-semibold">Custom Date Range</label>
+            <div class="input-group">
+                <input type="date" class="form-control" id="customStartDate">
+                <span class="input-group-text">to</span>
+                <input type="date" class="form-control" id="customEndDate">
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="row g-4">
+
+        <!-- Chart Section -->
+        <div class="col-lg-8">
+            <div class="card shadow-sm border-0">
+                <div class="card-body">
+                    <h5 class="card-title mb-3 fw-semibold">Printing Trends</h5>
+                    <canvas id="deviceUsageChart" height="250"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- Recent Jobs Table -->
+        <div class="col-lg-4">
+            <div class="card shadow-sm border-0">
+                <div class="card-body">
+                    <h5 class="card-title mb-3 fw-semibold">Recent Jobs</h5>
+                    <div class="table-responsive">
+                        <table class="table table-sm table-striped align-middle">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Job ID</th>
+                                    <th>Date</th>
+                                    <th>Range</th>
+                                    <th>Total Prints</th>
+                                </tr>
+                            </thead>
+                            <tbody id="jobsTableBody">
+                                <!-- Rows will be populated by JS -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- 📌 Toner Usage Section -->
+    <div class="mt-5">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h3 class="fw-bold mb-0">🖨️ Toner Usage</h3>
+            <input type="date" class="form-control w-auto" id="tonerDate">
+        </div>
+
+        <div class="row g-4">
+            <!-- Toner Usage Chart -->
+            <div class="col-lg-8">
+                <div class="card shadow-sm border-0">
+                    <div class="card-body">
+                        <h5 class="card-title mb-3 fw-semibold">Toner Usage for Selected Day</h5>
+                        <canvas id="tonerUsageChart" height="250"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Toner Usage Table -->
+            <div class="col-lg-4">
+                <div class="card shadow-sm border-0">
+                    <div class="card-body">
+                        <h5 class="card-title mb-3 fw-semibold">Toner Details</h5>
+                        <div class="table-responsive">
+                            <table class="table table-sm table-striped align-middle" id="tonerTable">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th>Device</th>
+                                        <th>Toner Used (ml)</th>
+                                        <th>Remaining (%)</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <!-- Rows will be populated dynamically -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+yousitl get me the tsble has it won chart whic the custom that palcw acstomin tha tatne lart <div id="deviceUsagePanel" class="p-4 department-panel bg-white shadow-lg rounded-3">
+
+    <!-- Title -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h3 class="fw-bold mb-0">📊 Device Usage</h3>
+        <small class="text-muted">Monitor daily, weekly, or monthly printing activity</small>
+    </div>
+
+    <!-- Filters Row -->
+    <div class="row g-3 align-items-center mb-4">
+
+        <!-- Device Dropdown -->
+        <div class="col-md-3">
+            <label class="form-label fw-semibold" for="deviceSelect">Select Device</label>
+            <select class="form-select" id="deviceSelect"></select>
+        </div>
+
+        <!-- Search -->
+        <div class="col-md-3">
+            <label class="form-label fw-semibold" for="deviceSearch">Search Device</label>
+            <div class="input-group">
+                <input type="text" class="form-control" id="deviceSearch" placeholder="Search Job ID">
+                <button class="btn btn-primary" id="searchBtn">Search</button>
+            </div>
+        </div>
+
+        <!-- Time Range Dropdown -->
+        <div class="col-md-2">
+            <label class="form-label fw-semibold" for="timeRangeSelect">Time Range</label>
+            <select class="form-select" id="timeRangeSelect">
+                <option value="day">Day</option>
+                <option value="week" selected>Week</option>
+                <option value="month">Month</option>
+            </select>
+        </div>
+
+        <!-- Custom Date Range / Calendar -->
+        <div class="col-md-4">
+            <label class="form-label fw-semibold">Select Date</label>
+            <input type="date" class="form-control" id="dayPicker" style="display:none;">
+            <input type="week" class="form-control" id="weekPicker">
+            <input type="month" class="form-control" id="monthPicker" style="display:none;">
+        </div>
+
+    </div>
+
+    <!-- Export Buttons -->
+    <div class="mb-3 d-flex justify-content-end gap-2">
+        <button class="btn btn-success" id="exportExcel">Export Excel</button>
+        <button class="btn btn-danger" id="exportPdf">Export PDF</button>
+    </div>
+
+    <!-- Main Content -->
+    <div class="row g-4">
+
+        <!-- Chart Section -->
+        <div class="col-lg-8">
+            <div class="card shadow-sm border-0">
+                <div class="card-body">
+                    <h5 class="card-title mb-3 fw-semibold">Printing Trends</h5>
+                    <canvas id="deviceUsageChart" height="250"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- Recent Jobs Table -->
+        <div class="col-lg-4">
+            <div class="card shadow-sm border-0">
+                <div class="card-body">
+                    <h5 class="card-title mb-3 fw-semibold">Recent Jobs</h5>
+                    <div class="table-responsive">
+                        <table class="table table-sm table-striped align-middle">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Job ID</th>
+                                    <th>Date & Time</th>
+                                    <th>Range</th>
+                                    <th>Total Prints</th>
+                                    <th>Bank</th>
+                                </tr>
+                            </thead>
+                            <tbody id="jobsTableBody"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+</div> remob the time range dropdow the johsdtablebody has iot own search so it will a custom ser form whew to when aso differnt for the chat the chart will sewarc deveioc t the searc jod will searc device niot jod id selct dat is fior the chat not tthe table so set it well     const deviceSelect = document.querySelector('#deviceSelect');
+const timeRangeSelect = document.querySelector('#timeRangeSelect');
+const jobsTableBody = document.querySelector('#jobsTableBody');
+
+const dayPicker = document.getElementById('dayPicker');
+const weekPicker = document.getElementById('weekPicker');
+const monthPicker = document.getElementById('monthPicker');
+
+let deviceChart;
+
+// --- Load devices for dropdown ---
+async function loadDevices() {
+    try {
+        const res = await fetch('/api/devices');
+        const devices = await res.json();
+        deviceSelect.innerHTML = '<option value="">-- Select Device --</option>';
+        devices.forEach(d => {
+            const opt = document.createElement('option');
+            opt.value = d.device_id;
+            opt.textContent = `${d.device_name} (${d.device_type})`;
+            deviceSelect.appendChild(opt);
+        });
+    } catch(err) {
+        console.error('Failed to load devices:', err);
+    }
+}
+
+// --- Fetch device usage ---
+async function fetchDeviceUsage() {
+    const deviceId = deviceSelect.value;
+    if(!deviceId) return;
+
+    const view = timeRangeSelect.value;
+    let query = `?view=${view}`;
+
+    if(view === 'day' && dayPicker.value) query += `&date=${dayPicker.value}`;
+    if(view === 'week' && weekPicker.value) query += `&week=${weekPicker.value}`;
+    if(view === 'month' && monthPicker.value) query += `&month=${monthPicker.value}`;
+
+    try {
+        const res = await fetch(`/api/devices/usage/${deviceId}${query}`);
+        const data = await res.json();
+
+        // --- Populate table grouped by day ---
+        const grouped = {};
+        data.usage.forEach(job => {
+            const dayName = new Date(job.install_date).toLocaleDateString('en-US', { weekday: 'long' });
+            if(!grouped[dayName]) grouped[dayName] = [];
+            grouped[dayName].push(job);
+        });
+
+        jobsTableBody.innerHTML = '';
+        for(const [day, jobs] of Object.entries(grouped)){
+            const trDay = document.createElement('tr');
+            trDay.innerHTML = `<td colspan="5" class="fw-bold bg-light">${day}</td>`;
+            jobsTableBody.appendChild(trDay);
+
+            jobs.forEach(job => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td>${job.job_id}</td>
+                    <td>${new Date(job.install_date).toLocaleString()}</td>
+                    <td>${job.range_start || ''} - ${job.range_end || ''}</td>
+                    <td>${job.total_prints}</td>
+                    <td>${job.bank || ''}</td>
+                `;
+                jobsTableBody.appendChild(tr);
+            });
+        }
+
+        // --- Prepare chart ---
+        let labels = [];
+        let datasets = [];
+
+        if(view === 'week'){
+            labels = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
+            const dayTotals = labels.map(d => data.graphData[d] || 0);
+            datasets = [{
+                label: 'Total Prints',
+                data: dayTotals,
+                borderColor: '#4e73df',
+                fill: false,
+                tension: 0.3
+            }];
+        } else if(view === 'month'){
+            labels = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
+            datasets = Object.keys(data.graphData).map((weekKey,i) => {
+                const weekData = labels.map(day => data.graphData[weekKey][day] || 0);
+                return {
+                    label: weekKey,
+                    data: weekData,
+                    borderColor: `hsl(${i*90},70%,40%)`,
+                    fill: false,
+                    tension: 0.3
+                };
+            });
+        }
+
+        if(deviceChart) deviceChart.destroy();
+        const ctx = document.getElementById('deviceUsageChart').getContext('2d');
+        deviceChart = new Chart(ctx, {
+            type: 'line',
+            data: { labels, datasets },
+            options: { responsive:true, plugins:{legend:{position:'bottom'}}, scales:{y:{beginAtZero:true}} }
+        });
+
+    } catch(err){
+        console.error('Failed to fetch device usage:', err);
+    }
+}
+
+// --- Show/hide date/week/month pickers ---
+timeRangeSelect.addEventListener('change', () => {
+    dayPicker.style.display = weekPicker.style.display = monthPicker.style.display = 'none';
+    if(timeRangeSelect.value === 'day') dayPicker.style.display = 'block';
+    else if(timeRangeSelect.value === 'week') weekPicker.style.display = 'block';
+    else if(timeRangeSelect.value === 'month') monthPicker.style.display = 'block';
+
+    fetchDeviceUsage();
+});
+
+// --- Trigger fetch on device change or picker change ---
+deviceSelect.addEventListener('change', fetchDeviceUsage);
+dayPicker.addEventListener('change', fetchDeviceUsage);
+weekPicker.addEventListener('change', fetchDeviceUsage);
+monthPicker.addEventListener('change', fetchDeviceUsage);
+
+// --- Search by Job ID ---
+document.getElementById('searchBtn').addEventListener('click', () => {
+    const searchVal = document.getElementById('deviceSearch').value.toLowerCase();
+    Array.from(jobsTableBody.querySelectorAll('tr')).forEach(tr => {
+        if(tr.children[0].textContent.toLowerCase().includes(searchVal) || tr.children[0].colSpan === 5){
+            tr.style.display = '';
+        } else {
+            tr.style.display = 'none';
+        }
+    });
+});
+
+// --- Initialize ---
+window.addEventListener('DOMContentLoaded', loadDevices);
+
+that is it so uodate javascropt and the html part also then set the contro;ller well this it const db = require('../config/db'); // your database connection
+
+// Helper to get week number from date
+function getWeekNumber(d) {
+    const date = new Date(d);
+    const start = new Date(date.getFullYear(), 0, 1);
+    const diff = date - start + ((start.getDay() + 6) % 7) * 86400000;
+    return Math.ceil(diff / 7);
+}
+
+// Helper to get day name
+function getDayName(date) {
+    return new Date(date).toLocaleDateString('en-US', { weekday: 'short' }); // Mon, Tue...
+}
+
+// Fetch usage for a specific device
+exports.getDeviceUsage = async (req, res) => {
+    const { deviceId } = req.params;
+    const { view = 'week' } = req.query; // 'week' or 'month'
+
+    try {
+        const result = await db.query(
+            `SELECT j.job_id, j.bank, j.range_start, j.range_end, t.toner_id, t.total_prints, t.install_date, t.replace_date, u.username
+             FROM toner_usage t
+             LEFT JOIN jobs j ON t.job_id = j.job_id
+             LEFT JOIN users u ON t.user_id = u.user_id
+             WHERE t.device_id = $1
+             ORDER BY t.install_date ASC`,
+            [deviceId]
+        );
+
+        const usage = result.rows.map(r => ({
+            job_id: r.job_id,
+            bank: r.bank,
+            range_start: r.range_start,
+            range_end: r.range_end,
+            toner_id: r.toner_id,
+            total_prints: r.total_prints,
+            install_date: r.install_date,
+            replace_date: r.replace_date,
+            username: r.username,
+            day: getDayName(r.install_date),
+            week: getWeekNumber(r.install_date)
+        }));
+
+        // Prepare graph data
+        const graphData = {};
+        if (view === 'week') {
+            const days = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
+            days.forEach(d => graphData[d] = 0);
+            usage.forEach(u => {
+                graphData[u.day] += u.total_prints;
+            });
+        } else if (view === 'month') {
+            // 4 weeks
+            for (let w = 1; w <= 4; w++) {
+                graphData[`Week ${w}`] = { Mon: 0, Tue: 0, Wed: 0, Thu: 0, Fri: 0, Sat: 0, Sun: 0 };
+            }
+            usage.forEach(u => {
+                const week = u.week <= 4 ? u.week : 4;
+                graphData[`Week ${week}`][u.day] += u.total_prints;
+            });
+        }
+
+        res.json({ usage, graphData });
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ error: 'Failed to fetch device usage' });
+    }
+};
+
+// Fetch all devices
+exports.getAllDevices = async (req, res) => {
+    try {
+        const result = await db.query(
+            `SELECT device_id, device_name, device_type FROM devices ORDER BY device_name`
+        );
+        res.json(result.rows);
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ error: 'Failed to fetch devices' });
+    }
+};
+ 
