@@ -35,3 +35,5 @@ out/
 
 # Coverage reports
 coverage/
+config/firebase-admin.json
+ 
