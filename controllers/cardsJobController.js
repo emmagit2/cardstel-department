@@ -201,50 +201,105 @@ exports.getBankJobs = async (req, res) => {
   }
 };
 
-// ============ Multi-Bank Report ============
+
+// ============ Multi-Bank Report ============ 
 exports.getMultiBankReport = async (req, res) => {
   try {
-    const { filterType, date } = req.query;
-    if (!filterType || !date) return res.status(400).json({ error: "filterType and date are required" });
+    const { bankId, filterType, date } = req.query;
 
-    let query, values = [date];
+    if (!filterType || !date) 
+      return res.status(400).json({ error: "filterType and date are required" });
+    if (!bankId) return res.status(400).json({ error: "bankId is required" });
 
-    if (filterType === "day") {
+    let query = "";
+    let values = [];
+    
+    // ====== Parse date depending on filterType ======
+    if (filterType === "week") {
+      // "2025-W41" → calculate start and end date of that week
+      const [yearStr, weekStr] = date.split("-W");
+      const year = parseInt(yearStr);
+      const week = parseInt(weekStr);
+
+      // Calculate the first day (Monday) of the ISO week
+      const simple = new Date(year, 0, 1 + (week - 1) * 7);
+      const dayOfWeek = simple.getDay(); // 0=Sun, 1=Mon
+      const ISOweekStart = new Date(simple);
+      ISOweekStart.setDate(simple.getDate() - ((dayOfWeek + 6) % 7)); // Monday
+      const ISOweekEnd = new Date(ISOweekStart);
+      ISOweekEnd.setDate(ISOweekStart.getDate() + 6); // Sunday
+
+      const startDate = ISOweekStart.toISOString().split("T")[0]; // YYYY-MM-DD
+      const endDate = ISOweekEnd.toISOString().split("T")[0];
+
       query = `
-        SELECT b.bank_name, SUM(c.completed_qty) as total
+        SELECT b.bank_id, b.bank_name,
+               TO_CHAR(c.created_at, 'Dy') AS day,
+               DATE(c.created_at) AS actual_date,
+               SUM(c.completed_qty) AS total
         FROM card_job c
         JOIN bank b ON c.bank_id = b.bank_id
-        WHERE DATE(c.created_at) = $1::date
-        GROUP BY b.bank_name
-        ORDER BY b.bank_name
-      `;
-    } else if (filterType === "week") {
-      query = `
-        SELECT b.bank_name, TO_CHAR(c.created_at, 'Dy') as day, DATE(c.created_at) as actual_date, SUM(c.completed_qty) as total
-        FROM card_job c
-        JOIN bank b ON c.bank_id = b.bank_id
-        WHERE DATE_PART('week', c.created_at) = DATE_PART('week', $1::date)
-          AND DATE_PART('year', c.created_at) = DATE_PART('year', $1::date)
-        GROUP BY b.bank_name, day, actual_date
+        WHERE DATE(c.created_at) BETWEEN $1 AND $2
+        GROUP BY b.bank_id, b.bank_name, day, actual_date
         ORDER BY b.bank_name, actual_date
       `;
+      values = [startDate, endDate];
+
     } else if (filterType === "month") {
+      // "YYYY-MM" → first and last day of month
+      const [year, month] = date.split("-");
+      const startDate = `${year}-${month}-01`;
+      const endDate = new Date(year, parseInt(month), 0).toISOString().split("T")[0]; // last day
       query = `
-        SELECT b.bank_name, DATE_PART('week', c.created_at) as week, SUM(c.completed_qty) as total
+        SELECT b.bank_id, b.bank_name,
+               DATE_PART('week', c.created_at) - DATE_PART('week', DATE_TRUNC('month', c.created_at)) + 1 AS week_num,
+               SUM(c.completed_qty) AS total
         FROM card_job c
         JOIN bank b ON c.bank_id = b.bank_id
         WHERE DATE_TRUNC('month', c.created_at) = DATE_TRUNC('month', $1::date)
-        GROUP BY b.bank_name, week
-        ORDER BY b.bank_name, week
+        GROUP BY b.bank_id, b.bank_name, week_num
+        ORDER BY b.bank_name, week_num
       `;
+      values = [startDate];
+
     } else {
-      return res.status(400).json({ error: "Invalid filterType" });
+      return res.status(400).json({ error: "Invalid filterType. Use 'week' or 'month'." });
     }
 
     const result = await pool.query(query, values);
-    res.json(result.rows);
+
+    // ===== Construct Graph Data =====
+    const banksMap = {};
+    const weekDays = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
+    const monthWeeks = [1, 2, 3, 4, 5];
+
+    result.rows.forEach(row => {
+      if (!banksMap[row.bank_name]) {
+        banksMap[row.bank_name] = filterType === "week"
+          ? weekDays.map(d => ({ day: d, total: 0 }))
+          : monthWeeks.map(w => ({ week: w, total: 0 }));
+      }
+
+      if (filterType === "week") {
+        const idx = weekDays.findIndex(d => d === row.day);
+        if (idx >= 0) banksMap[row.bank_name][idx].total = Number(row.total);
+      } else {
+        const idx = monthWeeks.indexOf(Number(row.week_num));
+        if (idx >= 0) banksMap[row.bank_name][idx].total = Number(row.total);
+      }
+    });
+
+    const selectedBankName = result.rows.find(r => r.bank_id == bankId)?.bank_name;
+    const selectedBankData = banksMap[selectedBankName] || [];
+    const otherBanksData = Object.keys(banksMap)
+      .filter(name => name !== selectedBankName)
+      .map(name => ({ bankName: name, data: banksMap[name] }));
+
+    res.json({ selectedBank: selectedBankData, otherBanks: otherBanksData });
+
   } catch (err) {
     console.error("Error fetching multi-bank report:", err);
     res.status(500).json({ error: "Server error" });
   }
 };
+

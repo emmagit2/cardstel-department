@@ -6,6 +6,9 @@
 <title>Professional Department Dashboard</title>
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"/>
 <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" rel="stylesheet"/>
+<!-- Bootstrap Icons CSS -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <style>
     body {
@@ -142,9 +145,516 @@
   .summary-card:hover, .filter-box:hover, .card:hover, .table-responsive:hover {
     transform: translateY(-5px);
   }
+/* ===== Modern Deep Orange Theme with Elegant Table Titles ===== */
+:root {
+  --deep-orange: #e65100;
+  --light-orange: #ff9800;
+  --orange-gradient: linear-gradient(135deg, #ff6f00, #e65100, #bf360c);
+  --dark-gray: #212121;
+  --soft-gray: #f5f5f5;
+}
+
+/* ===== Main Panel ===== */
+#jobManagementPanel {
+  background: linear-gradient(to bottom right, #ffffff, #f9f9f9);
+  border: 1px solid #eee;
+  border-radius: 18px;
+  padding: 25px;
+  box-shadow: 0 4px 25px rgba(0, 0, 0, 0.08);
+  animation: fadeIn 0.9s ease;
+}
+
+/* ===== Main Header Card ===== */
+.job-header-card {
+  background: var(--orange-gradient);
+  border-radius: 15px;
+  color: #fff;
+  padding: 25px 20px;
+  margin-bottom: 25px;
+  box-shadow: 0 4px 20px rgba(230, 81, 0, 0.25);
+  animation: fadeSlide 1s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.job-header-card::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  right: -50px;
+  width: 180px;
+  height: 100%;
+  background: rgba(255, 255, 255, 0.15);
+  transform: skew(-25deg);
+}
+
+.job-header-card h3 {
+  font-weight: 700;
+  font-size: 1.8rem;
+  letter-spacing: 0.8px;
+}
+
+.job-header-card small {
+  opacity: 0.9;
+  font-size: 0.9rem;
+}
+
+/* ===== Filter Section ===== */
+#jobManagementPanel .card {
+  border: none;
+  border-radius: 15px;
+  background: linear-gradient(to right, #fff, #fff9f4);
+  box-shadow: 0 3px 10px rgba(255, 111, 0, 0.15);
+  transition: 0.3s ease;
+}
+
+#jobManagementPanel .card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 5px 18px rgba(255, 111, 0, 0.25);
+}
+
+#jobManagementPanel .form-label {
+  color: var(--deep-orange);
+  font-weight: 600;
+}
+
+#jobManagementPanel .form-control,
+#jobManagementPanel .form-select {
+  border: 1px solid #ddd;
+  border-radius: 10px;
+  transition: all 0.3s;
+}
+
+#jobManagementPanel .form-control:focus,
+#jobManagementPanel .form-select:focus {
+  border-color: var(--light-orange);
+  box-shadow: 0 0 0 0.2rem rgba(255, 152, 0, 0.25);
+}
+
+/* ===== Filter Buttons ===== */
+#applyFilters {
+  background: var(--orange-gradient);
+  border: none;
+  color: #fff;
+  border-radius: 10px;
+  padding: 8px 15px;
+  transition: 0.3s;
+}
+#applyFilters:hover {
+  transform: scale(1.05);
+  box-shadow: 0 3px 10px rgba(255, 111, 0, 0.3);
+}
+
+#resetFilters {
+  background: #9e9e9e;
+  color: #fff;
+  border: none;
+  border-radius: 10px;
+  padding: 8px 15px;
+  transition: 0.3s;
+}
+#resetFilters:hover {
+  background: #616161;
+}
+
+/* ===== Section Titles for Tables ===== */
+.table-title {
+  background: var(--orange-gradient);
+  color: #fff;
+  font-weight: 700;
+  text-transform: uppercase;
+  font-size: 0.9rem;
+  letter-spacing: 0.8px;
+  border-radius: 10px 10px 0 0;
+  padding: 10px 15px;
+  box-shadow: 0 3px 10px rgba(230, 81, 0, 0.25);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  animation: fadeSlide 1.2s ease;
+}
+
+/* Subtle glowing animation for table titles */
+.table-title span {
+  animation: glowText 3s infinite ease-in-out;
+}
+
+@keyframes glowText {
+  0%, 100% { text-shadow: 0 0 5px rgba(255,255,255,0.2); }
+  50% { text-shadow: 0 0 15px rgba(255,255,255,0.6); }
+}
+
+/* ===== Table Styling ===== */
+.table-wrapper {
+  overflow-x: auto;
+  background-color: var(--soft-gray);
+  border-radius: 0 0 12px 12px;
+  padding: 10px;
+  box-shadow: inset 0 2px 5px rgba(0,0,0,0.05);
+}
+
+#jobManagementPanel table {
+  min-width: 900px;
+  border-collapse: separate;
+  width: 100%;
+  border-spacing: 0;
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+/* Animated dark gradient header */
+#jobManagementPanel thead {
+  background: linear-gradient(135deg, #424242, #616161, #757575);
+  color: #fff;
+  animation: headerGradient 6s infinite alternate ease-in-out;
+}
+
+#jobManagementPanel th {
+  font-size: 0.8rem;
+  font-weight: 600;
+  padding: 12px;
+  text-transform: uppercase;
+  text-align: center;
+  white-space: nowrap;
+}
+
+#jobManagementPanel tbody tr {
+  transition: 0.25s ease;
+}
+
+#jobManagementPanel tbody tr:hover {
+  background-color: rgba(255, 111, 0, 0.08);
+  transform: scale(1.01);
+}
+
+/* ===== Animations ===== */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(25px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes fadeSlide {
+  from { opacity: 0; transform: translateX(-25px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes headerGradient {
+  0% { background: linear-gradient(135deg, #424242, #616161); }
+  50% { background: linear-gradient(135deg, #757575, #424242); }
+  100% { background: linear-gradient(135deg, #616161, #212121); }
+}
+
+/* ===== Table Section Titles: Magical & Modern ===== */
+.table-title {
+  background: var(--orange-gradient); /* Deep orange gradient */
+  color: #fff;
+  font-weight: 600;
+  font-size: 0.8rem; /* slightly smaller for elegance */
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+  border-radius: 8px 8px 0 0;
+  padding: 8px 12px;
+  display: flex;
+  align-items: center;
+  gap: 8px; /* space between icon and text */
+  box-shadow: 0 3px 10px rgba(230, 81, 0, 0.25);
+  justify-content: flex-start;
+  animation: fadeSlide 1.2s ease;
+}
+
+/* Icon next to the title */
+.table-title i {
+  font-size: 1rem;
+  color: #fff;
+  animation: glowIcon 2.5s infinite alternate ease-in-out;
+}
+
+/* Glowing effect for text */
+.table-title span {
+  display: inline-block;
+  animation: glowText 3s infinite ease-in-out;
+}
+
+/* Subtle glowing animation for text */
+@keyframes glowText {
+  0%, 100% { text-shadow: 0 0 3px rgba(255,255,255,0.2); }
+  50% { text-shadow: 0 0 10px rgba(255,255,255,0.6); }
+}
+
+/* Subtle glowing animation for icon */
+@keyframes glowIcon {
+  0%, 100% { text-shadow: 0 0 2px rgba(255,255,255,0.2); }
+  50% { text-shadow: 0 0 8px rgba(255,255,255,0.8); }
+}
+
+  /* Overall Section Header */
+  .overall-summary h2 {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-size: 1.6rem;
+    color: #222;
+    font-weight: 700;
+  }
+
+  .overall-summary .header-icon {
+    background: linear-gradient(135deg, #ff6a00, #ff4500);
+    width: 48px;
+    height: 48px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(255, 90, 0, 0.4);
+  }
+
+  /* Summary Cards */
+  .summary-card {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 16px;
+    border-radius: 16px;
+    background: #fff;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.05);
+    transition: transform 0.3s, box-shadow 0.3s;
+  }
+
+  .summary-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 6px 25px rgba(255, 100, 0, 0.2);
+  }
+
+  .icon-gradient {
+    width: 50px;
+    height: 50px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, #ff6a00, #ff4500);
+    border-radius: 50%;
+    color: #fff;
+    font-size: 1.5rem;
+    box-shadow: 0 4px 12px rgba(255,90,0,0.3);
+  }
+
+  .summary-card h6 {
+    margin: 0;
+    font-size: 0.875rem;
+    color: #666;
+  }
+
+  .summary-card h3 {
+    margin: 0;
+    font-weight: 700;
+    color: #222;
+    font-size: 1.3rem;
+  }
+
+.overall-summary h2 .header-icon {
+  width: 45px;
+  height: 45px;
+  background: linear-gradient(135deg, #ff7a00, #ff4500);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+}
+
+/* Subtitle */
+.overall-summary h2 + p {
+  margin-left: 60px; /* aligns subtitle with text, not icon */
+  color: #6c757d;
+  font-size: 0.95rem;
+}
 
 
+/* Filter Box Items */
+.filter-box {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+    justify-content: center;
 
+  align-items: center;
+}
+
+/* Each filter item */
+.filter-item {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  margin-left: 2.1rem;
+}
+
+/* Align labels nicely on desktop */
+@media (min-width: 576px) {
+  .filter-item {
+    flex-direction: row;
+    align-items: center;
+  }
+}
+
+/* Modern rounded inputs */
+.filter-box select,
+.filter-box input {
+  border-radius: 50px !important;
+  padding: 0.375rem 0.75rem;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+  border: 1px solid #ddd;
+  transition: all 0.2s ease;
+}
+
+.filter-box select:focus,
+.filter-box input:focus {
+  border-color: #ff4500;
+  box-shadow: 0 0 6px rgba(255,69,0,0.3);
+  outline: none;
+}
+
+/* Gradient Apply Button */
+.btn-gradient-orange {
+  background: linear-gradient(135deg, #ff8c00, #ff4500);
+  color: #fff;
+  border: none;
+  transition: all 0.3s ease;
+}
+.btn-gradient-orange:hover {
+  background: linear-gradient(135deg, #ff7000, #ff3a00);
+  box-shadow: 0 4px 10px rgba(255,69,0,0.3);
+}
+
+/* Card Header Gradient */
+.card-header.bg-gradient-orange {
+  background: linear-gradient(135deg, black, black);
+  font-size: 1rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  border-bottom: none;
+}
+
+/* Card Body */
+.card-body {
+  background-color: #f9f9f9;
+}
+
+/* Optional: subtle shadow for canvas container */
+.card-body canvas {
+  border-radius: 0.5rem;
+}
+
+
+ /* Cards */
+  #bankSections .card {
+    border: none;
+    border-radius: 16px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.05);
+    transition: transform 0.3s, box-shadow 0.3s;
+  }
+  #bankSections .card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 6px 25px rgba(255, 90, 0, 0.15);
+  }
+
+  /* Card Header */
+  #customBankRecordsPanel .card-header {
+    background: #000; /* black header */
+    background: linear-gradient(135deg, #000, #222);
+    color: #fff;
+    font-weight: 600;
+    font-size: 0.95rem;
+    border-radius: 16px 16px 0 0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.8rem 1rem;
+  }
+
+  /* Header buttons */
+  #customBankRecordsPanel .card-header .btn {
+    font-weight: 600;
+    font-size: 0.8rem;
+    border-radius: 6px;
+    background: #222;
+    color: #ff6a00;
+    border: 1px solid #ff6a00;
+    transition: 0.2s;
+  }
+  #customBankRecordsPanel .card-header .btn:hover {
+    background: #ff6a00;
+    color: #fff;
+  }
+
+  /* Filters */
+  #customBankRecordsPanel .card-body .form-label {
+    font-weight: 600;
+    color: #666;
+    font-size: 0.8rem;
+  }
+  #customBankRecordsPanel .form-select,
+  #customBankRecordsPanel .form-control {
+    border-radius: 8px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+    font-size: 0.85rem;
+  }
+
+  /* Apply button */
+  #bankApply_custom {
+    background: linear-gradient(135deg, #ff6a00, #ff4500);
+    border: none;
+  }
+  #bankApply_custom:hover {
+    background: linear-gradient(135deg, #ff4500, #ff6a00);
+  }
+
+  /* Table headers */
+  #customBankRecordsPanel table thead,
+  #bankSections table thead {
+    background: #000; /* black header */
+    color: #ff6a00;   /* deep orange touch */
+    font-weight: 600;
+    position: sticky;
+    top: 0;
+    z-index: 1;
+  }
+
+  /* Table styling */
+  #bankSections table {
+    border-collapse: separate;
+    border-spacing: 0 6px;
+    font-size: 0.875rem;
+  }
+  #bankSections table tbody tr {
+    background: #fff;
+    border-radius: 12px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.03);
+  }
+  #bankSections table td,
+  #bankSections table th {
+    vertical-align: middle;
+    text-align: center;
+    border: none;
+    padding: 0.6rem 0.75rem;
+  }
+
+  /* Right panel export buttons */
+  #bankSections .btn-outline-success {
+    border-color: #ff6a00;
+    color: #ff6a00;
+  }
+  #bankSections .btn-outline-success:hover {
+    background: #ff6a00;
+    color: #fff;
+  }
+  #bankSections .btn-outline-danger {
+    border-color: #ff4500;
+    color: #ff4500;
+  }
+  #bankSections .btn-outline-danger:hover {
+    background: #ff4500;
+    color: #fff;
+  }
 </style>
 </head>
 <body>
@@ -168,12 +678,16 @@
                 <i class="fas fa-box"></i> <span>Production Management</span>
                 <i class="fas fa-caret-down ms-auto"></i>
             </a>
-            <div class="collapse" id="productSubmenu">
-                <a href="#" class="nav-link ps-4" data-target="deviceUsagePanel">Device Usage</a>
-                <a href="#" class="nav-link ps-4" data-target="personTeamPanel">Person Team</a>
-                <a href="#" class="nav-link ps-4" data-target="cardRecordsPanel">Card Records</a>
-                <a href="#" class="nav-link ps-4" data-target="machineReportPanel">Machine Report</a>
-            </div>
+         <div class="collapse" id="productSubmenu">
+    <a href="#" class="nav-link ps-4" data-target="deviceUsagePanel">Device Usage</a>
+    <a href="#" class="nav-link ps-4" data-target="personTeamPanel">Person Team</a>
+      <a href="#" class="nav-link ps-4" data-target="jobManagementPanel">Job Management</a>
+    <a href="#" class="nav-link ps-4" data-target="cardRecordsPanel">Card Records</a>
+    <a href="#" class="nav-link ps-4" data-target="machineReportPanel">Machine Report</a>
+    <!-- ✅ New Job Management Panel Link -->
+  
+</div>
+
         </div>
         <!-- Staff Management Dropdown -->
 <div class="nav-item">
@@ -238,10 +752,13 @@
 <!-- ================================
      TOTAL PRINTS SECTION
 ================================ -->
-<!-- ================================> !-->
+<!-- ================================>
+<!-- ================================
+     TOTAL PRINTS SECTION (Custom Query Panel)
+================================ -->
+<section class="total-prints-section container my-4">
 
-
-  <!--- Device & Date Range Selector -->
+  <!-- Device & Date Range Selector -->
   <div class="row g-3 mb-4">
     <!-- Device Selector -->
     <div class="col-md-3">
@@ -562,32 +1079,11 @@
                 </div>
             </div>
 
-            <!-- Summary Cards -->
-            <div class="row g-3" id="summaryCards">
-                <div class="col-md-4">
-                    <div class="p-3 bg-light rounded shadow-sm text-center">
-                        <h6 class="text-muted mb-1">Most Printed Job ID</h6>
-                        <h5 class="fw-bold text-primary mb-0" id="mostPrintedJob">#2001</h5>
-                    </div>
-                </div>
-                <div class="col-md-4">
-                    <div class="p-3 bg-light rounded shadow-sm text-center">
-                        <h6 class="text-muted mb-1">Total Prints (Month)</h6>
-                        <h5 class="fw-bold text-success mb-0" id="totalPrintsMonth">0</h5>
-                    </div>
-                </div>
-                <div class="col-md-4">
-                    <div class="p-3 bg-light rounded shadow-sm text-center">
-                        <h6 class="text-muted mb-1">Total Prints (Week)</h6>
-                        <h5 class="fw-bold text-warning mb-0" id="totalPrintsWeek">0</h5>
-                    </div>
-                </div>
-            </div>
         </div>
     </div>
 
     <!-- Active Days & Target -->
-    <div class="card shadow-sm border-0 mt-4">
+   <!--  <div class="card shadow-sm border-0 mt-4">
         <div class="card-body">
             <h5 class="card-title mb-3 fw-semibold">📅 Active Days & Monthly Target</h5>
             <canvas id="activeDaysChart" height="200"></canvas>
@@ -598,185 +1094,187 @@
                 </div>
             </div>
         </div>
-    </div>
+    </div> -->
 
 </div>
 <div id="cardRecordsPanel" class="p-4 department-panel">
 
-  <!-- ================= Overall Section ================= -->
+  <!-- ================== Overall Summary ================== -->
   <div class="overall-summary mb-5">
-    <h2 class="fw-bold mb-4">💳 Overall Card Printing Summary</h2>
+    <h2 class="fw-bold mb-1 d-flex align-items-center gap-3">
+      <span class="header-icon d-flex align-items-center justify-content-center">
+        <i class="bi bi-credit-card-2-front fs-3 text-white"></i>
+      </span>
+      Overall Card Printing Summary
+    </h2>
+    <p class="text-muted mb-4 fs-6">
+      Track your card displacement, quantity, and what’s printed
+    </p>
 
     <!-- Summary Cards -->
-    <div class="row g-3 mb-4">
+    <div class="row g-4">
       <div class="col-md-3">
-        <div class="summary-card shadow-sm rounded-4 p-3 d-flex align-items-center gap-3">
-          <div class="icon bg-gradient-primary text-white">
-            <i class="bi bi-card-text fs-3"></i>
-          </div>
+        <div class="summary-card">
+          <div class="icon-gradient"><i class="bi bi-card-text"></i></div>
           <div>
-            <h6 class="mb-0 text-muted">Cards Today</h6>
-            <h3 id="todayCount" class="fw-bold">0</h3>
+            <h6>Cards Today</h6>
+            <h3 id="todayCount">0</h3>
           </div>
         </div>
       </div>
       <div class="col-md-3">
-        <div class="summary-card shadow-sm rounded-4 p-3 d-flex align-items-center gap-3">
-          <div class="icon bg-gradient-success text-white">
-            <i class="bi bi-calendar-week fs-3"></i>
-          </div>
+        <div class="summary-card">
+          <div class="icon-gradient"><i class="bi bi-calendar-week"></i></div>
           <div>
-            <h6 class="mb-0 text-muted">This Week</h6>
-            <h3 id="weekCount" class="fw-bold">0</h3>
+            <h6>This Week</h6>
+            <h3 id="weekCount">0</h3>
           </div>
         </div>
       </div>
       <div class="col-md-3">
-        <div class="summary-card shadow-sm rounded-4 p-3 d-flex align-items-center gap-3">
-          <div class="icon bg-gradient-warning text-white">
-            <i class="bi bi-calendar2-month fs-3"></i>
-          </div>
+        <div class="summary-card">
+          <div class="icon-gradient"><i class="bi bi-calendar2-month"></i></div>
           <div>
-            <h6 class="mb-0 text-muted">This Month</h6>
-            <h3 id="monthCount" class="fw-bold">0</h3>
+            <h6>This Month</h6>
+            <h3 id="monthCount">0</h3>
           </div>
         </div>
       </div>
       <div class="col-md-3">
-        <div class="summary-card shadow-sm rounded-4 p-3 d-flex align-items-center gap-3">
-          <div class="icon bg-gradient-danger text-white">
-            <i class="bi bi-bank fs-3"></i>
-          </div>
+        <div class="summary-card">
+          <div class="icon-gradient"><i class="bi bi-bank"></i></div>
           <div>
-            <h6 class="mb-0 text-muted">Top Bank</h6>
-            <h3 id="topBank" class="fw-bold">N/A</h3>
+            <h6>Top Bank</h6>
+            <h3 id="topBank">N/A</h3>
           </div>
         </div>
       </div>
     </div>
+  </div>
 
-    <!-- Filter Box for Overall Graph -->
-    <div class="filter-box shadow-sm rounded-4 p-3 mb-4 d-flex flex-wrap align-items-center gap-2 bg-white">
-      <select id="overallBankSelect" class="form-select form-select-sm"></select>
-      <select id="overallFilterType" class="form-select form-select-sm">
-        <option value="day">Daily</option>
+  <!-- ================== Filter Box for Overall Graph ================== -->
+  <div class="filter-box shadow-sm rounded-4 p-3 mb-4 d-flex flex-wrap justify-content-start align-items-center gap-3 bg-white">
+    <div class="filter-item d-flex flex-column flex-sm-row align-items-start align-items-sm-center gap-2">
+      <label for="overallBankSelect" class="fw-semibold small text-muted mb-0">Bank</label>
+      <select id="overallBankSelect" class="form-select form-select-sm shadow-sm rounded-pill">
+        <option value="">All Banks</option>
+      </select>
+    </div>
+
+    <div class="filter-item d-flex flex-column flex-sm-row align-items-start align-items-sm-center gap-2">
+      <label for="overallFilterType" class="fw-semibold small text-muted mb-0">Filter Type</label>
+      <select id="overallFilterType" class="form-select form-select-sm shadow-sm rounded-pill">
         <option value="week">Weekly</option>
         <option value="month">Monthly</option>
       </select>
-      <input id="overallDate" type="date" class="form-control form-control-sm">
-      <button id="applyOverall" class="btn btn-sm btn-primary">Apply</button>
     </div>
 
-    <!-- Overall Graph -->
-    <div class="card shadow-sm rounded-4 mb-5">
-      <div class="card-header bg-gradient-primary text-white">📊 Overall Print Trend</div>
-      <div class="card-body">
-        <canvas id="overallPrintChart" height="150"></canvas>
-      </div>
+    <div class="filter-item d-flex flex-column flex-sm-row align-items-start align-items-sm-center gap-2" id="weekFilterBox">
+      <label for="overallWeek" class="fw-semibold small text-muted mb-0">Select Week</label>
+      <input id="overallWeek" type="week" class="form-control form-control-sm shadow-sm rounded-pill">
+    </div>
+
+    <div class="filter-item d-flex flex-column flex-sm-row align-items-start align-items-sm-center gap-2" id="monthFilterBox" style="display:none;">
+      <label for="overallMonth" class="fw-semibold small text-muted mb-0">Select Month</label>
+      <input id="overallMonth" type="month" class="form-control form-control-sm shadow-sm rounded-pill">
+    </div>
+
+    <button id="applyOverall" class="btn btn-gradient-orange px-4 py-2">
+      <i class="bi bi-funnel-fill me-1"></i> Apply
+    </button>
+  </div>
+
+  <!-- ================== Overall Graph ================== -->
+  <div class="card shadow-sm rounded-4 mb-5 border-0 overflow-hidden">
+    <div class="card-header bg-gradient-orange text-white fw-semibold d-flex align-items-center gap-2">
+      <i class="bi bi-graph-up fs-5"></i> Overall Print Trend
+    </div>
+    <div class="card-body bg-light p-4">
+      <canvas id="overallPrintChart" height="180"></canvas>
     </div>
   </div>
 
-  <!-- ================= Bank Section ================= -->
-  <div id="bankSections">
+  <!-- ================== Bank Sections ================== -->
+  <div id="bankSections" class="mb-5">
     <div class="row g-4">
-      <!-- Left: Bank Print Trend -->
-     <div class="col-lg-7">
-  <!-- ================= Bank Records Panel ================= -->
- <div id="customBankRecordsPanel" class="p-3">
-  <div class="card shadow-sm rounded-4 border-0 mb-4">
-    
-    <!-- ================= HEADER ================= -->
-    <div class="card-header bg-success bg-gradient text-white py-3 d-flex justify-content-between align-items-center">
-      <h6 class="mb-0 fw-semibold">💳 Bank Print Summary</h6>
-      <div class="d-flex gap-2">
-        <button id="exportExcel_custom" class="btn btn-light btn-sm fw-semibold">
-          <i class="bi bi-file-earmark-excel"></i> Excel
-        </button>
-        <button id="exportPDF_custom" class="btn btn-light btn-sm fw-semibold">
-          <i class="bi bi-file-earmark-pdf"></i> PDF
-        </button>
-      </div>
-    </div>
 
-    <!-- ================= FILTERS ================= -->
-    <div class="card-body border-bottom bg-light">
-      <div class="row g-3 align-items-end">
+      <!-- Left Panel: Bank Custom Summary -->
+      <div class="col-lg-7">
+        <div id="customBankRecordsPanel" class="p-3">
+          <div class="card mb-4">
+            <div class="card-header d-flex justify-content-between align-items-center">
+              <h6 class="mb-0">💳 Bank Print Summary</h6>
+              <div class="d-flex gap-2">
+                <button id="exportExcel_custom" class="btn btn-sm">
+                  <i class="bi bi-file-earmark-excel"></i> Excel
+                </button>
+                <button id="exportPDF_custom" class="btn btn-sm">
+                  <i class="bi bi-file-earmark-pdf"></i> PDF
+                </button>
+              </div>
+            </div>
 
-        <!-- Bank -->
-        <div class="col-6 col-md-4">
-          <label for="bankSelect_custom" class="form-label fw-semibold small text-muted mb-1">Bank</label>
-          <select id="bankSelect_custom" class="form-select form-select-sm shadow-sm">
-            <option value="">Select Bank</option>
-          </select>
-        </div>
+            <!-- Filters -->
+            <div class="card-body border-bottom bg-light">
+              <div class="row g-2 align-items-end">
+                <div class="col-6 col-md-4">
+                  <label for="bankSelect_custom" class="form-label mb-1">Bank</label>
+                  <select id="bankSelect_custom" class="form-select form-select-sm shadow-sm">
+                    <option value="">Select Bank</option>
+                  </select>
+                </div>
+                <div class="col-6 col-md-4">
+                  <label for="bankMonth_custom" class="form-label mb-1">Month</label>
+                  <input id="bankMonth_custom" type="month" class="form-control form-control-sm shadow-sm">
+                </div>
+                <div class="col-6 col-md-4">
+                  <label for="bankWeek_custom" class="form-label mb-1">Week</label>
+                  <input id="bankWeek_custom" type="week" class="form-control form-control-sm shadow-sm">
+                </div>
+                <div class="col-6 col-md-4">
+                  <label for="bankDay_custom" class="form-label mb-1">Day</label>
+                  <input id="bankDay_custom" type="date" class="form-control form-control-sm shadow-sm">
+                </div>
+                <div class="col-md-8">
+                  <label class="form-label mb-1">Custom Range</label>
+                  <div class="d-flex gap-2">
+                    <input id="bankStart_custom" type="date" class="form-control form-control-sm shadow-sm">
+                    <input id="bankEnd_custom" type="date" class="form-control form-control-sm shadow-sm">
+                  </div>
+                </div>
+                <div class="col-12 text-end mt-3">
+                  <button id="bankApply_custom" class="btn btn-primary btn-sm px-4">
+                    <i class="bi bi-funnel-fill"></i> Apply
+                  </button>
+                </div>
+              </div>
+            </div>
 
-        <!-- Month -->
-        <div class="col-6 col-md-4">
-          <label for="bankMonth_custom" class="form-label fw-semibold small text-muted mb-1">Month</label>
-          <input id="bankMonth_custom" type="month" class="form-control form-control-sm shadow-sm">
-        </div>
-
-        <!-- Week -->
-        <div class="col-6 col-md-4">
-          <label for="bankWeek_custom" class="form-label fw-semibold small text-muted mb-1">Week</label>
-          <input id="bankWeek_custom" type="week" class="form-control form-control-sm shadow-sm">
-        </div>
-
-        <!-- Day -->
-        <div class="col-6 col-md-4">
-          <label for="bankDay_custom" class="form-label fw-semibold small text-muted mb-1">Day</label>
-          <input id="bankDay_custom" type="date" class="form-control form-control-sm shadow-sm">
-        </div>
-
-        <!-- Custom Range -->
-        <div class="col-md-8">
-          <label class="form-label fw-semibold small text-muted mb-1">Custom Range</label>
-          <div class="d-flex gap-2">
-            <input id="bankStart_custom" type="date" class="form-control form-control-sm shadow-sm">
-            <input id="bankEnd_custom" type="date" class="form-control form-control-sm shadow-sm">
+            <!-- Results Table -->
+            <div class="card-body p-0">
+              <div class="table-responsive" style="max-height: 380px; overflow-y:auto;">
+                <table class="table table-hover align-middle mb-0 text-center">
+                  <thead>
+                    <tr>
+                      <th>Date / Period</th>
+                      <th>Total Cards Printed</th>
+                    </tr>
+                  </thead>
+                  <tbody id="bankSummary_custom"></tbody>
+                </table>
+              </div>
+            </div>
           </div>
         </div>
-
-        <!-- Apply Button -->
-        <div class="col-12 text-end mt-3">
-          <button id="bankApply_custom" class="btn btn-primary btn-sm px-4">
-            <i class="bi bi-funnel-fill"></i> Apply
-          </button>
-        </div>
       </div>
-    </div>
 
-    <!-- ================= RESULTS TABLE ================= -->
-    <div class="card-body p-0">
-      <div class="table-responsive" style="max-height: 380px; overflow-y: auto;">
-        <table class="table table-hover align-middle mb-0 text-center">
-          <thead class="table-success sticky-top">
-            <tr>
-              <th>Date / Period</th>
-              <th>Total Cards Printed</th>
-            </tr>
-          </thead>
-          <tbody id="bankSummary_custom">
-            <!-- Dynamic rows injected by JS -->
-          </tbody>
-        </table>
-      </div>
-    </div>
-
-  </div>
-</div>
-
-</div>
-
-
-      <!-- Right: Bank Records Table -->
+      <!-- Right Panel: Bank Jobs Table -->
       <div class="col-lg-5">
-        <div class="card shadow-sm rounded-4 h-100 p-4 bg-white">
+        <div class="card h-100 p-4 bg-white">
           <div class="mb-3">
             <label for="bankSelect" class="form-label fw-bold">Select Bank</label>
             <select id="bankSelect" class="form-select form-select-md"></select>
           </div>
-
           <div class="d-flex flex-wrap gap-2 mb-3 align-items-center">
             <input id="searchInput" type="text" class="form-control form-control-sm" placeholder="🔍 Search by Job ID or Staff" style="flex: 1 1 150px;">
             <input id="dateInput" type="date" class="form-control form-control-sm" style="flex: 1 1 120px;">
@@ -784,10 +1282,9 @@
             <button class="btn btn-outline-success btn-sm ms-auto">📄 Export Excel</button>
             <button class="btn btn-outline-danger btn-sm">🖨️ Export PDF</button>
           </div>
-
           <div class="table-responsive" style="max-height: 400px; overflow-y:auto;">
-            <table class="table table-hover align-middle mb-0">
-              <thead class="table-light sticky-top">
+            <table class="table table-hover align-middle mb-0 text-center">
+              <thead>
                 <tr>
                   <th>Date</th>
                   <th>Quantity</th>
@@ -801,9 +1298,131 @@
           </div>
         </div>
       </div>
+
+    </div> <!-- row -->
+  </div> <!-- bankSections -->
+
+</div> <!-- cardRecordsPanel -->
+
+<div id="jobManagementPanel" class="p-4 bg-light rounded-4 shadow-sm department-panel" style="display:none;">
+
+  <!-- Header -->
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+      <h3 class="fw-bold mb-1"><i class="fas fa-briefcase"></i> Job Management</h3>
+      <small class="text-muted">Monitor all jobs by bank, shift, and completion status</small>
+    </div>
+   
+  </div>
+
+  <!-- ✅ Filter Section -->
+  <div class="card shadow-sm border-0 mb-4">
+    <div class="card-body">
+      <div class="row g-3">
+        <div class="col-md-3">
+          <label for="filterJobCode" class="form-label fw-semibold">Job Code</label>
+          <input type="text" id="filterJobCode" class="form-control" placeholder="Enter Job Code">
+        </div>
+    <div class="col-md-3">
+  <label for="filterBank" class="form-label fw-semibold">Bank</label>
+  <select id="filterBank" class="form-select">
+    <option value="">All Banks</option>
+  </select>
+</div>
+
+        <div class="col-md-2">
+          <label for="filterShift" class="form-label fw-semibold">Shift</label>
+          <select id="filterShift" class="form-select">
+            <option value="">All</option>
+            <option value="morning">Morning</option>
+            <option value="night">Night</option>
+          </select>
+        </div>
+        <div class="col-md-2">
+          <label for="filterStartDate" class="form-label fw-semibold">Start Date</label>
+          <input type="date" id="filterStartDate" class="form-control">
+        </div>
+        <div class="col-md-2">
+          <label for="filterEndDate" class="form-label fw-semibold">End Date</label>
+          <input type="date" id="filterEndDate" class="form-control">
+        </div>
+      </div>
+
+      <div class="mt-3 text-end">
+        <button id="applyFilters" class="btn btn-success btn-sm"><i class="fas fa-filter"></i> Apply Filters</button>
+        <button id="resetFilters" class="btn btn-secondary btn-sm"><i class="fas fa-undo"></i> Reset</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Job Overview Table -->
+  <h5 class="mt-3 fw-bold">Job Overview (Batch Summary)</h5>
+  <div class="table-responsive mb-4" style="max-height: 300px; overflow-y: auto;">
+    <table class="table table-hover table-striped align-middle table-bordered">
+      <thead class="table-dark text-center">
+        <tr>
+          <th>#</th>
+          <th>Job Code</th>
+          <th>Bank</th>
+          <th>Card Ready</th>
+          <th>Mailer Ready</th>
+          <th>Status</th>
+        </tr>
+      </thead>
+      <tbody id="jobOverviewTableBody" class="text-center"></tbody>
+    </table>
+  </div>
+
+  <div class="row">
+    <!-- Card Printing Table -->
+    <div class="col-lg-6 mb-4">
+      <h5 class="fw-bold">Card Printing Details</h5>
+      <div class="table-responsive" style="max-height: 400px; overflow-y: auto;">
+        <table class="table table-hover table-striped align-middle table-bordered">
+          <thead class="table-dark text-center">
+            <tr>
+             <th>s/n</th>
+              <th>Date / Time</th>
+              <th>Shift</th>
+              <th>Operator</th>
+              <th>Device</th>
+              <th>Total Qty</th>
+              <th>Completed Qty</th>
+              <th>Remaining</th>
+            </tr>
+          </thead>
+          <tbody id="cardPrintingTableBody" class="text-center"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Mailer Printing Table -->
+    <div class="col-lg-6 mb-4">
+      <h5 class="fw-bold">Mailer Printing Details</h5>
+      <div class="table-responsive" style="max-height: 400px; overflow-y: auto;">
+        <table class="table table-hover table-striped align-middle table-bordered">
+          <thead class="table-dark text-center">
+            <tr>
+             <th>S/n</th>
+              <th>Date / Time</th>
+              <th>Shift</th>
+              <th>Operator</th>
+               <th>Device</th>
+               <th>Total Qty</th>
+              <th>Completed Qty</th>
+              <th>Remaining</th>
+            </tr>
+          </thead>
+          <tbody id="mailerPrintingTableBody" class="text-center"></tbody>
+        </table>
+      </div>
     </div>
   </div>
 </div>
+
+
+
+
 <!-- Machine Report Panel -->
 <div id="machineReportPanel" class="p-4 department-panel bg-light" style="display:none; border-radius:12px;">
   <h3 class="mb-4 text-primary fw-bold">⚙️ Machine Report</h3>
@@ -1248,257 +1867,234 @@ document.getElementById('confirmDeleteStaff').addEventListener('click', async ()
 
 // ✅ Initial load
 loadStaffList();
-
-
-
-//card dashboard function...card 
 document.addEventListener("DOMContentLoaded", () => {
-  // ============================================================
-  // 📊 OVERALL SUMMARY
-  // ============================================================
+
+  // ===================== OVERALL SUMMARY =====================
   async function loadOverallSummary() {
     try {
       const res = await fetch("/api/card-jobs/summary");
       const data = await res.json();
-      document.getElementById("todayCount").textContent = data.today;
-      document.getElementById("weekCount").textContent = data.week;
-      document.getElementById("monthCount").textContent = data.month;
-      document.getElementById("topBank").textContent = data.topBank;
-
-      // Set default bank for Bank Trend based on top bank
-      const bankSelect = document.getElementById("bankSelect");
-      const filterType = document.getElementById("filterType").value;
-      if (filterType === "week" && data.topWeekBank) bankSelect.value = data.topWeekBank;
-      else if (filterType === "month" && data.topMonthBank) bankSelect.value = data.topMonthBank;
-
+      document.getElementById("todayCount").textContent = data.today ?? 0;
+      document.getElementById("weekCount").textContent = data.week ?? 0;
+      document.getElementById("monthCount").textContent = data.month ?? 0;
+      document.getElementById("topBank").textContent = data.topBank ?? "N/A";
     } catch (err) {
-      console.error("Error loading summary:", err);
+      console.error("Error loading overall summary:", err);
     }
   }
 
-  // ============================================================
-  // 🏦 MULTI-BANK TREND (COMPARE BANKS)
-  // ============================================================
+  // ===================== MULTI-BANK TREND =====================
   let overallChart;
   async function loadOverallTrend() {
     const bankId = document.getElementById("overallBankSelect").value;
     const filterType = document.getElementById("overallFilterType").value;
-    const date = document.getElementById("overallDate").value;
-    if (!filterType || !date) return;
 
-    const res = await fetch(`/api/card-jobs/multi-bank?filterType=${filterType}&date=${date}&bankId=${bankId}`);
-    const data = await res.json();
+    let date;
+    if (filterType === "week") date = document.getElementById("overallWeek")?.value;
+    else if (filterType === "month") date = document.getElementById("overallMonth")?.value;
 
-    let labels = [], datasets = [];
+    if (!filterType) return;
+    if (!date && filterType !== "custom") return;
 
-    if (filterType === "day") {
-      labels = data.map(d => d.bank_name);
-      datasets = [{
-        label: "Cards Printed",
-        data: data.map(d => d.total),
-        backgroundColor: "rgba(54,162,235,0.6)",
-        tension: 0.4
-      }];
-    } else if (filterType === "week") {
-      labels = [...new Set(data.map(d => d.actual_date))];
-      const banks = [...new Set(data.map(d => d.bank_name))];
-      datasets = banks.map(bank => ({
-        label: bank,
-        data: labels.map(date => {
-          const found = data.find(d => d.bank_name === bank && d.actual_date === date);
-          return found ? found.total : 0;
-        }),
-        borderWidth: 2,
-        fill: false,
-        tension: 0.4
-      }));
-    } else if (filterType === "month") {
-      labels = data.map(d => "Week " + d.week);
-      const banks = [...new Set(data.map(d => d.bank_name))];
-      datasets = banks.map(bank => ({
-        label: bank,
-        data: labels.map(w => {
-          const weekNum = parseInt(w.split(" ")[1]);
-          const found = data.find(d => d.bank_name === bank && d.week == weekNum);
-          return found ? found.total : 0;
-        }),
-        borderWidth: 2,
-        fill: false,
-        tension: 0.4
-      }));
-    }
+    const start = document.getElementById("overallStartDate")?.value;
+    const end = document.getElementById("overallEndDate")?.value;
 
-    const ctx = document.getElementById("overallPrintChart").getContext("2d");
-    if (overallChart) overallChart.destroy();
-    overallChart = new Chart(ctx, {
-      type: filterType === "day" ? "bar" : "line",
-      data: { labels, datasets },
-      options: { responsive: true, plugins: { legend: { position: "top" } } }
-    });
-  }
-
-  // ============================================================
-  // 💳 BANK TREND (PER BANK)
-  // ============================================================
-  let bankChart;
-  async function loadBankTrend() {
-    let bankSelect = document.getElementById("bankSelect");
-    let bankId = bankSelect.value;
-
-    // If bank not chosen, get top from summary
-    if (!bankId) {
-      const summaryRes = await fetch("/api/card-jobs/summary");
-      const summaryData = await summaryRes.json();
-      const filterType = document.getElementById("filterType").value;
-      if (filterType === "week" && summaryData.topWeekBank) bankId = summaryData.topWeekBank;
-      else if (filterType === "month" && summaryData.topMonthBank) bankId = summaryData.topMonthBank;
-      else bankId = summaryData.topBank;
-      bankSelect.value = bankId;
-    }
-
-    const filterType = document.getElementById("filterType").value;
-    const date = document.getElementById("datePicker").value;
-    if (!bankId || !date) return;
-
-    const res = await fetch(`/api/card-jobs/bank-trend?bankId=${bankId}&filterType=${filterType}&date=${date}`);
-    const data = await res.json();
-
-    const labels = filterType === "month" ? data.map(d => "Week " + d.week) : data.map(d => d.day);
-    const values = data.map(d => d.total);
-
-    const ctx = document.getElementById("bankPrintChart").getContext("2d");
-    if (bankChart) bankChart.destroy();
-    bankChart = new Chart(ctx, {
-      type: "line",
-      data: {
-        labels,
-        datasets: [{
-          label: "Cards Printed",
-          data: values,
-          borderColor: "blue",
-          borderWidth: 2,
-          fill: false,
-          tension: 0.4
-        }]
-      },
-      options: { responsive: true }
-    });
-  }
-
-  // ============================================================
-  // 🧾 BANK JOBS TABLE
-  // ============================================================
-  async function loadBankJobs() {
-    const bankId = document.getElementById("bankSelect").value;
-    if (!bankId) return;
-
-    const url = new URL("/api/card-jobs/bank-jobs", window.location.origin);
-    url.searchParams.append("bankId", bankId);
-    const search = document.getElementById("searchInput").value;
-    const date = document.getElementById("dateInput").value;
-    if (search) url.searchParams.append("search", search);
-    if (date) url.searchParams.append("date", date);
-
-    const res = await fetch(url);
-    const data = await res.json();
-
-    const tbody = document.getElementById("bankJobsTableBody");
-    tbody.innerHTML = data.map(row => `
-      <tr>
-        <td>${row.created_at.split("T")[0]}</td>
-        <td>${row.completed_qty}</td>
-        <td>${row.job_code}</td>
-        <td>${row.staff || "N/A"}</td>
-        <td>${row.device_name || "N/A"}</td>
-      </tr>
-    `).join("");
-  }
-
-  // ============================================================
-  // 🧩 LOAD BANKS + DEFAULT SETUP
-  // ============================================================
-  async function loadBanks() {
-    const res = await fetch("/api/banks");
-    const banks = await res.json();
-    const overallSelect = document.getElementById("overallBankSelect");
-    const bankSelect = document.getElementById("bankSelect");
-
-    [overallSelect, bankSelect].forEach(sel => {
-      sel.innerHTML = `<option value="">Choose Bank</option>` +
-        banks.map(b => `<option value="${b.bank_id}">${b.bank_name}</option>`).join("");
-    });
-
-    await loadOverallSummary();
-
-    // Set default date type
-    const datePicker = document.getElementById("datePicker");
-    const filterType = document.getElementById("filterType").value;
-    const now = new Date();
-    if (filterType === "month") {
-      datePicker.value = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}`;
-    } else if (filterType === "week") {
-      const weekNum = Math.ceil((((now - new Date(now.getFullYear(), 0, 1)) / 86400000 + new Date(now.getFullYear(),0,1).getDay()+1)/7));
-      datePicker.value = `${now.getFullYear()}-W${String(weekNum).padStart(2,"0")}`;
+    let query = `filterType=${filterType}`;
+    if (filterType === "custom") {
+      if (!start || !end) {
+        alert("Please select start and end dates for custom range");
+        return;
+      }
+      query += `&start=${start}&end=${end}`;
     } else {
-      datePicker.value = now.toISOString().split("T")[0];
+      query += `&date=${date}`;
     }
+    if (bankId) query += `&bankId=${bankId}`;
 
-    loadBankTrend();
-    loadBankJobs();
+    try {
+      const res = await fetch(`/api/card-jobs/multi-bank?${query}`);
+      const data = await res.json();
+      console.log("Multi-Bank Trend Data:", data);
+
+      let labels = [];
+      let datasets = [];
+
+      if (!data.selectedBank.length && !data.otherBanks.length) {
+        labels = ["No Data"];
+        datasets = [{ label: "Cards Printed", data: [0], backgroundColor: "rgba(54,162,235,0.6)" }];
+      } else {
+        if (filterType === "week") labels = data.selectedBank.map(d => d.day);
+        else if (filterType === "month") labels = data.selectedBank.map(d => `Week ${d.week}`);
+        else labels = data.selectedBank.map(d => d.date || d.actual_date);
+
+        datasets.push({
+          label: "Selected Bank",
+          data: data.selectedBank.map(d => d.total),
+          borderColor: "#FF6700",
+          backgroundColor: "rgba(255,103,0,0.3)",
+          borderWidth: 2,
+          tension: 0.4
+        });
+
+        data.otherBanks.forEach(bank => {
+          datasets.push({
+            label: bank.bankName,
+            data: bank.data.map(d => d.total),
+            borderColor: "#2196F3",
+            backgroundColor: "rgba(33,150,243,0.2)",
+            borderWidth: 2,
+            tension: 0.4
+          });
+        });
+      }
+
+      const ctx = document.getElementById("overallPrintChart").getContext("2d");
+      if (overallChart) overallChart.destroy();
+      overallChart = new Chart(ctx, {
+        type: filterType === "day" || filterType === "custom" ? "bar" : "line",
+        data: { labels, datasets },
+        options: {
+          responsive: true,
+          plugins: { legend: { position: "top" } },
+          scales: {
+            x: { title: { display: true, text: filterType === "month" ? "Weeks" : "Days" } },
+            y: { title: { display: true, text: "Cards Printed" }, beginAtZero: true }
+          }
+        }
+      });
+
+    } catch (err) {
+      console.error("Error loading overall trend:", err);
+    }
   }
 
-  // ============================================================
-  // 📅 BANK CUSTOM SUMMARY (STAFF / MACHINE / CUSTOM DATES)
-  // ============================================================
+  // ===================== BANK CUSTOM SUMMARY =====================
   async function loadBankCustomSummary() {
     const bankId = document.getElementById("bankSelect_custom").value;
-    const filterType = document.getElementById("filterType_custom").value;
-    const start = document.getElementById("startDate_custom").value;
-    const end = document.getElementById("endDate_custom").value;
+    const month = document.getElementById("bankMonth_custom").value;
+    const week = document.getElementById("bankWeek_custom").value;
+    const day = document.getElementById("bankDay_custom").value;
+    const start = document.getElementById("bankStart_custom").value;
+    const end = document.getElementById("bankEnd_custom").value;
 
-    if (!bankId || (!filterType && (!start || !end))) {
-      return alert("Please select a bank and valid date/filter.");
-    }
-
-    let query = "";
-    if (filterType) query = `filterType=${filterType}&date=${start || new Date().toISOString().split("T")[0]}`;
-    else query = `filterType=custom&start=${start}&end=${end}`;
-
-    const res = await fetch(`/api/card-jobs/bank-calendar-summary?bankId=${bankId}&${query}`);
-    const data = await res.json();
-    const tbody = document.getElementById("bankSummary_custom");
-    if (!data.length) {
-      tbody.innerHTML = `<tr><td colspan="2" class="text-muted">No records found</td></tr>`;
+    if (!bankId) {
+      alert("Please select a bank.");
       return;
     }
 
-    tbody.innerHTML = data.map(d => `
-      <tr>
-        <td>${d.day || d.actual_date || ("Week " + d.week)}</td>
-        <td><span class="badge bg-success-subtle text-success">${d.total}</span></td>
-      </tr>
-    `).join("");
+    let query = `bankId=${bankId}`;
+    if (start && end) query += `&filterType=custom&start=${start}&end=${end}`;
+    else if (day) query += `&filterType=day&date=${day}`;
+    else if (week) query += `&filterType=week&date=${week}`;
+    else if (month) query += `&filterType=month&date=${month}`;
+    else query += `&filterType=month`;
+
+    try {
+      const res = await fetch(`/api/card-jobs/bank-calendar-summary?${query}`);
+      const data = await res.json();
+      console.log(data)
+      const tbody = document.getElementById("bankSummary_custom");
+      tbody.innerHTML = "";
+
+      if (!data.length) {
+        tbody.innerHTML = `<tr><td colspan="2" class="text-muted">No data available</td></tr>`;
+        return;
+      }
+
+      data.forEach(item => {
+        const period = item.actual_date ?? item.date ?? item.day ?? item.week ?? "N/A";
+        const total = Number(item.total ?? item.total_cards ?? 0);
+        tbody.insertAdjacentHTML("beforeend", `<tr><td>${period}</td><td>${total}</td></tr>`);
+      });
+    } catch (error) {
+      console.error("Error loading bank custom summary:", error);
+    }
   }
 
-  // ============================================================
-  // 🎛️ EVENT LISTENERS
-  // ============================================================
-  document.getElementById("applyOverall").addEventListener("click", loadOverallTrend);
-  document.getElementById("bankSelect").addEventListener("change", () => { loadBankTrend(); loadBankJobs(); });
-  document.getElementById("applyBankJobs").addEventListener("click", loadBankJobs);
-  document.getElementById("filterType").addEventListener("change", () => {
-    const datePicker = document.getElementById("datePicker");
-    datePicker.type = document.getElementById("filterType").value === "week" ? "week" : "month";
-    loadBankTrend();
-  });
-  document.getElementById("datePicker").addEventListener("change", loadBankTrend);
-  document.getElementById("applyBankCustom").addEventListener("click", loadBankCustomSummary);
+  // ===================== BANK JOBS TABLE =====================
+  async function loadBankJobs() {
+    const bankId = document.getElementById("bankSelect").value;
+    const search = document.getElementById("searchInput").value.trim();
+    const date = document.getElementById("dateInput").value;
 
-  // ============================================================
-  // 🚀 INIT
-  // ============================================================
+    if (!bankId) {
+      alert("Please select a bank.");
+      return;
+    }
+
+    let query = `bankId=${bankId}`;
+    if (search) query += `&search=${encodeURIComponent(search)}`;
+    if (date) query += `&date=${date}`;
+
+    try {
+      const res = await fetch(`/api/card-jobs/bank-jobs?${query}`);
+      const data = await res.json();
+      const tbody = document.getElementById("bankJobsTableBody");
+      tbody.innerHTML = "";
+
+      if (!data.length) {
+        tbody.innerHTML = `<tr><td colspan="5" class="text-muted">No records found</td></tr>`;
+        return;
+      }
+
+      data.forEach(item => {
+        const dateVal = item.actual_date ?? item.date ?? "N/A";
+        const qty = Number(item.completed_qty ?? 0);
+        const jobCode = item.job_code ?? "N/A";
+        const staff = item.staff ?? "N/A";
+        const device = item.device_name ?? "N/A";
+
+        tbody.insertAdjacentHTML(
+          "beforeend",
+          `<tr>
+            <td>${dateVal}</td>
+            <td>${qty}</td>
+            <td>${jobCode}</td>
+            <td>${staff}</td>
+            <td>${device}</td>
+          </tr>`
+        );
+      });
+    } catch (err) {
+      console.error("Error loading bank jobs:", err);
+    }
+  }
+
+  // ===================== LOAD BANKS =====================
+  async function loadBanks() {
+    try {
+      const res = await fetch("/api/banks");
+      const banks = await res.json();
+
+      const overallSelect = document.getElementById("overallBankSelect");
+      const bankSelectCustom = document.getElementById("bankSelect_custom");
+      const bankSelect = document.getElementById("bankSelect");
+
+      [overallSelect, bankSelectCustom, bankSelect].forEach(sel => {
+        sel.innerHTML =
+          `<option value="">Select Bank</option>` +
+          banks.map(b => `<option value="${b.bank_id}">${b.bank_name}</option>`).join("");
+      });
+
+      loadOverallSummary();
+    } catch (err) {
+      console.error("Error loading banks:", err);
+    }
+  }
+
+  // ===================== EVENT LISTENERS =====================
+  document.getElementById("applyOverall").addEventListener("click", loadOverallTrend);
+  document.getElementById("bankApply_custom").addEventListener("click", loadBankCustomSummary);
+  document.getElementById("applyBankJobs").addEventListener("click", loadBankJobs);
+
+  // ===================== INIT =====================
   loadBanks();
 });
+
+
+
+
+
 
 
 
@@ -2186,6 +2782,297 @@ window.addEventListener("DOMContentLoaded", async () => {
   // Load devices on page load
   loadDevices();
 });
+document.addEventListener("DOMContentLoaded", () => {
+  const cardPrintingTableBody = document.getElementById("cardPrintingTableBody");
+  const mailerPrintingTableBody = document.getElementById("mailerPrintingTableBody");
+
+  const filterJobCode = document.getElementById("filterJobCode");
+  const filterBank = document.getElementById("filterBank");
+  const filterShift = document.getElementById("filterShift");
+  const filterStartDate = document.getElementById("filterStartDate");
+  const filterEndDate = document.getElementById("filterEndDate");
+
+  const applyFiltersBtn = document.getElementById("applyFilters");
+  const resetFiltersBtn = document.getElementById("resetFilters");
+
+  let allJobs = [];
+  let isFiltered = false;
+
+  // =========================================================
+  // 🔹 Load Banks for Dropdown
+  // =========================================================
+  async function loadBanks() {
+    try {
+      const res = await fetch("/api/banks");
+      const banks = await res.json();
+
+      filterBank.innerHTML = `<option value="">All Banks</option>`;
+
+      banks.forEach(bank => {
+        const displayName = bank.bank_code
+          ? `${bank.bank_code} - ${bank.bank_name}`
+          : bank.bank_name;
+        filterBank.insertAdjacentHTML(
+          "beforeend",
+          `<option value="${bank.bank_id}">${displayName}</option>`
+        );
+      });
+    } catch (err) {
+      console.error("Error loading banks:", err);
+    }
+  }
+
+  // =========================================================
+  // Fetch jobs from server
+  // =========================================================
+  async function loadJobData(filters = {}) {
+    try {
+      const params = new URLSearchParams();
+      if (filters.jobCode) params.append("jobCode", filters.jobCode);
+      if (filters.bankId) params.append("bankId", filters.bankId);
+      if (filters.shift) params.append("shift", filters.shift);
+      if (filters.startDate) params.append("startDate", filters.startDate);
+      if (filters.endDate) params.append("endDate", filters.endDate);
+
+      const res = await fetch(`/api/hi/job-management?${params.toString()}`);
+      const data = await res.json();
+
+      if (data.message === "No jobs found" || !Array.isArray(data) || data.length === 0) {
+        showNoJobsMessage();
+        return;
+      }
+
+      allJobs = Array.isArray(data) ? data : Object.values(data || {});
+      displayJobs(allJobs);
+    } catch (err) {
+      console.error("Error loading jobs:", err);
+      showNoJobsMessage("Error loading jobs");
+    }
+  }
+
+  // =========================================================
+  // Show "No Jobs" message
+  // =========================================================
+  function showNoJobsMessage(message = "No jobs found") {
+    const msgRow = `<tr><td colspan="8" class="text-center text-muted py-3">${message}</td></tr>`;
+    cardPrintingTableBody.innerHTML = msgRow;
+    mailerPrintingTableBody.innerHTML = msgRow;
+  }
+
+  // =========================================================
+  // Helpers
+  // =========================================================
+  function formatDateTime(datetime) {
+    return new Date(datetime).toLocaleString();
+  }
+
+  function formatDateOnly(datetime) {
+    const d = new Date(datetime);
+    return d.toLocaleDateString(undefined, { year: "numeric", month: "short", day: "numeric" });
+  }
+
+  // =========================================================
+  // Display jobs grouped
+  // =========================================================
+  function displayJobs(jobs) {
+    cardPrintingTableBody.innerHTML = "";
+    mailerPrintingTableBody.innerHTML = "";
+
+    let cardIndex = 1;
+    let mailerIndex = 1;
+
+    // ✅ When filtered by date, group by date → then by jobCode+bank
+    if (isFiltered && filterStartDate.value && filterEndDate.value) {
+      const groupedByDate = {};
+
+      jobs.forEach(job => {
+        const allDates = new Set([
+          ...job.cardPrinting.map(b => formatDateOnly(b.createdAt)),
+          ...job.mailerPrinting.map(b => formatDateOnly(b.createdAt)),
+        ]);
+
+        allDates.forEach(date => {
+          if (!groupedByDate[date]) groupedByDate[date] = [];
+          groupedByDate[date].push(job);
+        });
+      });
+
+      Object.keys(groupedByDate)
+        .sort((a, b) => new Date(a) - new Date(b))
+        .forEach(date => {
+          // 🔹 Date header
+          cardPrintingTableBody.insertAdjacentHTML("beforeend", `
+            <tr class="table-info text-center fw-bold">
+              <td colspan="8">${date}</td>
+            </tr>
+          `);
+          mailerPrintingTableBody.insertAdjacentHTML("beforeend", `
+            <tr class="table-info text-center fw-bold">
+              <td colspan="8">${date}</td>
+            </tr>
+          `);
+
+          // 🔹 Group by Job Code + Bank under this date
+          groupedByDate[date].forEach(job => {
+            const cardHeaderId = `card-${job.jobCode}-${job.bankName}-${date}`;
+            const mailerHeaderId = `mailer-${job.jobCode}-${job.bankName}-${date}`;
+
+            // --- Card Printing ---
+            const cardBatches = job.cardPrinting.filter(
+              b => formatDateOnly(b.createdAt) === date
+            );
+            if (cardBatches.length) {
+              cardPrintingTableBody.insertAdjacentHTML("beforeend", `
+                <tr class="table-primary fw-bold text-center cursor-pointer" data-toggle="${cardHeaderId}">
+                  <td colspan="8">${job.jobCode} - ${job.bankName}</td>
+                </tr>
+              `);
+              cardBatches.forEach(batch => {
+                cardPrintingTableBody.insertAdjacentHTML("beforeend", `
+                  <tr class="text-center" data-group="${cardHeaderId}">
+                    <td>${cardIndex++}</td>
+                    <td>${formatDateTime(batch.createdAt)}</td>
+                    <td>${batch.shift}</td>
+                    <td>${batch.operator || '-'}</td>
+                    <td>${batch.device || '-'}</td>
+                    <td>${batch.totalQty || 0}</td>
+                    <td>${batch.completedQty || 0}</td>
+                    <td>${batch.remaining || 0}</td>
+                  </tr>
+                `);
+              });
+            }
+
+            // --- Mailer Printing ---
+            const mailerBatches = job.mailerPrinting.filter(
+              b => formatDateOnly(b.createdAt) === date
+            );
+            if (mailerBatches.length) {
+              mailerPrintingTableBody.insertAdjacentHTML("beforeend", `
+                <tr class="table-primary fw-bold text-center cursor-pointer" data-toggle="${mailerHeaderId}">
+                  <td colspan="8">${job.jobCode} - ${job.bankName}</td>
+                </tr>
+              `);
+              mailerBatches.forEach(batch => {
+                mailerPrintingTableBody.insertAdjacentHTML("beforeend", `
+                  <tr class="text-center" data-group="${mailerHeaderId}">
+                    <td>${mailerIndex++}</td>
+                    <td>${formatDateTime(batch.createdAt)}</td>
+                    <td>${batch.shift}</td>
+                    <td>${batch.operator || '-'}</td>
+                    <td>${batch.device || '-'}</td>
+                    <td>${batch.totalQty || 0}</td>
+                    <td>${batch.completedQty || 0}</td>
+                    <td>${batch.remaining || 0}</td>
+                  </tr>
+                `);
+              });
+            }
+          });
+        });
+
+    } else {
+      // ✅ Default: Group by Job Code + Bank (existing)
+      jobs.forEach(job => {
+        if (job.cardPrinting.length) {
+          const cardHeaderId = `card-${job.jobCode}-${job.bankName}`;
+          cardPrintingTableBody.insertAdjacentHTML("beforeend", `
+            <tr class="table-primary fw-bold text-center cursor-pointer" data-toggle="${cardHeaderId}">
+              <td colspan="8">${job.jobCode} - ${job.bankName}</td>
+            </tr>
+          `);
+          job.cardPrinting.forEach(batch => {
+            cardPrintingTableBody.insertAdjacentHTML("beforeend", `
+              <tr class="text-center" data-group="${cardHeaderId}">
+                <td>${cardIndex++}</td>
+                <td>${formatDateTime(batch.createdAt)}</td>
+                <td>${batch.shift}</td>
+                <td>${batch.operator || '-'}</td>
+                <td>${batch.device || '-'}</td>
+                <td>${batch.totalQty || 0}</td>
+                <td>${batch.completedQty || 0}</td>
+                <td>${batch.remaining || 0}</td>
+              </tr>
+            `);
+          });
+        }
+
+        if (job.mailerPrinting.length) {
+          const mailerHeaderId = `mailer-${job.jobCode}-${job.bankName}`;
+          mailerPrintingTableBody.insertAdjacentHTML("beforeend", `
+            <tr class="table-primary fw-bold text-center cursor-pointer" data-toggle="${mailerHeaderId}">
+              <td colspan="8">${job.jobCode} - ${job.bankName}</td>
+            </tr>
+          `);
+          job.mailerPrinting.forEach(batch => {
+            mailerPrintingTableBody.insertAdjacentHTML("beforeend", `
+              <tr class="text-center" data-group="${mailerHeaderId}">
+                <td>${mailerIndex++}</td>
+                <td>${formatDateTime(batch.createdAt)}</td>
+                <td>${batch.shift}</td>
+                <td>${batch.operator || '-'}</td>
+                <td>${batch.device || '-'}</td>
+                <td>${batch.totalQty || 0}</td>
+                <td>${batch.completedQty || 0}</td>
+                <td>${batch.remaining || 0}</td>
+              </tr>
+            `);
+          });
+        }
+      });
+    }
+
+    // ✅ Collapsible behavior remains the same
+    document.querySelectorAll("tr.cursor-pointer").forEach(header => {
+      header.addEventListener("click", () => {
+        const group = header.getAttribute("data-toggle");
+        document.querySelectorAll(`tr[data-group="${group}"]`).forEach(row => {
+          row.style.display = row.style.display === "none" ? "" : "none";
+        });
+      });
+    });
+
+    document.querySelectorAll("tr[data-group]").forEach(row => row.style.display = "none");
+  }
+
+  // =========================================================
+  // Apply Filters
+  // =========================================================
+  applyFiltersBtn.addEventListener("click", () => {
+    const filters = {
+      jobCode: filterJobCode.value.trim(),
+      bankId: filterBank.value.trim(),
+      shift: filterShift.value,
+      startDate: filterStartDate.value,
+      endDate: filterEndDate.value
+    };
+    isFiltered = !!(filters.startDate || filters.endDate);
+    loadJobData(filters);
+  });
+
+  // =========================================================
+  // Reset Filters
+  // =========================================================
+  resetFiltersBtn.addEventListener("click", () => {
+    filterJobCode.value = "";
+    filterBank.value = "";
+    filterShift.value = "";
+    filterStartDate.value = "";
+    filterEndDate.value = "";
+    isFiltered = false;
+    loadJobData();
+  });
+
+  // =========================================================
+  // Initial Load
+  // =========================================================
+  loadBanks();   // ✅ Load dropdown options first
+  loadJobData(); // ✅ Then load job data
+});
+
+
+
+
 
 
 
