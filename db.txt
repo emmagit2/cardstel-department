@@ -1,97 +1,187 @@
--- Drop old tables if they exist
-DROP TABLE IF EXISTS toner_usage CASCADE;
-DROP TABLE IF EXISTS printers CASCADE;
-DROP TABLE IF EXISTS jobs CASCADE;
-DROP TABLE IF EXISTS user_monthly_targets CASCADE;
-DROP TABLE IF EXISTS devices CASCADE;
-DROP TABLE IF EXISTS users CASCADE;
-
--- ======================================
--- 1. Users Table
--- ======================================
-CREATE TABLE users (
-    user_id SERIAL PRIMARY KEY,
-    username VARCHAR(100) NOT NULL,
-    email VARCHAR(150) UNIQUE NOT NULL,
-    name VARCHAR(20),
-    role VARCHAR(50),
-    profile_picture VARCHAR(255)
+-- ===========================
+--  TABLE: public.departments
+-- ===========================
+CREATE TABLE public.departments (
+    id SERIAL PRIMARY KEY,
+    name VARCHAR(255) NOT NULL
 );
 
--- ======================================
--- 2. Devices Table
--- ======================================
-CREATE TABLE devices (
+-- ===========================
+--  TABLE: public.users
+-- ===========================
+CREATE TABLE public.users (
+    id SERIAL PRIMARY KEY,
+    firebase_uid VARCHAR(255) NOT NULL UNIQUE,
+    username VARCHAR(100) NOT NULL UNIQUE,
+    name VARCHAR(255) NOT NULL,
+    email VARCHAR(255) NOT NULL UNIQUE,
+    role VARCHAR(100) NOT NULL,
+    department_id INTEGER,
+    profile_picture TEXT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    position VARCHAR(100),
+    CONSTRAINT users_department_id_fkey FOREIGN KEY (department_id)
+        REFERENCES departments(id) ON DELETE SET NULL
+);
+
+-- ===========================
+--  TABLE: public.staff_invites
+-- ===========================
+CREATE TABLE public.staff_invites (
+    id SERIAL PRIMARY KEY,
+    email VARCHAR(255) NOT NULL,
+    role VARCHAR(100) NOT NULL,
+    department_id INTEGER,
+    token TEXT NOT NULL,
+    invited_by INTEGER NOT NULL,
+    used BOOLEAN DEFAULT FALSE,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    position VARCHAR(100),
+    CONSTRAINT staff_invites_department_id_fkey FOREIGN KEY (department_id)
+        REFERENCES departments(id) ON DELETE SET NULL
+);
+
+-- ===========================
+--  TABLE: public.bank
+-- ===========================
+CREATE TABLE public.bank (
+    bank_id SERIAL PRIMARY KEY,
+    bank_name VARCHAR(100) NOT NULL,
+    created_at TIMESTAMP DEFAULT NOW()
+);
+
+-- ===========================
+--  TABLE: public.devices
+-- ===========================
+CREATE TABLE public.devices (
     device_id SERIAL PRIMARY KEY,
     device_name VARCHAR(150) NOT NULL,
     device_type VARCHAR(100) NOT NULL
 );
 
--- ======================================
--- 3. Jobs Table
--- ======================================
-CREATE TABLE jobs (
+-- ===========================
+--  TABLE: public.jobs
+-- ===========================
+CREATE TABLE public.jobs (
     id SERIAL PRIMARY KEY,
     job_id VARCHAR(20) NOT NULL,
-    job_code VARCHAR(100),
-    bank VARCHAR(100) NOT NULL,
-    device_id INT REFERENCES devices(device_id) ON DELETE SET NULL,
+    device_id INTEGER,
     query TEXT,
-    user_id INT REFERENCES users(user_id) ON DELETE SET NULL,
-    range_start INT NOT NULL,
-    range_end INT NOT NULL,
-    remaining INT GENERATED ALWAYS AS (range_end - range_start) STORED,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    user_id INTEGER,
+    range_start INTEGER NOT NULL,
+    range_end INTEGER NOT NULL,
+    remaining INTEGER GENERATED ALWAYS AS (range_end - range_start) STORED,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    job_code VARCHAR(100),
+    bank_id INTEGER NOT NULL,
+    completed_qty INTEGER,
+    shift VARCHAR(20),
+    qty INTEGER NOT NULL CHECK (qty > 0),
+    CONSTRAINT jobs_shift_check CHECK (shift IN ('morning','night')),
+    CONSTRAINT jobs_bank_id_fkey FOREIGN KEY (bank_id)
+        REFERENCES bank(bank_id) ON DELETE SET NULL,
+    CONSTRAINT jobs_device_id_fkey FOREIGN KEY (device_id)
+        REFERENCES devices(device_id) ON DELETE SET NULL,
+    CONSTRAINT jobs_user_id_fkey FOREIGN KEY (user_id)
+        REFERENCES users(id) ON DELETE CASCADE
 );
 
--- ======================================
--- 4. Toner Usage Table
--- ======================================
-CREATE TABLE toner_usage (
-    toner_id SERIAL PRIMARY KEY,
-    toner_code VARCHAR(50) UNIQUE NOT NULL,
-    device_id INT REFERENCES devices(device_id) ON DELETE CASCADE,
-    user_id INT REFERENCES users(user_id) ON DELETE SET NULL,
+-- ===========================
+--  TABLE: public.card_job
+-- ===========================
+CREATE TABLE public.card_job (
+    id SERIAL PRIMARY KEY,
+    job_code VARCHAR(50) NOT NULL,
+    operator_id INTEGER,
+    bank_id INTEGER NOT NULL,
+    card_quantity INTEGER NOT NULL,
+    card_type VARCHAR(50) NOT NULL,
+    device_id INTEGER,
+    start_time TIME,
+    received_time TIME,
+    completed_qty INTEGER DEFAULT 0,
+    rejected_qty INTEGER DEFAULT 0,
+    error_count INTEGER DEFAULT 0,
+    nd_report TEXT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    shift VARCHAR(10) NOT NULL DEFAULT 'morning',
+    CONSTRAINT fk_cardjob_bank FOREIGN KEY (bank_id)
+        REFERENCES bank(bank_id) ON DELETE CASCADE,
+    CONSTRAINT fk_cardjob_device FOREIGN KEY (device_id)
+        REFERENCES devices(device_id) ON DELETE SET NULL,
+    CONSTRAINT fk_cardjob_operator FOREIGN KEY (operator_id)
+        REFERENCES users(id) ON DELETE CASCADE
+);
+
+-- ===========================
+--  TABLE: public.encoder_usage
+-- ===========================
+CREATE TABLE public.encoder_usage (
+    encoder_id SERIAL PRIMARY KEY,
+    encoder_code VARCHAR(50) NOT NULL UNIQUE,
+    device_id INTEGER,
+    user_id INTEGER,
     install_date DATE NOT NULL,
     replace_date DATE,
-    total_prints INT DEFAULT 0,
-    job_id INT REFERENCES jobs(id)
+    total_cards INTEGER DEFAULT 0,
+    job_id INTEGER,
+    CONSTRAINT encoder_usage_device_id_fkey FOREIGN KEY (device_id)
+        REFERENCES devices(device_id) ON DELETE CASCADE,
+    CONSTRAINT encoder_usage_job_id_fkey FOREIGN KEY (job_id)
+        REFERENCES jobs(id),
+    CONSTRAINT encoder_usage_user_id_fkey FOREIGN KEY (user_id)
+        REFERENCES users(id) ON DELETE CASCADE
 );
 
--- ======================================
--- 5. User Monthly Targets Table
--- ======================================
-CREATE TABLE user_monthly_targets (
+-- ===========================
+--  TABLE: public.machine_status
+-- ===========================
+CREATE TABLE public.machine_status (
+    status_id SERIAL PRIMARY KEY,
+    device_id INTEGER NOT NULL,
+    machine_ref VARCHAR(100) NOT NULL,
+    status VARCHAR(50) NOT NULL,
+    breakdown_start TIMESTAMP,
+    breakdown_end TIMESTAMP,
+    uptime INTERVAL,
+    remarks TEXT,
+    created_at TIMESTAMP DEFAULT NOW(),
+    updated_at TIMESTAMP DEFAULT NOW(),
+    CONSTRAINT machine_status_device_id_fkey FOREIGN KEY (device_id)
+        REFERENCES devices(device_id) ON DELETE CASCADE
+);
+
+-- ===========================
+--  TABLE: public.toner_usage
+-- ===========================
+CREATE TABLE public.toner_usage (
+    toner_id SERIAL PRIMARY KEY,
+    toner_code VARCHAR(50) NOT NULL UNIQUE,
+    device_id INTEGER,
+    user_id INTEGER,
+    install_date DATE NOT NULL,
+    replace_date DATE,
+    total_prints INTEGER DEFAULT 0,
+    job_id INTEGER,
+    CONSTRAINT toner_usage_device_id_fkey FOREIGN KEY (device_id)
+        REFERENCES devices(device_id) ON DELETE CASCADE,
+    CONSTRAINT toner_usage_job_id_fkey FOREIGN KEY (job_id)
+        REFERENCES jobs(id),
+    CONSTRAINT toner_usage_user_id_fkey FOREIGN KEY (user_id)
+        REFERENCES users(id) ON DELETE CASCADE
+);
+
+-- ===========================
+--  TABLE: public.user_monthly_targets
+-- ===========================
+CREATE TABLE public.user_monthly_targets (
     id SERIAL PRIMARY KEY,
-    user_id INT REFERENCES users(user_id) ON DELETE CASCADE,
+    user_id INTEGER,
     month_year VARCHAR(20) NOT NULL,
     target_amount NUMERIC(12,2) NOT NULL,
     current_amount NUMERIC(12,2) DEFAULT 0,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    UNIQUE(user_id, month_year)
+    CONSTRAINT user_monthly_targets_user_id_month_year_key UNIQUE (user_id, month_year),
+    CONSTRAINT user_monthly_targets_user_id_fkey FOREIGN KEY (user_id)
+        REFERENCES users(id) ON DELETE CASCADE
 );
-
--- ======================================
--- 6. Seed Devices
--- ======================================
-INSERT INTO devices (device_name, device_type) VALUES
-('Matica A', 'Card Machine'),
-('Matica B', 'Card Machine'),
-('MS5000', 'Card Machine'),
-('Konica A', 'Printer'),
-('Konica B', 'Printer'),
-('HP Copier 1', 'Printer'),
-('HP Copier 2', 'Printer'),
-('HP Copier 3', 'Printer'),
-('HP Copier 4', 'Printer');
-
--- ======================================
--- 7. Seed Users
--- ======================================
-INSERT INTO users (user_id, username, email, profile_picture, role, name) VALUES
-(1, 'johndoe',    'johndoe@example.com',   'https://randomuser.me/api/portraits/men/1.jpg',   'machine_operator', 'John Doe'),
-(2, 'marysmith',  'marysmith@example.com', 'https://randomuser.me/api/portraits/women/2.jpg', 'email_officer',    'Mary Smith'),
-(3, 'davlee',     'davlee@example.com',    'https://randomuser.me/api/portraits/men/3.jpg',   'machine_operator', 'David Lee'),
-(4, 'emilyj',     'emilyj@example.com',    'https://randomuser.me/api/portraits/women/4.jpg', 'email_officer',    'Emily Johnson'),
-(5, 'michaelb',   'michaelb@example.com',  'https://randomuser.me/api/portraits/men/5.jpg',   'machine_operator', 'Michael Brown'),
-(6, 'sarahw',     'sarahw@example.com',    'https://randomuser.me/api/portraits/women/6.jpg', 'email_officer',    'Sarah Williams');
