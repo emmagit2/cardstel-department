@@ -4,9 +4,9 @@ const nodemailer = require('nodemailer');
 
 // === 1. Admin Sends Invite ===
 exports.sendInvite = async (req, res) => {
-  const { email, role, department_id, position } = req.body; // 🆕 Added position
+  const { email, role, department_id, position } = req.body;
 
-  if (!email || !role || !position) { // 🆕 Require position
+  if (!email || !role || !position) {
     return res.status(400).json({ message: 'Email, role, and position are required' });
   }
 
@@ -26,26 +26,13 @@ exports.sendInvite = async (req, res) => {
       await pool.query(`
         INSERT INTO staff_invites(email, role, department_id, position, token, invited_by)
         VALUES ($1, $2, $3, $4, $5, $6)
-      `, [email, role, department_id || null, position, token, 1]); // 🆕 position added
+      `, [email, role, department_id || null, position, token, 1]);
     }
 
     const baseUrl = process.env.BASE_URL || 'http://localhost:4000';
     const link = `${baseUrl}/staff-register?token=${token}`;
-const transporter = nodemailer.createTransport({
-  host: 'smtp.gmail.com',
-  port: 587, // ✅ changed from 465 to 587
-  secure: false, // ✅ must be false for port 587 (uses STARTTLS)
-  auth: {
-    user: 'basseyanikan22@gmail.com',
-    pass: 'vdwa vcej jgba djav', // ⚠️ move this to .env in production
-  },
-  tls: {
-    rejectUnauthorized: false, // optional; helps avoid SSL issues on localhost
-  },
-});
 
-
-    await transporter.sendMail({
+    const mailOptions = {
       from: 'basseyanikan22@gmail.com',
       to: email,
       subject: 'Staff Registration Invitation',
@@ -55,7 +42,35 @@ const transporter = nodemailer.createTransport({
         <p><strong>Position:</strong> ${position}</p>
         <p><a href="${link}">Click here</a> to complete your registration.</p>
       `
-    });
+    };
+
+    // Try 587 first, fallback to 465 if it fails
+    const sendEmail = async () => {
+      try {
+        const transporter587 = nodemailer.createTransport({
+          host: 'smtp.gmail.com',
+          port: 587,
+          secure: false,
+          auth: { user: 'basseyanikan22@gmail.com', pass: 'vdwa vcej jgba djav' },
+          tls: { rejectUnauthorized: false },
+        });
+
+        await transporter587.sendMail(mailOptions);
+        console.log('✅ Email sent via 587');
+      } catch (err587) {
+        console.warn('Port 587 failed, trying 465...', err587.message);
+        const transporter465 = nodemailer.createTransport({
+          host: 'smtp.gmail.com',
+          port: 465,
+          secure: true,
+          auth: { user: 'basseyanikan22@gmail.com', pass: 'vdwa vcej jgba djav' },
+        });
+        await transporter465.sendMail(mailOptions);
+        console.log('✅ Email sent via 465');
+      }
+    };
+
+    await sendEmail();
 
     res.json({ message: 'Invitation sent!' });
   } catch (err) {
