@@ -1969,96 +1969,173 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   // ===================== BANK CUSTOM SUMMARY =====================
-  async function loadBankCustomSummary() {
-    const bankId = document.getElementById("bankSelect_custom").value;
-    const month = document.getElementById("bankMonth_custom").value;
-    const week = document.getElementById("bankWeek_custom").value;
-    const day = document.getElementById("bankDay_custom").value;
-    const start = document.getElementById("bankStart_custom").value;
-    const end = document.getElementById("bankEnd_custom").value;
+async function loadBankCustomSummary() {
+  const bankId = parseInt(document.getElementById("bankSelect_custom").value, 10); // ensure integer
+  const month = document.getElementById("bankMonth_custom").value;
+  const week = document.getElementById("bankWeek_custom").value;
+  const start = document.getElementById("bankStart_custom").value;
+  const end = document.getElementById("bankEnd_custom").value;
 
-    if (!bankId) {
-      alert("Please select a bank.");
+  if (!bankId) {
+    alert("Please select a bank.");
+    return;
+  }
+
+  // 🧩 Build query string
+  let query = `bankId=${bankId}`;
+  if (start && end) {
+    query += `&filterType=custom&start=${start}&end=${end}`;
+  } else if (week) {
+    if (!month) {
+      alert("Please select a month first before choosing a week.");
+      return;
+    }
+    query += `&filterType=week&month=${month}`;
+  } else if (month) {
+    query += `&filterType=month&month=${month}`;
+  } else {
+    query += `&filterType=month`;
+  }
+
+  try {
+    const res = await fetch(`/api/card-jobs/bank-calendar-summary?${query}`);
+    const data = await res.json();
+    console.log("✅ Bank summary data:", data);
+
+    const tbody = document.getElementById("bankSummary_custom");
+    tbody.innerHTML = "";
+
+    // 🧩 Handle backend messages or empty data
+    if (data.message) {
+      tbody.innerHTML = `<tr><td colspan="2" class="text-muted">${data.message}</td></tr>`;
       return;
     }
 
-    let query = `bankId=${bankId}`;
-    if (start && end) query += `&filterType=custom&start=${start}&end=${end}`;
-    else if (day) query += `&filterType=day&date=${day}`;
-    else if (week) query += `&filterType=week&date=${week}`;
-    else if (month) query += `&filterType=month&date=${month}`;
-    else query += `&filterType=month`;
+    if (!data.data || !data.data.length) {
+      tbody.innerHTML = `<tr><td colspan="2" class="text-muted">No data available</td></tr>`;
+      return;
+    }
 
-    try {
-      const res = await fetch(`/api/card-jobs/bank-calendar-summary?${query}`);
-      const data = await res.json();
-      console.log(data)
-      const tbody = document.getElementById("bankSummary_custom");
-      tbody.innerHTML = "";
+    // 🕓 Date formatter
+    const formatDate = (dateStr) => {
+      const date = new Date(dateStr);
+      if (isNaN(date)) return "N/A";
+      return date.toLocaleDateString("en-GB", {
+        day: "2-digit",
+        month: "short",
+        year: "numeric",
+      });
+    };
 
-      if (!data.length) {
-        tbody.innerHTML = `<tr><td colspan="2" class="text-muted">No data available</td></tr>`;
-        return;
+    // 🧮 Loop and display rows dynamically
+    data.data.forEach(item => {
+      let period = "N/A";
+
+      if (item.date) {
+        period = formatDate(item.date);
+      } else if (item.week_start && item.week_end) {
+        const start = formatDate(item.week_start);
+        const end = formatDate(item.week_end);
+        period = `${start} → ${end}`;
+      } else if (item.month) {
+        const [y, m] = item.month.split("-");
+        const monthName = new Date(item.month + "-01").toLocaleString("en-GB", { month: "long" });
+        period = `${monthName} ${y}`;
       }
 
-      data.forEach(item => {
-        const period = item.actual_date ?? item.date ?? item.day ?? item.week ?? "N/A";
-        const total = Number(item.total ?? item.total_cards ?? 0);
-        tbody.insertAdjacentHTML("beforeend", `<tr><td>${period}</td><td>${total}</td></tr>`);
-      });
-    } catch (error) {
-      console.error("Error loading bank custom summary:", error);
+      const total = parseInt(item.total_cards ?? 0, 10);
+      tbody.insertAdjacentHTML(
+        "beforeend",
+        `<tr>
+           <td>${period}</td>
+           <td>${total.toLocaleString()}</td>
+         </tr>`
+      );
+    });
+
+    // 🧾 Display Total Summary
+    if (data.total_cards !== undefined) {
+      tbody.insertAdjacentHTML(
+        "beforeend",
+        `<tr class="fw-bold text-success border-top">
+           <td>Total</td>
+           <td>${parseInt(data.total_cards, 10).toLocaleString()}</td>
+         </tr>`
+      );
     }
+
+  } catch (error) {
+    console.error("❌ Error loading bank custom summary:", error);
+    document.getElementById("bankSummary_custom").innerHTML =
+      `<tr><td colspan="2" class="text-danger">Error loading data</td></tr>`;
   }
+}
+
 
   // ===================== BANK JOBS TABLE =====================
-  async function loadBankJobs() {
-    const bankId = document.getElementById("bankSelect").value;
-    const search = document.getElementById("searchInput").value.trim();
-    const date = document.getElementById("dateInput").value;
+ async function loadBankJobs() {
+  const bankId = document.getElementById("bankSelect").value;
+  const search = document.getElementById("searchInput").value.trim();
+  const date = document.getElementById("dateInput").value;
 
-    if (!bankId) {
-      alert("Please select a bank.");
+  if (!bankId) {
+    alert("Please select a bank.");
+    return;
+  }
+
+  let query = `bankId=${bankId}`;
+  if (search) query += `&search=${encodeURIComponent(search)}`;
+  if (date) query += `&date=${date}`;
+
+  try {
+    const res = await fetch(`/api/card-jobs/bank-jobs?${query}`);
+    const data = await res.json();
+
+    console.log("Bank jobs:", data);
+    const tbody = document.getElementById("bankJobsTableBody");
+    tbody.innerHTML = "";
+
+    if (!data || !data.length) {
+      tbody.innerHTML = `
+        <tr>
+          <td colspan="5" class="text-muted text-center py-3">
+            No records found
+          </td>
+        </tr>`;
       return;
     }
 
-    let query = `bankId=${bankId}`;
-    if (search) query += `&search=${encodeURIComponent(search)}`;
-    if (date) query += `&date=${date}`;
+    data.forEach(item => {
+      // Backend already sends formatted date like: "Tuesday, 21 October 2025 at 03:00 PM"
+      const formattedDate = item.created_at || "N/A";
+      const qty = item.completed_qty ?? 0;
+      const jobCode = item.job_code || "N/A";
+      const staff = item.staff || "N/A";
+      const device = item.device_name || "N/A";
 
-    try {
-      const res = await fetch(`/api/card-jobs/bank-jobs?${query}`);
-      const data = await res.json();
-      const tbody = document.getElementById("bankJobsTableBody");
-      tbody.innerHTML = "";
-
-      if (!data.length) {
-        tbody.innerHTML = `<tr><td colspan="5" class="text-muted">No records found</td></tr>`;
-        return;
-      }
-
-      data.forEach(item => {
-        const dateVal = item.actual_date ?? item.date ?? "N/A";
-        const qty = Number(item.completed_qty ?? 0);
-        const jobCode = item.job_code ?? "N/A";
-        const staff = item.staff ?? "N/A";
-        const device = item.device_name ?? "N/A";
-
-        tbody.insertAdjacentHTML(
-          "beforeend",
-          `<tr>
-            <td>${dateVal}</td>
-            <td>${qty}</td>
-            <td>${jobCode}</td>
-            <td>${staff}</td>
-            <td>${device}</td>
-          </tr>`
-        );
-      });
-    } catch (err) {
-      console.error("Error loading bank jobs:", err);
-    }
+      tbody.insertAdjacentHTML(
+        "beforeend",
+        `<tr>
+          <td>${formattedDate}</td>
+          <td>${qty}</td>
+          <td>${jobCode}</td>
+          <td>${staff}</td>
+          <td>${device}</td>
+        </tr>`
+      );
+    });
+  } catch (err) {
+    console.error("Error loading bank jobs:", err);
+    const tbody = document.getElementById("bankJobsTableBody");
+    tbody.innerHTML = `
+      <tr>
+        <td colspan="5" class="text-danger text-center py-3">
+          Error loading data
+        </td>
+      </tr>`;
   }
+}
+
 
   // ===================== LOAD BANKS =====================
   async function loadBanks() {

@@ -74,91 +74,162 @@ exports.getOverallSummary = async (req, res) => {
 
 // ============ Bank Print Trend ============
 // ============ Bank Calendar Summary ============
-// Supports: daily, weekly, monthly, and custom date range aggregation
+
 exports.getBankCalendarSummary = async (req, res) => {
   try {
-    const { bankId, filterType, start, end } = req.query;
+    const { bankId, filterType, start, end, month, weekStart } = req.query;
 
-    if (!filterType) {
+    if (!filterType)
       return res.status(400).json({ error: "filterType is required" });
-    }
 
     let query = "";
-    let values = [];
-    let count = 1;
+    let queryValues = [];
 
-    // ====== Base Condition ======
-    let whereClause = [];
-    if (bankId) {
-      whereClause.push(`c.bank_id = $${count++}`);
-      values.push(bankId);
-    }
-
-    // ====== Handle Different Filter Types ======
-    if (filterType === "custom") {
-      if (!start || !end) {
-        return res.status(400).json({ error: "start and end dates are required for custom filter" });
+    // 🧩 Helper: check if month has data
+    async function checkMonthHasData(monthValue) {
+      let baseQuery = `
+        SELECT COUNT(*) AS total
+        FROM card_job c
+        WHERE TO_CHAR(c.created_at, 'YYYY-MM') = $1
+      `;
+      const params = [monthValue];
+      if (bankId) {
+        baseQuery += ` AND c.bank_id = $2`;
+        params.push(Number(bankId));
       }
-      whereClause.push(`DATE(c.created_at) BETWEEN $${count++} AND $${count++}`);
-      values.push(start, end);
+      const monthRes = await pool.query(baseQuery, params);
+      return Number(monthRes.rows[0].total) > 0;
     }
 
-    const where = whereClause.length > 0 ? `WHERE ${whereClause.join(" AND ")}` : "";
+    // 🧩 Helper: check if week has data
+    async function checkWeekHasData(weekDate) {
+      let baseQuery = `
+        SELECT COUNT(*) AS total
+        FROM card_job c
+        WHERE DATE_TRUNC('week', c.created_at)::date = DATE_TRUNC('week', $1::date)
+      `;
+      const params = [weekDate];
+      if (bankId) {
+        baseQuery += ` AND c.bank_id = $2`;
+        params.push(Number(bankId));
+      }
+      const weekRes = await pool.query(baseQuery, params);
+      return Number(weekRes.rows[0].total) > 0;
+    }
 
-    // ====== Filter Logic ======
-    if (filterType === "day") {
-      query = `
-        SELECT DATE(c.created_at) AS date, SUM(c.completed_qty) AS total_cards
-        FROM card_job c
-        ${where}
-        GROUP BY DATE(c.created_at)
-        ORDER BY DATE(c.created_at) ASC
-      `;
-    } 
-    else if (filterType === "week") {
-      query = `
-        SELECT DATE_PART('year', c.created_at) AS year,
-               DATE_PART('week', c.created_at) AS week,
-               SUM(c.completed_qty) AS total_cards
-        FROM card_job c
-        ${where}
-        GROUP BY year, week
-        ORDER BY year, week ASC
-      `;
-    } 
-    else if (filterType === "month") {
+    // ========== MONTH FILTER ==========
+    if (filterType === "month") {
+      const selectedMonth = month || new Date().toISOString().slice(0, 7);
+      const hasData = await checkMonthHasData(selectedMonth);
+      if (!hasData) return res.json({ message: "No data for this month" });
+
       query = `
         SELECT TO_CHAR(c.created_at, 'YYYY-MM') AS month,
                SUM(c.completed_qty) AS total_cards
         FROM card_job c
-        ${where}
+        WHERE TO_CHAR(c.created_at, 'YYYY-MM') = $1
+        ${bankId ? "AND c.bank_id = $2" : ""}
         GROUP BY month
         ORDER BY month ASC
       `;
-    } 
-    else if (filterType === "custom") {
-      // Custom date range — show each day within the range
+      queryValues = bankId ? [selectedMonth, Number(bankId)] : [selectedMonth];
+    }
+
+    // ========== WEEK FILTER ==========
+    else if (filterType === "week") {
+      if (!month)
+        return res.json({ message: "Please select a month first" });
+
+      const hasMonthData = await checkMonthHasData(month);
+      if (!hasMonthData)
+        return res.json({ message: "No data for this selected month" });
+
+      // If weekStart is passed (e.g. user selected a week)
+      if (weekStart) {
+        const hasWeekData = await checkWeekHasData(weekStart);
+        if (!hasWeekData) {
+          return res.json({
+            message: "No data found for this selected week, but other weeks in this month may have data.",
+            data: [],
+          });
+        }
+      }
+
       query = `
-        SELECT DATE(c.created_at) AS date,
-               SUM(c.completed_qty) AS total_cards
+        SELECT 
+          DATE_TRUNC('week', c.created_at)::date AS week_start,
+          (DATE_TRUNC('week', c.created_at)::date + interval '6 days') AS week_end,
+          TO_CHAR(c.created_at, 'YYYY-MM') AS month,
+          SUM(c.completed_qty) AS total_cards
         FROM card_job c
-        ${where}
-        GROUP BY DATE(c.created_at)
+        WHERE TO_CHAR(c.created_at, 'YYYY-MM') = $1
+        ${bankId ? "AND c.bank_id = $2" : ""}
+        GROUP BY week_start, month
+        ORDER BY week_start ASC
+      `;
+      queryValues = bankId ? [month, Number(bankId)] : [month];
+    }
+
+    // ========== CUSTOM RANGE ==========
+    else if (filterType === "custom") {
+      if (!start || !end)
+        return res.status(400).json({
+          error: "start and end dates are required for custom filter",
+        });
+
+      const startMonth = start.slice(0, 7);
+      const hasMonthData = await checkMonthHasData(startMonth);
+      if (!hasMonthData)
+        return res.json({ message: "No data for this month" });
+
+      query = `
+        SELECT 
+          DATE(c.created_at) AS date,
+          TO_CHAR(c.created_at, 'YYYY-MM') AS month,
+          SUM(c.completed_qty) AS total_cards
+        FROM card_job c
+        WHERE DATE(c.created_at) BETWEEN $1::date AND $2::date
+        ${bankId ? "AND c.bank_id = $3" : ""}
+        GROUP BY DATE(c.created_at), month
         ORDER BY DATE(c.created_at) ASC
       `;
-    } 
+      queryValues = bankId
+        ? [start, end, Number(bankId)]
+        : [start, end];
+    }
+
+    // ========== INVALID ==========
     else {
       return res.status(400).json({ error: "Invalid filterType" });
     }
 
-    const result = await pool.query(query, values);
-    res.json(result.rows);
+    // ✅ Execute safely
+    const result = await pool.query(query, queryValues);
+
+    if (result.rows.length === 0)
+      return res.json({ message: "No data found for the selected filter" });
+
+    // 🧮 Total cards
+    const total = result.rows.reduce(
+      (sum, r) => sum + Number(r.total_cards || 0),
+      0
+    );
+
+    res.json({
+      data: result.rows,
+      total_cards: total,
+    });
 
   } catch (err) {
     console.error("Error fetching bank calendar summary:", err);
     res.status(500).json({ error: "Server error" });
   }
 };
+
+
+
+
+
 
 
 // ============ Bank Jobs Table ============
@@ -184,8 +255,13 @@ exports.getBankJobs = async (req, res) => {
     }
 
     const query = `
-      SELECT c.id, c.job_code, c.completed_qty, c.created_at,
-             u.name as staff, d.device_name
+      SELECT 
+        c.id, 
+        c.job_code, 
+        c.completed_qty, 
+        TO_CHAR(c.created_at, 'FMDay, DD Month YYYY at HH12:MI AM') AS created_at,
+        u.name AS staff, 
+        d.device_name
       FROM card_job c
       LEFT JOIN users u ON c.operator_id = u.id
       LEFT JOIN devices d ON c.device_id = d.device_id
@@ -200,6 +276,7 @@ exports.getBankJobs = async (req, res) => {
     res.status(500).json({ error: "Server error" });
   }
 };
+
 
 
 // ============ Multi-Bank Report ============ 
