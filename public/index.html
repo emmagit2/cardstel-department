@@ -6010,7 +6010,7 @@ async function fetchBanks(selectElementId) {
   const selectEl = document.getElementById(selectElementId);
   if (!selectEl) return console.error(`Element with id "${selectElementId}" not found.`);
   try {
-    const res = await fetch(`/api/banks`);
+    const res = await fetch(`https://department-app-n2tj.onrender.com/api/banks`);
     if (!res.ok) throw new Error(`HTTP error! Status: ${res.status}`);
     const banks = await res.json();
     selectEl.innerHTML = `<option value="">-- Select Bank --</option>`;
