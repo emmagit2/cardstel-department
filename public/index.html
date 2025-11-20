@@ -4107,13 +4107,26 @@ document.getElementById('editConfirmForm')?.addEventListener('submit', async e =
     const form = e.currentTarget;
     const reason = document.getElementById('changeRemark').value.trim();
 
+    // ✅ Ensure reason is provided
     if (!reason) {
         showWarning("Please enter a reason for this change.");
         return;
     }
 
-  
+    // ✅ Prevent editing future dates
+    const today = new Date();
+    const editDate = new Date(entryDate); // entryDate should be in 'YYYY-MM-DD' format
 
+    // Normalize time to midnight for proper comparison
+    today.setHours(0,0,0,0);
+    editDate.setHours(0,0,0,0);
+
+    if (editDate > today) {
+        showWarning("You cannot edit entries for future dates.");
+        return;
+    }
+
+    // Prepare payload for backend
     const payload = {
         bank_id: parseInt(form.dataset.rowBankId),
         user_id: userId,
@@ -4125,6 +4138,7 @@ document.getElementById('editConfirmForm')?.addEventListener('submit', async e =
     };
 
     try {
+        // Send update to server
         const res = await fetch('/api/qc/logs', {
             method: 'POST',
             headers: { "Content-Type": "application/json" },
@@ -4135,7 +4149,7 @@ document.getElementById('editConfirmForm')?.addEventListener('submit', async e =
 
         const data = await res.json();
 
-        // Update the cell in the table immediately
+        // Update the table cell immediately
         if (editedCell && data.updatedEntry) {
             const isOvertime = form.dataset.field.startsWith('ot_');
             editedCell.textContent = isOvertime
@@ -4165,14 +4179,103 @@ document.getElementById('editConfirmForm')?.addEventListener('submit', async e =
 
 
 
+
 /* ============================================================
    SHOW/HIDE OVERTIME FIELD
 ============================================================ */
-document.getElementById("overtimeSwitch")?.addEventListener("change", function () {
-    document.getElementById("overtimeQtyDiv").style.display = this.checked ? "block" : "none";
+document.addEventListener("DOMContentLoaded", () => {
+
+  const addQCForm = document.getElementById("addQCForm");
+  const qcBankSelect = document.getElementById("qcBank");
+  const qcShiftSelect = document.getElementById("qcShift");
+  const qcTotalInput = document.getElementById("qcTotal");
+  const overtimeSwitch = document.getElementById("overtimeSwitch");
+  const overtimeQtyDiv = document.getElementById("overtimeQtyDiv");
+  const overtimeQtyInput = document.getElementById("overtimeQty");
+
+  // Show/hide overtime quantity input
+  overtimeSwitch.addEventListener("change", () => {
+    if (overtimeSwitch.checked) {
+      overtimeQtyDiv.style.display = "block";
+      overtimeQtyInput.required = true;
+    } else {
+      overtimeQtyDiv.style.display = "none";
+      overtimeQtyInput.required = false;
+      overtimeQtyInput.value = "";
+    }
+  });
+
+  // Load banks into select
+  async function loadBanks() {
+    try {
+      const res = await fetch("/api/banks"); // adjust endpoint if different
+      const data = await res.json();
+      if (data.success) {
+        qcBankSelect.innerHTML = '<option value="">-- Select Bank --</option>';
+        data.banks.forEach(bank => {
+          const option = document.createElement("option");
+          option.value = bank.bank_id;
+          option.textContent = bank.bank_name;
+          qcBankSelect.appendChild(option);
+        });
+      }
+    } catch (err) {
+      console.error("Error loading banks:", err);
+    }
+  }
+
+  loadBanks();
+
+  // Handle form submission
+  addQCForm.addEventListener("submit", async (e) => {
+    e.preventDefault();
+
+    const payload = {
+      bank_id: qcBankSelect.value,
+      shift: qcShiftSelect.value,
+      entry_date: new Date().toISOString().split("T")[0], // today's date
+      quantity: parseInt(qcTotalInput.value),
+      overtime: overtimeSwitch.checked,
+      overtime_qty: overtimeSwitch.checked ? parseInt(overtimeQtyInput.value) : 0
+    };
+
+    try {
+      const res = await fetch("/api/qc/qc_entries", {   // adjust API endpoint
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload)
+      });
+
+      const data = await res.json();
+
+      if (data.success) {
+        alert("✅ QC Entry added successfully!");
+        addQCForm.reset();
+        overtimeQtyDiv.style.display = "none";
+
+        // Hide modal
+        const modalEl = document.getElementById("qcEntryModalUnique");
+        const modal = bootstrap.Modal.getInstance(modalEl);
+        modal.hide();
+
+        // ✅ Reload table immediately after adding
+        await loadQcEntries(); // This will fetch and update the table without refreshing
+
+      } else {
+        alert("❌ Error adding entry: " + (data.error || "Unknown"));
+      }
+
+    } catch (err) {
+      console.error("Add QC Error:", err);
+      alert("❌ Server error while adding QC entry.");
+    }
+  });
+
 });
 
 </script>
+
+
 
 
 <script>
