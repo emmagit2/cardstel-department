@@ -17,29 +17,59 @@
         font-size: 0.9rem;
         overflow-x: hidden;
     }
-    .sidebar {
-        background: linear-gradient(180deg, #4b6cb7, #182848);
-        color: white;
-        height: 100vh;
-        transition: all 0.3s ease;
-        position: fixed;
-        left: 0;
-        top: 0;
-        overflow-y: auto;
-        z-index: 2000;
-        width: 65px;
-        display: flex;
-        flex-direction: column;
-    }
-    .sidebar.expanded { width: 200px; }
-    .logo-container {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        gap: 8px;
-        padding: 10px;
-        order: 0;
-    }
+.sidebar {
+    background: #ffffff; /* clean white */
+    color: #333;
+    height: 100vh;
+    transition: all 0.3s ease;
+    position: fixed;
+    left: 0;
+    width: 200px;
+    top: 0;
+    overflow-y: auto;
+    z-index: 2000;
+    opacity: 1; /* visible */
+    display: flex;
+    flex-direction: column;
+
+    /* ⭐ Modern shadow & design */
+    box-shadow: 0 0 18px rgba(0, 0, 0, 0.15);
+    border-right: 1px solid rgba(0, 0, 0, 0.05);
+    border-radius: 0 16px 16px 0;
+}
+
+
+
+.sidebar.ready {
+  opacity: 1;
+}
+    .sidebar.expanded { width: 200px; color: white;}
+ .logo-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 14px 10px;
+    order: 0;
+    margin-top: auto; /* stays at bottom nicely */
+}
+
+/* Logo image fits perfectly */
+.logo-container img {
+    width: 150px;       /* perfect size */
+    height: auto;      /* keeps proportion */
+    object-fit: contain;
+    border-radius: 8px;
+}
+
+/* Text beside logo */
+.logo-container span {
+    font-size: 14px;
+    font-weight: 600;
+    color: #333;
+    letter-spacing: 0.3px;
+}
+
     .logo-container img { width: 35px; height: 35px; border-radius: 6px; }
     .logo-container span { font-weight: bold; font-size: 0.85rem; white-space: nowrap; }
     .sidebar:not(.expanded) .logo-container { order: 99; margin-top: auto; padding-bottom: 15px; }
@@ -57,26 +87,35 @@
         text-align: left;
         margin-bottom: 15px;
     }
+    .toggle-btn {
+    display: none;
+  }
     .toggle-btn span { font-size: 0.85rem; }
     .sidebar:not(.expanded) .toggle-btn span { display: none; }
-    .nav-link {
-        color: #d1d5db;
-        padding: 8px 10px;
-        display: flex;
-        align-items: center;
-        transition: background 0.2s;
-        font-size: 0.85rem;
-    }
-    .nav-link:hover { background: rgba(255, 255, 255, 0.1); color: white; }
-    .nav-link i {
-        font-size: 0.9rem;
-        background: white;
-        color: #182848;
-        border-radius: 50%;
-        padding: 6px;
-        margin-right: 10px;
-        border: 1px solid white;
-    }
+ .sidebar .nav-link {
+    color: #444;
+    padding: 12px 14px;
+    border-radius: 12px;
+    margin-bottom: 6px;
+    font-weight: 500;
+    transition: 0.2s ease;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.sidebar .nav-link:hover {
+    background: #f5f5f5;
+    color: #000;
+    transform: translateX(4px);
+}
+
+.sidebar .nav-link.active {
+    background: #ffe5d6; 
+    color: #d56b32;
+    font-weight: 600;
+}
+
     .sidebar:not(.expanded) .nav-link span { display: none; }
     .sidebar:not(.expanded) .nav-link i { margin-right: 0; }
     .content { margin-left: 65px; transition: margin-left 0.3s; }
@@ -96,6 +135,9 @@
         cursor: pointer;
     }
     .user-menu img { width: 35px; height: 35px; border-radius: 50%; }
+    .collapse { display: none; }
+.collapse.show { display: block; }
+
     @media(max-width: 768px) {
         .sidebar { left: -200px; width: 200px; box-shadow: 2px 0 8px rgba(0,0,0,0.2); }
         .sidebar.expanded { left: 0; }
@@ -103,6 +145,7 @@
         .hamburger-btn {
             background: none; border: none; font-size: 1.2rem; color: #182848;
         }
+
         .content { margin-left: 0 !important; }
         .overlay {
             display: none;
@@ -638,24 +681,744 @@
     padding: 0.6rem 0.75rem;
   }
 
-  /* Right panel export buttons */
-  #bankSections .btn-outline-success {
-    border-color: #ff6a00;
-    color: #ff6a00;
+
+.network-modal {
+  position: fixed;
+  top: 0px;
+  right: 20px;
+  background: #fff;
+  display: none;
+  width: 300px;
+  z-index: 10000000000;
+  transition: all 0.4s ease;
+  animation: slideIn 0.4s ease;
+}
+
+@keyframes slideIn {
+  from {
+    transform: translateY(50px);
+    opacity: 0;
   }
-  #bankSections .btn-outline-success:hover {
-    background: #ff6a00;
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+.network-modal.online {
+  border-left-color: #198754;
+}
+
+
+/* Base Modal Style */
+.fetch-modal {
+  position: fixed;
+  top: 10px;
+  right: 20px;
+  background: #ffffff;
+  padding: 14px 20px;
+  border-radius: 16px;
+  border-left: 5px solid #0d6efd;
+  width: 320px;
+  display: none;
+  z-index: 10000000000;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
+  animation: fadeIn 0.4s ease;
+}
+
+.fetch-inner {
+  display: flex;
+  align-items: center;
+}
+
+.fetch-icon {
+  width: 32px;
+  height: 32px;
+  flex-shrink: 0;
+}
+
+/* Animations */
+@keyframes spin {
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    transform: translateY(40px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+@keyframes checkmark {
+  0% {
+    stroke-dashoffset: 24;
+  }
+  100% {
+    stroke-dashoffset: 0;
+  }
+}
+
+@keyframes errorShake {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-5px); }
+  50% { transform: translateX(5px); }
+  75% { transform: translateX(-3px); }
+}
+
+/* Theme States */
+.fetch-modal.success {
+  border-left-color: #198754;
+}
+
+.fetch-modal.error {
+  border-left-color: #dc3545;
+}
+
+.fetch-modal.error .fetch-icon {
+  animation: errorShake 0.5s ease;
+}
+
+/* ===== Header ===== */
+.modern-header {
+  background: #fff; /* clean white */
+  border-radius: 1rem;
+  padding: 1rem 1.5rem;
+  box-shadow: 0 6px 18px rgba(0,0,0,0.08);
+  transition: all 0.2s ease;
+}
+
+.modern-header:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 25px rgba(0,0,0,0.12);
+}
+
+.modern-header h3 {
+  color: #e65100; /* deep orange */
+  font-size: 1.4rem;
+}
+
+.modern-header small {
+  color: #666;
+}
+
+/* ===== Export Buttons ===== */
+.btn-pdf {
+  background-color: #e65100;
+  color: #fff;
+  border-radius: 0.6rem;
+  border: none;
+  font-weight: 500;
+  transition: background 0.2s, transform 0.2s;
+}
+
+.btn-pdf:hover {
+  background-color: #ff6f00;
+  transform: translateY(-1px);
+}
+
+.btn-excel {
+  background-color: #fff; /* white background */
+  color: #43a047; /* green for Excel */
+  border-radius: 0.6rem;
+  border: none;
+  font-weight: 500;
+  transition: background 0.2s, transform 0.2s, color 0.2s;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+}
+
+.btn-excel:hover {
+  background-color: #f1f1f1;
+  color: #388e3c;
+  transform: translateY(-1px);
+}
+
+/* ===== Modern Table ===== */
+.modern-table-container {
+  background: #fff;
+  border-radius: 1rem;
+  padding: 1rem;
+  box-shadow: 0 6px 18px rgba(0,0,0,0.05);
+}
+
+.modern-table {
+  border-collapse: separate !important;
+  border-spacing: 0 0.5rem;
+}
+
+.modern-table thead tr {
+  background-color: #ffe0b2; /* light deep-orange header */
+  color: #e65100;
+  font-weight: 600;
+  border-radius: 0.8rem;
+}
+
+.modern-table thead th {
+  border: none !important;
+  padding: 0.75rem 1rem;
+}
+
+.modern-table tbody tr {
+  background: #fff;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.03);
+  border-radius: 0.6rem;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.modern-table tbody tr:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(0,0,0,0.08);
+}
+
+.modern-table td {
+  border: none !important;
+  padding: 0.75rem 1rem;
+  vertical-align: middle;
+}
+
+.modern-table th:first-child {
+  border-top-left-radius: 0.8rem;
+}
+
+.modern-table th:last-child {
+  border-top-right-radius: 0.8rem;
+}
+  .smart-table {
+    background: #fff;
+    border-radius: 16px;
+    overflow: hidden;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+    border-collapse: separate;
+    border-spacing: 0;
+  }
+
+  .smart-table thead {
+    background: #fff7f3;
+    color: #ff5722;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    border-bottom: 2px solid #ffe0d5;
+  }
+
+  .smart-table th {
+    vertical-align: middle;
+    padding: 14px 16px;
+    border-bottom: 2px solid #ffe0d5;
+    font-size: 0.9rem;
+  }
+
+  .smart-table td {
+    padding: 14px 16px;
+    border-bottom: 1px solid #f1f1f1; /* middle border line between rows */
+    vertical-align: middle;
+  }
+
+  .smart-table tbody tr:last-child td {
+    border-bottom: none; /* remove bottom line for last row */
+  }
+
+  .smart-table tbody tr:hover {
+    background-color: #fff4ef;
+    transition: all 0.2s ease-in-out;
+  }
+
+  .smart-btn {
+    border: none;
+    outline: none;
+    padding: 6px 10px;
+    border-radius: 8px;
+    font-size: 0.85rem;
+    font-weight: 500;
+    transition: all 0.2s ease-in-out;
+  }
+
+  .smart-btn.view {
+    background-color: #007bff;
     color: #fff;
   }
-  #bankSections .btn-outline-danger {
-    border-color: #ff4500;
-    color: #ff4500;
+
+  .smart-btn.edit {
+    background-color: #ffc107;
+    color: #222;
   }
-  #bankSections .btn-outline-danger:hover {
-    background: #ff4500;
+
+  .smart-btn.delete {
+    background-color: #dc3545;
     color: #fff;
   }
+
+  .smart-btn.view:hover { background-color: #0069d9; }
+  .smart-btn.edit:hover { background-color: #e0a800; }
+  .smart-btn.delete:hover { background-color: #c82333; }
+
+  .smart-badge {
+    padding: 6px 10px;
+    border-radius: 10px;
+    font-size: 0.8rem;
+    font-weight: 600;
+  }
+
+  .smart-badge.success {
+    background-color: #d4edda;
+    color: #155724;
+  }
+
+  .smart-header-icon {
+    color: #ff5722;
+    margin-right: 6px;
+    font-size: 1rem;
+  }
+
+
+/* Table Rows */
+#devicesTable tbody tr {
+  transition: transform 0.15s, box-shadow 0.15s;
+}
+
+#devicesTable tbody tr:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0,0,0,0.12);
+}
+
+/* Buttons in table */
+#devicesTable tbody .btn {
+  transition: transform 0.15s, box-shadow 0.15s;
+}
+
+#devicesTable tbody .btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 3px 6px rgba(0,0,0,0.2);
+}
+
+/* Responsive table */
+@media (max-width: 576px) {
+  #devicesTable thead {
+    display: none;
+  }
+  #devicesTable tbody tr {
+    display: block;
+    margin-bottom: 0.75rem;
+  }
+  #devicesTable tbody td {
+    display: flex;
+    justify-content: space-between;
+    padding: 0.5rem;
+  }
+  #devicesTable tbody td::before {
+    content: attr(data-label);
+    font-weight: 600;
+    color: #555;
+  }
+}
+
+
+/* Scrollbar for modal body */
+#showDevicesModal .modal-body::-webkit-scrollbar {
+  width: 6px;
+}
+
+#showDevicesModal .modal-body::-webkit-scrollbar-thumb {
+  background-color: rgba(255,107,0,0.7);
+  border-radius: 3px;
+}
+
+#showDevicesModal .modal-body::-webkit-scrollbar-track {
+  background-color: #f0f0f0;
+  border-radius: 3px;
+}
+
+/* Table row hover effect */
+#devicesTable tbody tr {
+  transition: transform 0.15s, box-shadow 0.15s;
+}
+
+#devicesTable tbody tr:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 3px 6px rgba(0,0,0,0.12);
+}
+
+/* Buttons hover effect */
+#devicesTable tbody .btn {
+  transition: transform 0.15s, box-shadow 0.15s;
+}
+
+#devicesTable tbody .btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+}
+
+
+  /* Scoped CSS */
+  .modern-dashboard {
+    background-color: #fff;
+    font-family: 'Inter', sans-serif;
+    color: #333;
+  }
+
+  .modern-dashboard .card {
+    border: none;
+    border-radius: 16px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.06);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    background-color: #fff;
+  }
+
+  .modern-dashboard .card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 6px 18px rgba(0,0,0,0.1);
+  }
+
+  .modern-dashboard .form-control,
+  .modern-dashboard .form-select {
+    border-radius: 10px;
+    border: 1px solid #ddd;
+    padding: 0.55rem 0.75rem;
+    background-color: #fff;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+    transition: all 0.2s ease;
+  }
+
+  .modern-dashboard .form-control:focus,
+  .modern-dashboard .form-select:focus {
+    border-color: #ff7a00;
+    box-shadow: 0 0 0 0.15rem rgba(255, 122, 0, 0.2);
+  }
+
+  .modern-dashboard .btn-black {
+    background-color: #1a1a1a;
+    color: #fff;
+    border-radius: 10px;
+    border: none;
+    transition: background-color 0.2s ease, transform 0.1s ease;
+  }
+
+  .modern-dashboard .btn-black:hover {
+    background-color: #000;
+    transform: scale(1.03);
+  }
+
+  .modern-dashboard table {
+    border-radius: 12px;
+    overflow: hidden;
+  }
+
+  .modern-dashboard thead.table-light {
+    background-color: #fff3e6;
+    color: #222;
+    font-weight: 600;
+  }
+
+  .modern-dashboard tbody tr:hover {
+    background-color: #fff9f4;
+  }
+
+  .modern-dashboard h5.card-title {
+    color: #ff7a00;
+    font-weight: 700;
+  }
+  .toner-dashboard {
+    background-color: #fff;
+    font-family: 'Inter', sans-serif;
+    color: #333;
+  }
+
+  .toner-dashboard .card {
+    border-radius: 16px;
+    border: none;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.06);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+  }
+
+  .toner-dashboard .card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 6px 18px rgba(0,0,0,0.1);
+  }
+
+  .toner-dashboard .form-control,
+  .toner-dashboard .form-select {
+    border-radius: 10px;
+    border: 1px solid #ddd;
+    background-color: #fff;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+    padding: 0.55rem 0.75rem;
+    transition: all 0.2s ease;
+  }
+
+  .toner-dashboard .form-control:focus,
+  .toner-dashboard .form-select:focus {
+    border-color: #ff7a00;
+    box-shadow: 0 0 0 0.15rem rgba(255,122,0,0.2);
+  }
+
+  .toner-dashboard .btn-black {
+    background-color: #1a1a1a;
+    color: #fff;
+    border-radius: 10px;
+    border: none;
+    transition: background-color 0.2s ease, transform 0.1s ease;
+  }
+
+  .toner-dashboard .btn-black:hover {
+    background-color: #000;
+    transform: scale(1.03);
+  }
+
+  .toner-dashboard table {
+    border-radius: 12px;
+    overflow: hidden;
+  }
+
+  .toner-dashboard thead.table-light {
+    background-color: #fff3e6;
+    color: #222;
+    font-weight: 600;
+  }
+
+  .toner-dashboard tbody tr:hover {
+    background-color: #fff9f4;
+  }
+
+  .toner-dashboard h3,
+  .toner-dashboard h5.card-title {
+    color: #ff7a00;
+  }
+
+
+  .qc-report-dashboard {
+    background-color: #fff;
+    font-family: 'Inter', sans-serif;
+    color: #333;
+  }
+
+  .qc-report-dashboard .card {
+    border-radius: 16px;
+    border: none;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.06);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+  }
+
+  .qc-report-dashboard .card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 6px 18px rgba(0,0,0,0.1);
+  }
+
+  .qc-report-dashboard .qc-table th,
+  .qc-report-dashboard .qc-table td {
+    padding: 0.5rem 0.75rem;
+    font-size: 0.85rem;
+  }
+
+  .qc-report-dashboard .qc-table thead th {
+    font-weight: 600;
+    text-transform: uppercase;
+  }
+
+  .qc-report-dashboard .qc-table tbody tr:hover {
+    background-color: #fff4e6;
+  }
+
+  .qc-report-dashboard .qc-table td {
+    background-color: #fff;
+    box-shadow: inset 0 -1px 0 rgba(0,0,0,0.05);
+    border: none;
+  }
+
+  .qc-report-dashboard .qc-table th {
+    border: none;
+  }
+
+
+  /* General dashboard card style */
+  .qc-report-dashboard, #qcControlPanel .card {
+    background-color: #fff;
+    border-radius: 16px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.06);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    font-family: 'Inter', sans-serif;
+  }
+
+  .qc-report-dashboard .card:hover, #qcControlPanel .card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 6px 18px rgba(0,0,0,0.1);
+  }
+
+  /* Table Styling */
+  .qc-report-dashboard .qc-table th,
+  .qc-report-dashboard .qc-table td {
+    padding: 0.45rem 0.65rem;
+    font-size: 0.85rem;
+  }
+
+  .qc-report-dashboard .qc-table tbody tr:hover {
+    background-color: #fff4e6;
+  }
+
+  .qc-report-dashboard .qc-table td {
+    background-color: #fff;
+    box-shadow: inset 0 -1px 0 rgba(0,0,0,0.05);
+    border: none;
+  }
+
+  .qc-report-dashboard .qc-table th {
+    border: none;
+    font-weight: 600;
+  }
+
+  /* Filter inputs */
+  #qcControlPanel select,
+  #qcControlPanel input {
+    border-radius: 8px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+  }
+
+  #applyFilterBtn {
+    border-radius: 8px;
+    transition: all 0.25s ease;
+  }
+
+  #applyFilterBtn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 12px rgba(0,0,0,0.2);
+  }
+
+<!-- Optional: Add professional CSS -->
+
+  #qcControlPanel .card {
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+  }
+
+  #qcControlPanel .form-control,
+  #qcControlPanel .form-select {
+    border-radius: 8px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+    transition: all 0.25s ease;
+  }
+
+  #qcControlPanel .qc-table {
+    table-layout: fixed;
+    font-size: 0.9rem;
+  }
+
+  #qcControlPanel .qc-table td[contenteditable="true"] {
+    background-color: #fff9f5;
+    cursor: text;
+  }
+
+  #qcControlPanel .qc-table td[contenteditable="true"]:focus {
+    outline: 2px solid #ff6b00;
+    background-color: #fff;
+  }
+
+  #qcControlPanel .btn-primary {
+    border-radius: 8px;
+    box-shadow: 0 3px 6px rgba(0,0,0,0.15);
+  }
+/* Table Styling */
+.qc-table { border-collapse: separate; border-spacing:0; width:100%; font-size:0.95rem; border-radius:8px; overflow:hidden; }
+.qc-table th, .qc-table td { padding:0.6rem; text-align:center; border:0; }
+.qc-table thead tr:first-child th { border-bottom:2px solid #d9751c; }
+.qc-table thead tr:nth-child(2) th { border-bottom:2px solid #ffa94d; }
+.qc-table tbody tr.main-row { background:#fff; transition:all 0.3s; }
+.qc-table tbody tr.main-row:hover { background:#fff6e5; }
+.qc-table tbody tr.ot-row { font-style:italic; background:#fff3d6; border-left:4px solid #ff6b00; }
+.qc-table tbody tr.totals-row { background:#ffe8cc; font-weight:600; border-top:3px solid #ff6b00; }
+.day-block { background:#ff6b00; color:white; }
+.table-responsive { overflow-x:auto; }
+#applyFilterBtn { background:#212529; color:white; }
+#applyFilterBtn:hover { background:#343a40; }
+.pagination .page-link { color:#ff6b00; }
+.pagination .page-item.active .page-link { background:#ff6b00; border-color:#ff6b00; }
+.pagination .page-link:hover { background:#ffd8a8; }
+
+/* Dotted orange border for overtime input */
+.dotted-orange { border: 2px dotted #ff6b00 !important; border-radius: 5px; padding: 0.4rem; }
+/* TOP BAR - 70% floating */
+.top-bar {
+    width: 70%;
+    height: 80px;
+    background: #ffffff;
+    display: flex;
+    align-items: center;
+    justify-content: space-between; /* hamburger left, logo center, user right */
+    padding: 0 20px;
+    box-shadow: 0 6px 25px rgba(0,0,0,0.15); /* deeper shadow for dashboard feel */
+    position: fixed;
+    top: 20px;
+    left: 60%;
+    transform: translateX(-50%);
+    z-index: 3000;
+    border-radius: 14px;
+}
+
+/* Hamburger menu */
+.hamburger-btn {
+    background: none;
+    border: none;
+    font-size: 24px;
+    cursor: pointer;
+    color: #444;
+}
+
+/* Centered logo - modern dashboard look */
+.topbar-logo {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 15px;
+    padding: 10px 20px;
+    border-radius: 12px;
+}
+
+/* Logo image - larger & clean */
+.topbar-logo img {
+    width: 120px;
+    height: auto;
+    object-fit: contain;
+    border-radius: 8px;
+    display: block;
+}
+
+
+
+/* User menu */
+.user-menu {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    cursor: pointer;
+}
+
+.user-menu img {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    object-fit: cover;
+}
+
+.user-menu span {
+    font-size: 14px;
+    font-weight: 500;
+    color: #333;
+}
+
+.user-menu i {
+    font-size: 14px;
+    color: #555;
+}
+.department-panel{
+  margin-top: 10%;
+}
+
 </style>
+
+
 </head>
 <body>
 
@@ -664,71 +1427,102 @@
 
 <!-- Sidebar -->
 <div id="sidebar" class="sidebar">
-    <button class="toggle-btn" onclick="toggleSidebar()">
-        <i class="fas fa-bars"></i>
-        <span>Menu</span>
-    </button>
-
-    <nav class="nav flex-column flex-grow-1">
-        <a href="#" class="nav-link" data-target="homePanel"><i class="fas fa-house"></i> <span>Home</span></a>
-
-        <!-- Product Dropdown -->
-        <div class="nav-item">
-            <a href="#" class="nav-link" data-bs-toggle="collapse" data-bs-target="#productSubmenu" aria-expanded="false">
-                <i class="fas fa-box"></i> <span>Production Management</span>
-                <i class="fas fa-caret-down ms-auto"></i>
-            </a>
-         <div class="collapse" id="productSubmenu">
-    <a href="#" class="nav-link ps-4" data-target="deviceUsagePanel">Device Usage</a>
-    <a href="#" class="nav-link ps-4" data-target="personTeamPanel">Person Team</a>
-      <a href="#" class="nav-link ps-4" data-target="jobManagementPanel">Job Management</a>
-    <a href="#" class="nav-link ps-4" data-target="cardRecordsPanel">Card Records</a>
-    <a href="#" class="nav-link ps-4" data-target="machineReportPanel">Machine Report</a>
-    <!-- ✅ New Job Management Panel Link -->
   
-</div>
-
-        </div>
-        <!-- Staff Management Dropdown -->
-<div class="nav-item">
-  <a href="#" class="nav-link" data-bs-toggle="collapse" data-bs-target="#staffSubmenu" aria-expanded="false">
-    <i class="fas fa-users"></i> <span>Staff Management</span>
-    <i class="fas fa-caret-down ms-auto"></i>
+  
+<nav class="nav flex-column flex-grow-1">
+  <!-- Home -->
+  <a href="#" class="nav-link" data-target="homePanel">
+    <i class="fas fa-house"></i> <span>Home</span>
   </a>
-  <div class="collapse" id="staffSubmenu">
-    <a href="#" class="nav-link ps-4" data-target="staffListPanel">Manage Staff</a>
-  </div>
-</div>
 
-    </nav>
+  <!-- Production Management Dropdown -->
+  <div class="nav-item">
+    <a href="#" class="nav-link" data-bs-toggle="collapse" data-bs-target="#productionSubmenu" aria-expanded="false">
+      <i class="fas fa-box"></i> <span>Production Management</span>
+      <i class="fas fa-caret-down ms-auto"></i>
+    </a>
 
-    <div class="logo-container">
-        <img src="https://via.placeholder.com/50" alt="Company Logo">
-        <span>MyCompany</span>
+    <div class="collapse" id="productionSubmenu">
+      <!-- smaller sub-links -->
+      <a href="#" class="nav-link ps-4" data-target="deviceUsagePanel"><i class="fas fa-microchip"></i> Device Usage</a>
+      <a href="#" class="nav-link ps-4" data-target="personTeamPanel"><i class="fas fa-users-cog"></i> Person Team</a>
+      <a href="#" class="nav-link ps-4" data-target="jobManagementPanel"><i class="fas fa-tasks"></i> Job Management</a>
+      <a href="#" class="nav-link ps-4" data-target="cardRecordsPanel"><i class="fas fa-id-card"></i> Card Records</a>
+      <!-- <a href="#" class="nav-link ps-4" data-target="machineReportPanel"><i class="fas fa-cogs"></i> Machine Report</a> -->
+
+      <!-- ✅ QC Control Unit (no submenu) -->
+      <a href="#" class="nav-link ps-4" data-target="qcControlPanel">
+        <i class="fas fa-check-circle"></i> QC Control Unit
+      </a>
+
+      <!-- ✅ Telcom Unit (no submenu) -->
+    <!--   <a href="#" class="nav-link ps-4" data-target="telcomUnitPanel">
+        <i class="fas fa-satellite-dish"></i> Telcom Unit
+      </a> -->
     </div>
+  </div>
+
+  <!-- Staff Management Dropdown -->
+  <div class="nav-item">
+    <a href="#" class="nav-link" data-bs-toggle="collapse" data-bs-target="#staffSubmenu" aria-expanded="false">
+      <i class="fas fa-users"></i> <span>Staff Management</span>
+      <i class="fas fa-caret-down ms-auto"></i>
+    </a>
+    <div class="collapse" id="staffSubmenu">
+      <a href="#" class="nav-link ps-4" data-target="staffListPanel"><i class="fas fa-user-cog"></i> Manage Staff</a>
+    </div>
+  </div>
+
+  <!-- ✅ IT Department (Separate Main Menu) -->
+<!--   <div class="nav-item">
+    <a href="#" class="nav-link" data-bs-toggle="collapse" data-bs-target="#itDepartmentSubmenu" aria-expanded="false">
+      <i class="fas fa-desktop"></i> <span>IT Department</span>
+      <i class="fas fa-caret-down ms-auto"></i>
+    </a>
+    <div class="collapse" id="itDepartmentSubmenu">
+      <a href="#" class="nav-link ps-4" data-target="systemMaintenancePanel"><i class="fas fa-tools"></i> System Maintenance</a>
+      <a href="#" class="nav-link ps-4" data-target="softwareDeploymentPanel"><i class="fas fa-upload"></i> Software Deployment</a>
+      <a href="#" class="nav-link ps-4" data-target="itSupportPanel"><i class="fas fa-headset"></i> IT Support</a>
+    </div>
+  </div> -->
+</nav>
+
+
+
 </div>
 
 <!-- Main Content -->
 <div class="content">
-    <div class="top-bar">
-        <button class="hamburger-btn d-md-none" onclick="toggleSidebar()">
-            <i class="fas fa-bars"></i>
-        </button>
-        <h6 class="m-0 d-none d-md-block">📊 Department Management Dashboard</h6>
-        <div class="dropdown ms-auto">
-            <div class="user-menu" data-bs-toggle="dropdown">
-                <img src="https://via.placeholder.com/40" alt="User">
-                <span>John Doe</span>
-                <i class="fas fa-caret-down"></i>
-            </div>
-            <ul class="dropdown-menu dropdown-menu-end">
-                <li><a class="dropdown-item" href="#">Profile</a></li>
-                <li><a class="dropdown-item" href="#">Settings</a></li>
-                <li><hr class="dropdown-divider"></li>
-                <li><a class="dropdown-item" href="#">Logout</a></li>
-            </ul>
-        </div>
+<div class="top-bar">
+    <!-- Hamburger menu -->
+    <button class="hamburger-btn d-md-none" onclick="toggleSidebar()">
+        <i class="fas fa-bars"></i>
+    </button>
+
+    <!-- Centered Company Logo -->
+    <div class="topbar-logo">
+        <img src="icons/cardstel_logo.png" alt="Cardstel Logo"><br>
     </div>
+
+    <!-- User dropdown -->
+    <div class="dropdown ms-auto">
+        <div class="user-menu" data-bs-toggle="dropdown">
+            <img src="https://via.placeholder.com/40" alt="User">
+            <span>John Doe</span>
+            <i class="fas fa-caret-down"></i>
+        </div>
+        <ul class="dropdown-menu dropdown-menu-end">
+            <li><a class="dropdown-item" href="#">Profile</a></li>
+            <li><a class="dropdown-item" href="#">Settings</a></li>
+            <li><hr class="dropdown-divider"></li>
+            <li><a class="dropdown-item" href="#">Logout</a></li>
+        </ul>
+    </div>
+</div>
+
+
+
+
 
     <!-- Panels -->
     <div id="homePanel" class="p-3 department-panel">
@@ -738,245 +1532,490 @@
 
 <div id="deviceUsagePanel" class="p-4 bg-light rounded-4 shadow-sm department-panel">
 
-    <!-- Title Section -->
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <div>
-            <h3 class="fw-bold mb-1"><i class="bi bi-bar-chart-line"></i> Device Usage</h3>
-            <small class="text-muted">Monitor printing activity & analytics</small>
-        </div>
-        <div class="d-flex gap-2">
-            <button class="btn btn-outline-primary btn-sm"><i class="bi bi-download"></i> Export PDF</button>
-            <button class="btn btn-outline-success btn-sm"><i class="bi bi-file-earmark-spreadsheet"></i> Export Excel</button>
-        </div>
-    </div>
-<!-- ================================
-     TOTAL PRINTS SECTION
-================================ -->
-<!-- ================================>
-<!-- ================================
-     TOTAL PRINTS SECTION (Custom Query Panel)
-================================ -->
+<!-- Modern Header Section -->
+<!-- Modern Header -->
+<div class="modern-header d-flex justify-content-between align-items-center mb-4 p-3 rounded-3 shadow-sm">
+
+  <!-- Title -->
+  <div>
+    <h3 class="fw-bold mb-1"><i class="bi bi-bar-chart-line"></i> Device Usage</h3>
+    <small class="text-muted">Monitor printing activity & analytics</small>
+  </div>
+
+  <!-- Export Buttons -->
+  <div class="d-flex gap-2">
+    <button class="btn btn-pdf btn-sm">
+      <i class="bi bi-download"></i> Export PDF
+    </button>
+    <button class="btn btn-excel btn-sm">
+      <i class="bi bi-file-earmark-spreadsheet"></i> Export Excel
+    </button>
+  </div>
+</div>
 <section class="total-prints-section container my-4">
 
-  <!-- Device & Date Range Selector -->
+<!-- Action Buttons Row (Show / Add) -->
+<div class="row mb-3">
+  <div class="col d-flex justify-content-end gap-2">
+    <!-- Show Devices Button -->
+    <button 
+      class="btn" 
+      style="
+        background-color: #000; 
+        color: white; 
+        border-radius: 0.5rem; 
+        padding: 0.5rem 1rem; 
+        font-weight: 500; 
+        box-shadow: 0 4px 8px rgba(0,0,0,0.15); 
+        transition: transform 0.2s, box-shadow 0.2s;
+      " 
+      data-bs-toggle="modal" 
+      data-bs-target="#showDevicesModal"
+      onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 6px 12px rgba(0,0,0,0.2)';"
+      onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 4px 8px rgba(0,0,0,0.15)';"
+    >
+      <i class="fas fa-eye me-2"></i>Show Devices
+    </button>
+
+    <!-- Add Device Button -->
+    <button 
+      class="btn" 
+      style="
+        background-color: #ff6b00; 
+        color: #fff; 
+        border-radius: 0.5rem; 
+        padding: 0.5rem 1rem; 
+        font-weight: 500; 
+        box-shadow: 0 4px 8px rgba(0,0,0,0.15); 
+        transition: transform 0.2s, box-shadow 0.2s;
+      " 
+      data-bs-toggle="modal" 
+      data-bs-target="#addDeviceModal"
+      onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 6px 12px rgba(0,0,0,0.2)';"
+      onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 4px 8px rgba(0,0,0,0.15)';"
+    >
+      <i class="fas fa-plus-circle me-2"></i>Add Device
+    </button>
+  </div>
+</div>
+
+
+<!-- Device & Date Range Selector Row -->
+<div class="row g-3 align-items-end mb-4">
+  <!-- Device Selector -->
+  <div class="col-md-3">
+    <label for="totalPrintDevice" class="form-label fw-semibold text-dark">Select Device:</label>
+    <select
+      id="totalPrintDevice"
+      class="form-select shadow-sm"
+      style="
+        background-color: #fff;
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        color: #333;
+        font-size: 0.9rem;
+        transition: all 0.25s ease;
+      "
+      onfocus="this.style.boxShadow='0 0 0 3px rgba(255,107,0,0.2)';"
+      onblur="this.style.boxShadow='none';"
+    >
+      <option value="">-- Select Device --</option>
+      <!-- JS will populate options -->
+    </select>
+  </div>
+
+  <!-- Start Date -->
+  <div class="col-md-3">
+    <label for="customStartDate" class="form-label fw-semibold text-dark">Start Date:</label>
+    <input
+      type="date"
+      id="customStartDate"
+      class="form-control shadow-sm"
+      style="
+        background-color: #fff;
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        color: #333;
+        font-size: 0.9rem;
+        transition: all 0.25s ease;
+      "
+      onfocus="this.style.boxShadow='0 0 0 3px rgba(255,107,0,0.2)';"
+      onblur="this.style.boxShadow='none';"
+    >
+  </div>
+
+  <!-- End Date -->
+  <div class="col-md-3">
+    <label for="customEndDate" class="form-label fw-semibold text-dark">End Date:</label>
+    <input
+      type="date"
+      id="customEndDate"
+      class="form-control shadow-sm"
+      style="
+        background-color: #fff;
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        color: #333;
+        font-size: 0.9rem;
+        transition: all 0.25s ease;
+      "
+      onfocus="this.style.boxShadow='0 0 0 3px rgba(255,107,0,0.2)';"
+      onblur="this.style.boxShadow='none';"
+    >
+  </div>
+
+  <!-- Run Button -->
+  <div class="col-md-3 d-flex align-items-end">
+    <button
+      id="runCustomQuery"
+      class="btn w-100 d-flex align-items-center justify-content-center shadow-sm"
+      style="
+        background-color: #1a1a1a;
+        color: #fff;
+        font-weight: 500;
+        border: none;
+        border-radius: 8px;
+        padding: 0.6rem 1rem;
+        font-size: 0.9rem;
+        transition: all 0.25s ease;
+      "
+      onmouseover="this.style.backgroundColor='#000'; this.style.transform='translateY(-2px)'; this.style.boxShadow='0 5px 12px rgba(0,0,0,0.25)';"
+      onmouseout="this.style.backgroundColor='#1a1a1a'; this.style.transform='translateY(0)'; this.style.boxShadow='0 2px 6px rgba(0,0,0,0.15)';"
+    >
+      <i class="fas fa-play me-2" style="color: #ff6b00;"></i>Run
+    </button>
+  </div>
+</div>
+
+<!-- Side by Side: Total & Breakdown -->
+<div class="row g-3 align-items-stretch" style="font-family: 'Segoe UI', sans-serif;">
+
+  <!-- Total Prints Card -->
+  <div class="col-md-4">
+    <div
+      id="startCustomTotalCard"
+      class="rounded-4 shadow-sm text-center p-4 h-100"
+      style="
+        background-color: #fff;
+        border: none;
+        box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+        transition: all 0.3s ease;
+        cursor: pointer;
+      "
+      onmouseover="this.style.transform='translateY(-3px)'; this.style.boxShadow='0 6px 14px rgba(0,0,0,0.15)';"
+      onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 3px 10px rgba(0,0,0,0.1)';"
+    >
+      <div style="width: 45px; height: 45px; background-color: #ff6b00; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 10px;">
+        <i class="fas fa-print text-white" style="font-size: 1.2rem;"></i>
+      </div>
+      <div class="text-dark fw-semibold mb-1" style="font-size: 0.9rem;">Total Prints (Custom)</div>
+      <div id="startCustomTotalValue" class="fw-bold" style="font-size: 2rem; color: #ff6b00;">0</div>
+      <div class="small text-muted" style="font-size: 0.8rem;">Updated live</div>
+    </div>
+  </div>
+
+  <!-- Divider Line -->
+  <div class="col-md-1 d-none d-md-flex align-items-center justify-content-center">
+    <div style="width: 1px; background-color: #e0e0e0; height: 75%;"></div>
+  </div>
+
+  <!-- Daily Breakdown Panel -->
+  <div class="col-md-7">
+    <div
+      id="startCustomRawData"
+      class="rounded-4 shadow-sm p-4 h-100"
+      style="
+        background-color: #fff;
+        border: none;
+        box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+        font-size: 0.9rem;
+        color: #333;
+        overflow-y: auto;
+        max-height: 220px;
+        line-height: 1.4;
+        transition: all 0.3s ease;
+      "
+      onmouseover="this.style.boxShadow='0 6px 14px rgba(0,0,0,0.15)';"
+      onmouseout="this.style.boxShadow='0 3px 10px rgba(0,0,0,0.1)';"
+    >
+      <div class="d-flex align-items-center mb-2">
+        <i class="fas fa-chart-bar me-2" style="color: #ff6b00;"></i>
+        <span class="fw-semibold" style="color: #1a1a1a;">Daily Breakdown</span>
+      </div>
+      <div id="startCustomRawDataContent">
+        <span class="text-muted">Select a device and date range to see daily breakdown...</span>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+
+</section>
+<!-- Add Device Modal -->
+<div class="modal fade" id="addDeviceModal" tabindex="-1" aria-labelledby="addDeviceModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered" style="max-width: 350px;">
+    <div class="modal-content shadow-sm rounded-4 border-0" style="background-color: #fff; color: #333; font-family: 'Segoe UI', sans-serif;">
+
+      <!-- Modal Header -->
+      <div class="modal-header" style="border-bottom: none; justify-content: center; padding: 1rem; position: relative;">
+        <div style="width: 35px; height: 35px; background-color: #cc4b00; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-right: 0.5rem;">
+          <i class="fas fa-plus" style="color: #fff; font-size: 1rem;"></i>
+        </div>
+        <h5 class="modal-title" id="addDeviceModalLabel" style="font-size: 1rem; color: #000;">
+          Add Device
+        </h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" style="position: absolute; right: 1rem;"></button>
+      </div>
+
+      <!-- Modal Body -->
+      <div class="modal-body" style="padding: 0.75rem 1rem;">
+        <form id="addDeviceForm">
+          <div class="mb-3">
+            <label class="form-label fw-semibold" style="color: #333; font-size: 0.9rem;">Device Name:</label>
+            <input type="text" class="form-control" id="deviceName" placeholder="Enter device name" required
+                   style="background-color: #f5f5f5; color: #333; border-radius: 0.5rem; border: none; padding: 0.45rem 0.75rem;">
+          </div>
+          <div class="mb-3">
+            <label class="form-label fw-semibold" style="color: #333; font-size: 0.9rem;">Device Type:</label>
+            <input type="text" class="form-control" id="deviceType" placeholder="Enter device type" required
+                   style="background-color: #f5f5f5; color: #333; border-radius: 0.5rem; border: none; padding: 0.45rem 0.75rem;">
+          </div>
+          <div class="text-end">
+            <button type="submit" 
+                    class="btn" 
+                    style="background-color: #cc4b00; color: #fff; font-weight: 500; padding: 0.45rem 1.25rem; border-radius: 0.5rem; box-shadow: 0 3px 6px rgba(0,0,0,0.15); transition: transform 0.2s, box-shadow 0.2s;"
+                    onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 5px 10px rgba(0,0,0,0.25)';"
+                    onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 3px 6px rgba(0,0,0,0.15)';">
+              Save Device
+            </button>
+          </div>
+        </form>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- Show Devices Modal -->
+<div class="modal fade" id="showDevicesModal" tabindex="-1" aria-labelledby="showDevicesModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered modal-lg" style="max-width: 650px;">
+    <div class="modal-content shadow-lg rounded-4 border-0" style="font-family: 'Segoe UI', sans-serif;">
+
+      <!-- Modal Header -->
+      <div class="modal-header bg-dark text-white" style="border-bottom: none; justify-content: center; position: relative;">
+        <h5 class="modal-title" id="showDevicesModalLabel" style="font-weight: 600; font-size: 0.95rem;">
+          <i class="fas fa-desktop me-2 text-warning"></i>Devices List
+        </h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" style="position: absolute; right: 1rem;"></button>
+      </div>
+
+      <!-- Modal Body -->
+      <div class="modal-body" style="padding: 0.75rem 1rem; max-height: 350px; overflow-y: auto;">
+        <div class="table-responsive">
+          <table id="devicesTable" class="table align-middle text-center mb-0" style="min-width: 100%; border-collapse: separate; border-spacing: 0 0.3rem; font-size: 0.85rem;">
+            <thead style="background-color: #ff6b00; color: #fff; font-weight: 600;">
+              <tr>
+                <th style="border-top-left-radius: 0.35rem; padding: 0.5rem;">#</th>
+                <th>Device Name</th>
+                <th>Device Type</th>
+                <th style="border-top-right-radius: 0.35rem;">Actions</th>
+              </tr>
+            </thead>
+            <tbody id="devicesTableBody">
+              <tr style="background-color: #fff; box-shadow: 0 1px 3px rgba(0,0,0,0.08);">
+                <td>1</td>
+                <td>Printer A</td>
+                <td>LaserJet</td>
+                <td>
+                  <button class="btn btn-sm" style="background-color: #ff6b00; color: #fff; border-radius: 0.35rem; margin-right: 0.25rem; padding: 0.25rem 0.5rem;">
+                    <i class="fas fa-edit" style="font-size: 0.75rem;"></i>
+                  </button>
+                  <button class="btn btn-sm" style="background-color: #1e1e1e; color: #fff; border-radius: 0.35rem; padding: 0.25rem 0.5rem;">
+                    <i class="fas fa-trash-alt" style="font-size: 0.75rem;"></i>
+                  </button>
+                </td>
+              </tr>
+              <!-- Additional rows dynamically added via JS -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+
+<!-- Modern Dashboard Section -->
+<div class="modern-dashboard container-fluid py-4">
+  <div class="row g-4">
+
+    <!-- Left Panel -->
+    <div class="col-lg-8">
+      <!-- Filters -->
+      <div class="card mb-4">
+        <div class="card-body">
+          <div class="row g-3 align-items-end">
+            <div class="col-md-6">
+              <label class="form-label fw-semibold" for="deviceSelect">Select Device</label>
+              <select class="form-select" id="deviceSelect">
+                <option value="">-- Select Device --</option>
+              </select>
+            </div>
+
+            <div class="col-md-3">
+              <label class="form-label fw-semibold" for="timeRangeSelect">View By</label>
+              <select class="form-select" id="timeRangeSelect">
+                <option value="week">Week</option>
+                <option value="month">Month</option>
+              </select>
+            </div>
+
+            <div class="col-md-3">
+              <label class="form-label fw-semibold">Select Date</label>
+              <input type="week" class="form-control" id="weekPicker">
+              <input type="month" class="form-control" id="monthPicker" style="display:none;">
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Chart -->
+      <div class="card">
+        <div class="card-body">
+          <h5 id="chartTitle" class="card-title mb-3">📈 Printing Trends</h5>
+          <canvas id="deviceUsageChart" height="250"></canvas>
+        </div>
+      </div>
+    </div>
+
+    <!-- Right Panel -->
+    <div class="col-lg-4">
+      <!-- Search -->
+      <div class="card mb-3">
+        <div class="card-body">
+          <div class="mb-3">
+            <label class="form-label fw-semibold" for="jobSearch">Search Job ID</label>
+            <div class="input-group">
+              <input type="text" class="form-control" id="jobSearchs" placeholder="Enter Job ID">
+              <button class="btn btn-black" id="jobSearchBtn"><i class="bi bi-search"></i></button>
+            </div>
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label fw-semibold" for="customDate">Custom Date</label>
+            <input type="date" class="form-control mb-2" id="customDate">
+            <button class="btn btn-black w-100" id="customDateSearchBtn"><i class="bi bi-calendar-event"></i> Search by Date</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Jobs Table -->
+      <div class="card">
+        <div class="card-body">
+          <h5 class="card-title mb-3">Recent Jobs</h5>
+          <div class="table-responsive" style="max-height: 400px; overflow-y: auto;">
+            <table class="table table-sm table-striped align-middle table-hover">
+              <thead class="table-light">
+                <tr>
+                  <th>Job ID</th>
+                  <th>Date & Time</th>
+                  <th>Range</th>
+                  <th>Total Prints</th>
+                  <th>Bank</th>
+                </tr>
+              </thead>
+              <tbody id="jobsTableBody"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+
+
+
+
+<div class="toner-dashboard p-4 rounded-4 shadow-sm mt-5">
+
+  <!-- Title Section -->
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+      <h3 class="fw-bold mb-1" id="tonerTitle">
+        <i class="bi bi-printer"></i> Toner Usage
+      </h3>
+      <small class="text-muted">Track toner install & replacement history</small>
+    </div>
+    <div class="d-flex gap-2">
+      <button class="btn btn-outline-primary btn-sm" id="exportPdfBtn">
+        <i class="bi bi-download"></i> Export PDF
+      </button>
+      <button class="btn btn-outline-success btn-sm" id="exportExcelBtn">
+        <i class="bi bi-file-earmark-spreadsheet"></i> Export Excel
+      </button>
+    </div>
+  </div>
+
+  <!-- Filters -->
   <div class="row g-3 mb-4">
-    <!-- Device Selector -->
-    <div class="col-md-3">
-      <label for="totalPrintDevice" class="form-label fw-semibold">Select Device:</label>
-      <select id="totalPrintDevice" class="form-select">
-        <option value="">-- Select Device --</option>
-        <!-- JS will populate options -->
+    <!-- Device Filter -->
+    <div class="col-md-4">
+      <label class="form-label fw-semibold" for="tonerDeviceSelect">Select Device</label>
+      <select class="form-select" id="tonerDeviceSelect">
+        <option value="">-- All Devices --</option>
       </select>
     </div>
 
-    <!-- Start Date -->
-    <div class="col-md-3">
-      <label for="customStartDate" class="form-label fw-semibold">Start Date:</label>
-      <input type="date" id="customStartDate" class="form-control">
-    </div>
-
-    <!-- End Date -->
-    <div class="col-md-3">
-      <label for="customEndDate" class="form-label fw-semibold">End Date:</label>
-      <input type="date" id="customEndDate" class="form-control">
-    </div>
-
-    <!-- Run Button -->
-    <div class="col-md-3 d-flex align-items-end">
-      <button id="runCustomQuery" class="btn btn-primary w-100">Run</button>
-    </div>
-  </div>
-
-  <!-- Side by Side: Total & Breakdown -->
-  <div class="row g-3">
-    <!-- Total Prints Card -->
+    <!-- Toner Code Search -->
     <div class="col-md-4">
-      <div id="startCustomTotalCard" class="p-4 rounded shadow-sm text-center" style="background: linear-gradient(135deg, #f0f8ff, #d0e4ff);">
-        <div class="text-muted mb-2">Total Prints (Custom)</div>
-        <div id="startCustomTotalValue" class="fs-1 fw-bold text-primary">0</div>
+      <label class="form-label fw-semibold" for="tonerSearch">Search Toner Code</label>
+      <div class="input-group">
+        <input type="text" class="form-control" id="tonerSearch" placeholder="Enter toner code">
+        <button class="btn btn-black" id="tonerSearchBtn">
+          <i class="bi bi-search"></i>
+        </button>
       </div>
     </div>
 
-    <!-- Divider Line -->
-    <div class="col-md-1 d-none d-md-flex align-items-center justify-content-center">
-      <div style="width: 1px; background-color: #dee2e6; height: 100%;"></div>
+    <!-- Date Range Filter -->
+    <div class="col-md-4">
+      <label class="form-label fw-semibold" for="tonerDateRange">Custom Date</label>
+      <input type="date" class="form-control mb-2" id="tonerDateRangeStart" placeholder="Start Date">
+      <input type="date" class="form-control" id="tonerDateRangeEnd" placeholder="End Date">
+      <button class="btn btn-black w-100 mt-2" id="tonerDateSearchBtn">
+        <i class="bi bi-calendar-event"></i> Filter by Date
+      </button>
     </div>
+  </div>
 
-    <!-- Daily Breakdown Panel -->
-    <div class="col-md-7">
-      <div id="startCustomRawData" class="p-3 rounded shadow-sm" style="background: #fff; font-family: monospace; font-size: 0.9rem; color: #333; overflow-x: auto; white-space: pre-wrap; word-break: break-word;">
-        Select a device and date range to see daily breakdown...
+  <!-- Toner Table -->
+  <div class="card shadow-sm border-0">
+    <div class="card-body">
+      <h5 class="card-title mb-3 fw-semibold">Toner History</h5>
+      <div class="table-responsive" style="max-height: 400px; overflow-y: auto;">
+        <table class="table table-sm table-striped align-middle table-hover">
+          <thead class="table-light">
+            <tr>
+              <th>Toner Code</th>
+              <th>Device</th>
+              <th>Install Date</th>
+              <th>Replace Date</th>
+              <th>Total Prints</th>
+            </tr>
+          </thead>
+          <tbody id="tonerTableBody"></tbody>
+        </table>
       </div>
     </div>
   </div>
 
-</section>
-
-
-
-    <div class="row g-4">
-
-        <!-- Left Panel: Filters + Chart -->
-        <div class="col-lg-8">
-
-            <!-- Filters Card -->
-            <div class="card shadow-sm border-0 mb-4">
-                <div class="card-body">
-                    <div class="row g-3 align-items-end">
-
-                        <!-- Device Select -->
-                        <div class="col-md-6">
-                            <label class="form-label fw-semibold" for="deviceSelect">Select Device</label>
-                            <select class="form-select" id="deviceSelect">
-                                <option value="">-- Select Device --</option>
-                            </select>
-                        </div>
-
-                        <!-- Time Range -->
-                        <div class="col-md-3">
-                            <label class="form-label fw-semibold" for="timeRangeSelect">View By</label>
-                            <select class="form-select" id="timeRangeSelect">
-                                <option value="week">Week</option>
-                                <option value="month">Month</option>
-                            </select>
-                        </div>
-
-                        <!-- Date Picker -->
-                        <div class="col-md-3">
-                            <label class="form-label fw-semibold">Select Date</label>
-                            <input type="week" class="form-control" id="weekPicker">
-                            <input type="month" class="form-control" id="monthPicker" style="display:none;">
-                        </div>
-
-                    </div>
-                </div>
-            </div>
-
-           <!-- Chart Card -->
-<div class="card shadow-sm border-0">
-  <div class="card-body">
-    <!-- Title switches dynamically -->
-    <h5 id="chartTitle" class="card-title mb-3 fw-semibold">Printing Trends</h5>
-    <canvas id="deviceUsageChart" height="250"></canvas>
-  </div>
 </div>
 
 
-        </div>
-
-        <!-- Right Panel: Jobs Table & Search -->
-        <div class="col-lg-4">
-
-            <!-- Search Cards -->
-            <div class="card shadow-sm border-0 mb-3">
-                <div class="card-body">
-                    <!-- Job Search -->
-                    <div class="mb-3">
-                        <label class="form-label fw-semibold" for="jobSearch">Search Job ID</label>
-                        <div class="input-group">
-                            <input type="text" class="form-control" id="jobSearchs" placeholder="Enter Job ID">
-                            <button class="btn btn-primary" id="jobSearchBtn"><i class="bi bi-search"></i></button>
-                        </div>
-                    </div>
-
-                    <!-- Custom Date Search -->
-                    <div class="mb-3">
-                        <label class="form-label fw-semibold" for="customDate">Custom Date</label>
-                        <input type="date" class="form-control mb-2" id="customDate">
-                        <button class="btn btn-info w-100" id="customDateSearchBtn"><i class="bi bi-calendar-event"></i> Search by Date</button>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Jobs Table -->
-            <div class="card shadow-sm border-0 mb-3">
-                <div class="card-body">
-                    <h5 class="card-title mb-3 fw-semibold">Recent Jobs</h5>
-                    <div class="table-responsive" style="max-height: 400px; overflow-y: auto;">
-                        <table class="table table-sm table-striped align-middle table-hover">
-                            <thead class="table-light">
-                                <tr>
-                                    <th>Job ID</th>
-                                    <th>Date & Time</th>
-                                    <th>Range</th>
-                                    <th>Total Prints</th>
-                                    <th>Bank</th>
-                                </tr>
-                            </thead>
-                            <tbody id="jobsTableBody"></tbody>
-                        </table>
-                    </div>
-                </div>
-            </div>
-
-        </div>
-
-    </div>
-
- <div  class="p-4 bg-light rounded-4 shadow-sm mt-5">
-
-    <!-- Title Section -->
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <div>
-            <h3 class="fw-bold mb-1" id="tonerTitle" ><i class="bi bi-printer"></i> Toner Usage</h3>
-            <small class="text-muted">Track toner install & replacement history</small>
-        </div>
-        <div class="d-flex gap-2">
-            <button class="btn btn-outline-primary btn-sm" id="exportPdfBtn"><i class="bi bi-download"></i> Export PDF</button>
-            <button class="btn btn-outline-success btn-sm" id="exportExcelBtn"><i class="bi bi-file-earmark-spreadsheet"></i> Export Excel</button>
-        </div>
-    </div>
-
-    <!-- Filters -->
-    <div class="row g-3 mb-4">
-        <!-- Device Filter -->
-        <div class="col-md-4">
-            <label class="form-label fw-semibold" for="tonerDeviceSelect">Select Device</label>
-            <select class="form-select" id="tonerDeviceSelect">
-                <option value="">-- All Devices --</option>
-            </select>
-        </div>
-
-        <!-- Toner Code Search -->
-        <div class="col-md-4">
-            <label class="form-label fw-semibold" for="tonerSearch">Search Toner Code</label>
-            <div class="input-group">
-                <input type="text" class="form-control" id="tonerSearch" placeholder="Enter toner code">
-                <button class="btn btn-primary" id="tonerSearchBtn"><i class="bi bi-search"></i></button>
-            </div>
-        </div>
-
-        <!-- Date Range Filter -->
-        <div class="col-md-4">
-            <label class="form-label fw-semibold" for="tonerDateRange">Custom Date</label>
-            <input type="date" class="form-control mb-2" id="tonerDateRangeStart" placeholder="Start Date">
-            <input type="date" class="form-control" id="tonerDateRangeEnd" placeholder="End Date">
-            <button class="btn btn-info w-100 mt-2" id="tonerDateSearchBtn"><i class="bi bi-calendar-event"></i> Filter by Date</button>
-        </div>
-    </div>
-
-    <!-- Toner Table -->
-    <div class="card shadow-sm border-0">
-        <div class="card-body">
-            <h5 class="card-title mb-3 fw-semibold" >Toner History</h5>
-            <div class="table-responsive" style="max-height: 400px; overflow-y: auto;">
-                <table class="table table-sm table-striped align-middle table-hover">
-                    <thead class="table-light">
-                        <tr>
-                            <th>Toner Code</th>
-                            <th>Device</th>
-                            <th>Install Date</th>
-                            <th>Replace Date</th>
-                            <th>Total Prints</th>
-                        </tr>
-                    </thead>
-                    <tbody id="tonerTableBody"></tbody>
-                </table>
-            </div>
-        </div>
-    </div>
-
-</div>
 
 
 </div>
@@ -1306,16 +2345,40 @@
 
 <div id="jobManagementPanel" class="p-4 bg-light rounded-4 shadow-sm department-panel" style="display:none;">
 
-  <!-- Header -->
-  <div class="d-flex justify-content-between align-items-center mb-4">
-    <div>
-      <h3 class="fw-bold mb-1"><i class="fas fa-briefcase"></i> Job Management</h3>
-      <small class="text-muted">Monitor all jobs by bank, shift, and completion status</small>
-    </div>
-   
+
+<!-- Header -->
+<div class="d-flex justify-content-between align-items-center mb-4">
+  <div>
+    <h3 class="fw-bold mb-1">
+      <i class="fas fa-briefcase"></i> Job Management
+    </h3>
+    <small class="text-muted">Monitor all jobs by bank, shift, and completion status</small>
   </div>
 
-  <!-- ✅ Filter Section -->
+  <!-- Button to open Add Job Modal -->
+  <button class="btn" data-bs-toggle="modal" data-bs-target="#jobModal" style="background-color: #FF7F32; color: white; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); border-radius: 5px;">
+    <i class="fas fa-plus-circle me-2"></i> Add Job
+  </button>
+</div>
+
+
+<!-- 🔸 Buttons to switch between Batch & Job Process -->
+<div class="d-flex gap-2 mb-4">
+  <button id="batchButton" class="btn btn-dark px-3 py-2 rounded-3">
+    <i class="fas fa-layer-group me-2"></i> Batch
+  </button>
+  <button id="jobProcessButton" class="btn btn-outline-dark px-3 py-2 rounded-3">
+    <i class="fas fa-cogs me-2"></i> Job Process
+  </button>
+</div>
+
+
+
+
+
+<!-- 🔹 BATCH SECTION (Your Existing One) -->
+<!-- ======================== -->
+<div id="batchSection">
   <div class="card shadow-sm border-0 mb-4">
     <div class="card-body">
       <div class="row g-3">
@@ -1323,12 +2386,12 @@
           <label for="filterJobCode" class="form-label fw-semibold">Job Code</label>
           <input type="text" id="filterJobCode" class="form-control" placeholder="Enter Job Code">
         </div>
-    <div class="col-md-3">
-  <label for="filterBank" class="form-label fw-semibold">Bank</label>
-  <select id="filterBank" class="form-select">
-    <option value="">All Banks</option>
-  </select>
-</div>
+        <div class="col-md-3">
+          <label for="filterBank" class="form-label fw-semibold">Bank</label>
+          <select id="filterBank" class="form-select">
+            <option value="">All Banks</option>
+          </select>
+        </div>
 
         <div class="col-md-2">
           <label for="filterShift" class="form-label fw-semibold">Shift</label>
@@ -1349,12 +2412,33 @@
       </div>
 
       <div class="mt-3 text-end">
-        <button id="applyFilters" class="btn btn-success btn-sm"><i class="fas fa-filter"></i> Apply Filters</button>
-        <button id="resetFilters" class="btn btn-secondary btn-sm"><i class="fas fa-undo"></i> Reset</button>
+        <button id="applyFilters" class="btn btn-success btn-sm">
+          <i class="fas fa-filter"></i> Apply Filters
+        </button>
+        <button id="resetFilters" class="btn btn-secondary btn-sm">
+          <i class="fas fa-undo"></i> Reset
+        </button>
       </div>
     </div>
   </div>
 
+  <!-- Example batch tables (replace or keep your originals) -->
+  <h5 class="mt-3 fw-bold">Job Overview (Batch Summary)</h5>
+  <div class="table-responsive mb-4" style="max-height: 300px; overflow-y: auto;">
+    <table class="table table-hover table-striped align-middle table-bordered">
+      <thead class="table-dark text-center">
+        <tr>
+          <th>#</th>
+          <th>Job Code</th>
+          <th>Bank</th>
+          <th>Card Ready</th>
+          <th>Mailer Ready</th>
+          <th>Status</th>
+        </tr>
+      </thead>
+      <tbody id="jobOverviewTableBody" class="text-center"></tbody>
+    </table>
+  </div>
   <!-- Job Overview Table -->
   <h5 class="mt-3 fw-bold">Job Overview (Batch Summary)</h5>
   <div class="table-responsive mb-4" style="max-height: 300px; overflow-y: auto;">
@@ -1416,6 +2500,162 @@
           <tbody id="mailerPrintingTableBody" class="text-center"></tbody>
         </table>
       </div>
+    </div>
+  </div>
+
+</div>
+
+
+
+  
+
+
+  <!-- ✅ Job Process Section (hidden until clicked) -->
+  <div id="jobProcessSection" class="card shadow-sm border-0 p-3 mb-4" >
+    <h5 class="fw-bold mb-3"><i class="fas fa-search me-2 text-dark"></i> Job Processing Tracker</h5>
+
+    <!-- Search & Filters -->
+    <div class="row g-3 align-items-end mb-3">
+      <div class="col-md-4">
+        <label class="form-label fw-semibold">Search by Job Code</label>
+        <input type="text" id="searchJobCode" class="form-control" placeholder="Enter job code...">
+      </div>
+      <div class="col-md-3">
+        <label class="form-label fw-semibold">Start Date</label>
+        <input type="date" id="searchStartDate" class="form-control">
+      </div>
+      <div class="col-md-3">
+        <label class="form-label fw-semibold">End Date</label>
+        <input type="date" id="searchEndDate" class="form-control">
+      </div>
+      <div class="col-md-2 text-end">
+        <button id="applySearch" class="btn btn-dark btn-sm px-3"><i class="fas fa-filter"></i> Filter</button>
+      </div>
+    </div>
+
+
+<div class="table-responsive mb-4">
+  <table class="table smart-table align-middle text-center">
+    <thead>
+      <tr>
+        <th><i class="fas fa-hashtag smart-header-icon"></i>#</th>
+        <th><i class="fas fa-calendar-alt smart-header-icon"></i> Time</th>
+        <th><i class="fas fa-briefcase smart-header-icon"></i>Job Code</th>
+        <th><i class="fas fa-university smart-header-icon"></i>Bank</th>
+        <th><i class="fas fa-check-circle smart-header-icon"></i>Processed</th>
+        <th><i class="fas fa-cogs smart-header-icon"></i>Action</th>
+      </tr>
+    </thead>
+    <tbody id="processedJobsTableBody">
+      <tr>
+        <td>1</td>
+        <td>2025-11-08 10:45 AM</td>
+        <td>JOB-0012</td>
+        <td>Zenith Bank</td>
+        <td><span class="smart-badge success">Completed</span></td>
+        <td>
+          <button class="smart-btn view me-1"><i class="fas fa-eye"></i></button>
+          <button class="smart-btn edit me-1"><i class="fas fa-edit"></i></button>
+          <button class="smart-btn delete"><i class="fas fa-trash"></i></button>
+        </td>
+      </tr>
+      <!-- Dynamic rows go here -->
+    </tbody>
+  </table>
+</div>
+
+  </div>
+
+</div>
+<!-- Add/Edit Job Modal -->
+<div class="modal fade" id="jobModal" tabindex="-1" aria-labelledby="jobModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content shadow-lg border-0 rounded-4">
+
+      <!-- Header -->
+      <div class="modal-header bg-dark text-white">
+        <h5 class="modal-title" id="jobModalLabel">
+          <i class="fas fa-briefcase me-2"></i> Add Job
+        </h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+
+      <!-- Body -->
+      <div class="modal-body px-4 py-3">
+        <form id="jobForm">
+          <!-- Notice -->
+          <div class="alert alert-warning alert-dismissible fade show mb-4" role="alert"
+               style="background-color: #FF7F32; color: black; border-radius: 8px;">
+            <i class="fas fa-exclamation-triangle me-2"></i>
+            <strong>Notice:</strong> Once Job ID is created, it can be edited.
+            Please ensure it’s correct before saving.
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+          </div>
+
+          <!-- Select Bank -->
+          <div class="mb-3">
+            <label for="bankSelects" class="form-label fw-semibold">Select Bank</label>
+            <select id="bankSelects" class="form-select shadow-sm custom-select"></select>
+          </div>
+
+          <!-- Job ID -->
+          <div class="mb-3">
+            <label for="jobId" class="form-label fw-semibold">Job ID</label>
+            <input type="text" id="jobId" class="form-control shadow-sm" placeholder="Enter job ID" required>
+            <small class="text-muted fst-italic">
+              Format auto-detects (e.g. <strong>wema_12345</strong> or <strong>J123456</strong>)
+            </small>
+          </div>
+
+          <!-- Quantity -->
+          <div class="mb-4">
+            <label for="quantity" class="form-label fw-semibold">Quantity</label>
+            <input type="number" id="quantity" class="form-control shadow-sm" placeholder="Enter quantity" required>
+          </div>
+
+          <!-- Submit Button -->
+          <div class="text-center">
+            <button type="submit" class="btn btn-sm text-white px-4 py-2 rounded-3 shadow-sm"
+                    style="background-color: #FF7F32; font-weight: bold;">
+              <i class="fas fa-save me-2"></i> Save Job
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- Delete Confirmation Modal -->
+<div class="modal fade" id="deleteModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered modal-sm">
+    <div class="modal-content shadow-lg rounded-4 border-0" style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;">
+      
+      <!-- Modal Header -->
+      <div class="modal-header bg-dark text-white rounded-top-4">
+        <h5 class="modal-title d-flex align-items-center">
+          <i class="fas fa-trash-alt me-2"></i> Confirm Delete
+        </h5>
+        <button type="button" class="btn-close btn-close-white" id="closeDeleteModal" aria-label="Close"></button>
+      </div>
+
+      <!-- Modal Body -->
+      <div class="modal-body d-flex align-items-center gap-2" style="font-size: 0.95rem;">
+        <i class="fas fa-exclamation-triangle text-warning fa-lg"></i>
+        <span>Are you sure you want to delete this job?</span>
+      </div>
+
+      <!-- Modal Footer -->
+      <div class="modal-footer justify-content-center gap-2 py-2">
+        <button type="button" class="btn btn-sm btn-outline-secondary fw-semibold" id="cancelDeleteBtn">
+          <i class="fas fa-times me-1"></i> Cancel
+        </button>
+        <button type="button" class="btn btn-sm btn-danger fw-semibold" id="confirmDeleteBtn">
+          <i class="fas fa-trash-alt me-1"></i> Delete
+        </button>
+      </div>
+
     </div>
   </div>
 </div>
@@ -1497,7 +2737,443 @@
   </div>
 </div>
 
-<!-- ✅ Staff Management Panel -->
+<div class="p-4 department-panel b" id="qcControlPanel">
+
+  <!-- Filter Panel -->
+  <div class="card shadow-sm border-0 p-3 mb-3">
+    <div class="row g-3 align-items-end">
+      <div class="col-md-3">
+        <label class="form-label fw-semibold" for="filterBank">Select Bank / Client</label>
+        <select id="filterBank" class="form-select">
+          <option value="">-- All Banks --</option>
+          <option value="CardstelOpay">CardstelOpay</option>
+          <option value="CardstelPalmpay"> CardstelPalmpay</option>
+          <option value="CardstelBank">CardstelBank</option>
+          <option value="CardstelBranch"> CardstelBranch</option>
+        </select>
+      </div>
+
+      <div class="col-md-2">
+        <label class="form-label fw-semibold" for="filterTimeFrame">Time Frame</label>
+        <select id="filterTimeFrame" class="form-select">
+          <option value="week">This Week</option>
+          <option value="month">This Month</option>
+          <option value="year">This Year</option>
+        </select>
+      </div>
+
+      <div class="col-md-2">
+        <label class="form-label fw-semibold" for="filterWeek">Week</label>
+        <input type="week" id="filterWeek" class="form-control">
+      </div>
+
+      <div class="col-md-2">
+        <label class="form-label fw-semibold" for="filterMonth">Month</label>
+        <input type="month" id="filterMonth" class="form-control">
+      </div>
+
+      <div class="col-md-1">
+        <label class="form-label fw-semibold" for="filterYear">Year</label>
+        <input type="number" id="filterYear" class="form-control" placeholder="YYYY">
+      </div>
+
+      <div class="col-md-2">
+        <label class="form-label fw-semibold" for="filterDay">Day</label>
+        <input type="date" id="filterDay" class="form-control">
+      </div>
+
+      <div class="col-md-12 d-flex justify-content-end mt-2">
+        <button id="applyFilterBtn" class="btn btn-dark shadow-sm">
+          <i class="bi bi-funnel-fill me-2"></i> Apply Filters
+        </button>
+      </div>
+    </div>
+  </div>
+<!-- QC Table Card -->
+<div class="card shadow-sm border-0">
+  <div class="card-body p-3">
+
+    <!-- Add QC Entry Button -->
+    <div class="d-flex justify-content-end mb-3">
+      <button id="openQcModalBtn" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#qcEntryModalUnique">
+        Add QC Entry
+      </button>
+    </div>
+
+    <div class="table-responsive">
+      <table class="table qc-table align-middle text-center" id="qcTable">
+        <thead>
+          <tr style="background-color:#ff6b00; color:white;">
+    <!-- QC Table -->
+            <th rowspan="2">Bank / Client</th>
+            <th colspan="2" class="day-block">Monday</th>
+            <th colspan="2" class="day-block">Tuesday</th>
+            <th colspan="2" class="day-block">Wednesday</th>
+            <th colspan="2" class="day-block">Thursday</th>
+            <th colspan="2" class="day-block">Friday</th>
+            <th colspan="2" class="day-block">Saturday</th>
+            <th colspan="2" class="day-block">Sunday</th>
+            <th rowspan="2">Total / Shift</th>
+          </tr>
+          <tr style="background-color:#ff9a33; color:white;">
+            <th>Day</th><th>Night</th>
+            <th>Day</th><th>Night</th>
+            <th>Day</th><th>Night</th>
+            <th>Day</th><th>Night</th>
+            <th>Day</th><th>Night</th>
+            <th>Day</th><th>Night</th>
+            <th>Day</th><th>Night</th>
+          </tr>
+        </thead>
+        <tbody id="qcTableBody">
+          <!-- Rows will be dynamically generated -->
+        </tbody>
+        <tfoot>
+          <tr class="totals-row" style="background:#ffe8cc; font-weight:600;">
+            <td>Total / Shift</td>
+            <!-- Day/Night totals will be generated by JS -->
+          </tr>
+        </tfoot>
+      </table>
+    </div>
+  </div>
+</div>
+
+
+
+<!-- Modal -->
+<div class="modal fade" id="addCardModal" tabindex="-1" aria-labelledby="addCardModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content rounded-4 shadow-lg">
+
+      <!-- Modal Header -->
+      <div class="modal-header" style="background:#e65100;">
+        <h5 class="modal-title text-white" id="addCardModalLabel">Add New Card</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+
+      <!-- Modal Body -->
+      <div class="modal-body">
+        <form id="addCardForm">
+          
+          <!-- Card Name -->
+          <div class="mb-3">
+            <label for="cardName" class="form-label fw-semibold">Card Name</label>
+            <input type="text" class="form-control rounded-3" id="cardName" placeholder="Enter Card Name" required>
+          </div>
+
+          <!-- Card Brand -->
+          <div class="mb-3">
+            <label for="cardBrand" class="form-label fw-semibold">Card Brand</label>
+            <input type="text" class="form-control rounded-3" id="cardBrand" placeholder="Enter Card Brand" required>
+          </div>
+
+          <!-- Card Quantity -->
+          <div class="mb-3">
+            <label for="cardQty" class="form-label fw-semibold">Card Quantity</label>
+            <input type="number" class="form-control rounded-3" id="cardQty" placeholder="Enter Quantity" min="1" required>
+          </div>
+
+          <!-- Vendor/Brand -->
+          <div class="mb-3">
+            <label for="vendorName" class="form-label fw-semibold">Received From (Vendor/Brand)</label>
+            <input type="text" class="form-control rounded-3" id="vendorName" placeholder="Enter Vendor Name" required>
+          </div>
+
+          <button type="submit" class="btn text-white rounded-3" 
+                  style="background:#e65100; width:100%; padding:10px;">Add Card</button>
+        </form>
+      </div>
+
+    </div>
+  </div>
+</div>
+<script>
+document.getElementById('addCardForm').addEventListener('submit', async (e) => {
+  e.preventDefault();
+
+  const payload = {
+    card_name: document.getElementById('cardName').value,
+    card_brand: document.getElementById('cardBrand').value,
+    quantity: parseInt(document.getElementById('cardQty').value),
+    vendor: document.getElementById('vendorName').value
+  };
+
+  try {
+    const res = await fetch('/api/cards/add', {
+      method: 'POST',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify(payload)
+    });
+
+    if(res.ok){
+      alert('Card added successfully!');
+      // Close modal
+      const modalEl = document.getElementById('addCardModal');
+      const modal = bootstrap.Modal.getInstance(modalEl);
+      modal.hide();
+      // Optionally reload table
+    } else {
+      alert('Failed to add card.');
+    }
+  } catch(err){
+    console.error(err);
+    alert('Error occurred while adding card.');
+  }
+});
+</script>
+<!-- Button to Open Modal -->
+
+
+<!-- Modal -->
+<div class="modal fade" id="postProcessModal" tabindex="-1" aria-labelledby="postProcessModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered modal-sm">
+    <div class="modal-content rounded-4 shadow-lg">
+
+      <!-- Modal Header -->
+      <div class="modal-header" style="background:#e65100;">
+        <h5 class="modal-title text-white" id="postProcessModalLabel">Update Card Status</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+
+      <!-- Modal Body -->
+      <div class="modal-body p-4">
+        <form id="postProcessForm">
+
+          <!-- Card Name -->
+          <div class="mb-3">
+            <label class="form-label fw-semibold">Card Name</label>
+            <select id="cardNameSelect" class="form-select mb-2 rounded-3">
+              <option value="">Select Card Name</option>
+              <option value="Card A">Card A</option>
+              <option value="Card B">Card B</option>
+            </select>
+            <input type="text" id="cardNameText" class="form-control rounded-3" placeholder="Or enter Card Name manually" style="display:none;">
+            <button class="btn btn-light border mt-1 w-100" type="button" id="toggleCardName" title="Switch Input">
+              <i class="bi bi-pencil-square text-dark"></i> Switch Input
+            </button>
+          </div>
+
+          <!-- Card Brand -->
+          <div class="mb-3">
+            <label class="form-label fw-semibold">Card Brand</label>
+            <select id="cardBrandSelect" class="form-select mb-2 rounded-3">
+              <option value="">Select Card Brand</option>
+              <option value="Visa">Visa</option>
+              <option value="MasterCard">MasterCard</option>
+            </select>
+            <input type="text" id="cardBrandText" class="form-control rounded-3" placeholder="Or enter Card Brand manually" style="display:none;">
+            <button class="btn btn-light border mt-1 w-100" type="button" id="toggleCardBrand" title="Switch Input">
+              <i class="bi bi-pencil-square text-dark"></i> Switch Input
+            </button>
+          </div>
+
+          <!-- Personalized Quantity -->
+          <div class="mb-3">
+            <label class="form-label fw-semibold">Personalized Quantity</label>
+            <input type="number" class="form-control rounded-3 shadow-sm" id="personalizedQty" placeholder="Enter number" min="0" required>
+          </div>
+
+          <!-- Ongoing Quantity -->
+          <div class="mb-3">
+            <label class="form-label fw-semibold">Ongoing Quantity</label>
+            <input type="number" class="form-control rounded-3 shadow-sm" id="ongoingQty" placeholder="Enter number" min="0" required>
+          </div>
+
+          <!-- Duplicates Quantity -->
+          <div class="mb-3">
+            <label class="form-label fw-semibold">Duplicates Quantity</label>
+            <input type="number" class="form-control rounded-3 shadow-sm" id="duplicatesQty" placeholder="Enter number" min="0" required>
+          </div>
+
+          <!-- Shift -->
+          <div class="mb-3">
+            <label class="form-label fw-semibold">Shift</label>
+            <select id="shiftSelect" class="form-select rounded-3" required>
+              <option value="">Select Shift</option>
+              <option value="Day">Day</option>
+              <option value="Night">Night</option>
+            </select>
+          </div>
+
+          <!-- Submit Button -->
+          <button type="submit" class="btn text-white rounded-3 shadow-sm" style="background:#e65100; width:100%; padding:10px;">
+            Update Status
+          </button>
+        </form>
+      </div>
+
+    </div>
+  </div>
+</div>
+<script>
+// Toggle Card Name Input
+document.getElementById('toggleCardName').addEventListener('click', () => {
+  const select = document.getElementById('cardNameSelect');
+  const text = document.getElementById('cardNameText');
+  if(select.style.display !== 'none'){
+    select.style.display = 'none';
+    text.style.display = 'block';
+  } else {
+    select.style.display = 'block';
+    text.style.display = 'none';
+  }
+});
+
+// Toggle Card Brand Input
+document.getElementById('toggleCardBrand').addEventListener('click', () => {
+  const select = document.getElementById('cardBrandSelect');
+  const text = document.getElementById('cardBrandText');
+  if(select.style.display !== 'none'){
+    select.style.display = 'none';
+    text.style.display = 'block';
+  } else {
+    select.style.display = 'block';
+    text.style.display = 'none';
+  }
+});
+
+// Form Submission
+document.getElementById('postProcessForm').addEventListener('submit', async (e) => {
+  e.preventDefault();
+
+  const cardName = document.getElementById('cardNameSelect').value || document.getElementById('cardNameText').value;
+  const cardBrand = document.getElementById('cardBrandSelect').value || document.getElementById('cardBrandText').value;
+
+  const payload = {
+    card_name: cardName,
+    card_brand: cardBrand,
+    personalized: parseInt(document.getElementById('personalizedQty').value),
+    ongoing: parseInt(document.getElementById('ongoingQty').value),
+    duplicates: parseInt(document.getElementById('duplicatesQty').value),
+    shift: document.getElementById('shiftSelect').value
+    // Optionally include batch ID or server timestamp
+  };
+
+  try {
+    const res = await fetch('/api/cards/update-status', {
+      method: 'POST',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify(payload)
+    });
+
+    if(res.ok){
+      alert('Card status updated!');
+      const modalEl = document.getElementById('postProcessModal');
+      const modal = bootstrap.Modal.getInstance(modalEl);
+      modal.hide();
+      // Optionally refresh table dynamically
+    } else {
+      alert('Failed to update status.');
+    }
+  } catch(err){
+    console.error(err);
+    alert('Error updating card status.');
+  }
+});
+</script>
+
+
+
+<!-- Modals (Confirm, Warning, Add QC Entry) -->
+<!-- Confirm Edit Modal -->
+<div class="modal fade" id="editConfirmModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content rounded-4 shadow">
+      <div class="modal-header bg-warning text-dark">
+        <h5 class="modal-title"><i class="fas fa-pen"></i> Confirm Edit</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <form id="editConfirmForm">
+          <div class="mb-3">
+            <label class="form-label">Reason for Change</label>
+            <input type="text" id="changeRemark" class="form-control" placeholder="Why did you make this change?" required>
+          </div>
+          <button type="submit" class="btn btn-warning w-100">Confirm & Save</button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+
+<!-- Add QC Entry Modal -->
+<div class="modal fade" id="qcEntryModalUnique" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content shadow-sm rounded-4 border-0 bg-white">
+      <div class="modal-header">
+        <h5 class="modal-title"><i class="bi bi-plus-circle me-2"></i>Add QC Entry</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <form id="addQCForm">
+          <div class="mb-3">
+            <label class="form-label fw-semibold" for="qcBank">Select Bank</label>
+            <select class="form-select" id="qcBank" required>
+              <option value="">-- Select Bank --</option>
+            </select>
+          </div>
+          <div class="mb-3">
+            <label class="form-label fw-semibold" for="qcShift">Select Shift</label>
+            <select class="form-select" id="qcShift" required>
+              <option value="">-- Select Shift --</option>
+              <option value="day">Day</option>
+              <option value="night">Night</option>
+            </select>
+          </div>
+          <div class="mb-3">
+            <label class="form-label fw-semibold" for="qcTotal">Total Prints</label>
+            <input type="number" class="form-control" id="qcTotal" placeholder="Enter total" required>
+          </div>
+          <div class="form-check form-switch mb-3">
+            <input class="form-check-input" type="checkbox" id="overtimeSwitch">
+            <label class="form-check-label" for="overtimeSwitch">Overtime?</label>
+          </div>
+          <div class="mb-3" id="overtimeQtyDiv" style="display:none;">
+            <label class="form-label fw-semibold" for="overtimeQty">Overtime Quantity</label>
+            <input type="number" class="form-control" id="overtimeQty" placeholder="Enter overtime quantity">
+          </div>
+          <div class="text-end">
+            <button type="submit" class="btn btn-dark w-100">Add Entry</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- MODERN WARNING MODAL -->
+<div class="modal fade" id="warningModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered modal-sm">
+    <div class="modal-content border-0 rounded-3 shadow-lg" style="overflow:hidden;">
+      
+      <!-- HEADER -->
+      <div class="modal-header bg-warning text-dark border-0 py-2 px-3">
+        <i class="bi bi-exclamation-triangle-fill me-2 fs-5"></i>
+        <h6 class="modal-title fw-bold mb-0">Warning</h6>
+        <button type="button" class="btn-close btn-close-dark" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      
+      <!-- BODY -->
+      <div class="modal-body text-center py-3 px-3 fs-6" id="warningModalMessage" style="line-height:1.4;">
+        <!-- Message inserted dynamically -->
+      </div>
+      
+      <!-- FOOTER -->
+      <div class="modal-footer border-0 py-2 px-3">
+        <button class="btn btn-dark w-100 rounded-2" data-bs-dismiss="modal" style="font-size:0.875rem; padding:0.35rem 0;">Okay</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+
+
+  </div>
+  <!-- ✅ Staff Management Panel -->
 <div id="staffListPanel" class="p-4 bg-light rounded-4 shadow-sm department-panel" style="display:none;">
   <div class="d-flex justify-content-between align-items-center mb-4">
     <div>
@@ -1542,6 +3218,13 @@
     </div>
   </div>
 </div>
+
+
+</div>
+
+
+
+
 
 
 <!-- ✅ Invite Staff Modal -->
@@ -1670,25 +3353,983 @@
 
 
 </div>
+
+
+<!-- Internet Status Modal -->
+<div id="networkStatusModal" class="network-modal shadow-lg rounded-3">
+  <div class="d-flex align-items-start justify-content-between p-3">
+    <div class="d-flex align-items-center gap-2">
+      <i id="networkIcon" class="bi bi-wifi-off text-danger fs-4"></i>
+      <div>
+        <h6 id="networkMessage" class="mb-0 fw-bold text-danger">You are offline</h6>
+        <small id="networkSubText" class="text-muted">Please check your connection.</small>
+      </div>
+    </div>
+    <button type="button" id="closeNetworkModal" class="btn-close ms-3"></button>
+  </div>
+</div>
+
+<!-- Fetch Status Modal -->
+<div id="fetchStatusModal" class="fetch-modal shadow-lg rounded-4">
+  <div class="fetch-inner d-flex align-items-center gap-3">
+    <div id="fetchIcon" class="fetch-icon"></div>
+    <div>
+      <h6 id="fetchMessage" class="mb-0 fw-semibold text-primary">Loading data...</h6>
+      <small id="fetchSubText" class="text-muted">Please wait while we process your request.</small>
+    </div>
+  </div>
+  <button id="closeFetchModal" class="btn-close ms-auto"></button>
+</div>
+<!-- Discard Changes Confirmation Modal -->
+<div class="modal fade" id="discardModal" tabindex="-1" aria-labelledby="discardModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered modal-sm">
+    <div class="modal-content shadow-lg rounded-4 border-0" style="font-family: 'poppins">
+      
+      <!-- Modal Header -->
+      <div class="modal-header bg-dark text-white rounded-top-4">
+        <h5 class="modal-title d-flex align-items-center" id="discardModalLabel">
+          <i class="fas fa-exclamation-circle me-2"></i> Unsaved Changes
+        </h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+
+      <!-- Modal Body -->
+      <div class="modal-body d-flex align-items-center gap-2" style="font-size: 0.95rem;">
+        <i class="fas fa-exclamation-triangle text-warning fa-lg"></i>
+        <span>You have unsaved changes. Do you want to discard them?</span>
+      </div>
+
+      <!-- Modal Footer -->
+      <div class="modal-footer justify-content-center gap-2 py-2">
+        <button type="button" class="btn btn-sm btn-outline-secondary fw-semibold" id="continueEditBtn">
+          <i class="fas fa-arrow-left me-1"></i> Continue
+        </button>
+        <button type="button" class="btn btn-sm btn-danger fw-semibold" id="discardChangesBtn">
+          <i class="fas fa-trash-alt me-1"></i> Discard
+        </button>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- Discard Changes Modal -->
+<div class="modal fade" id="discardDeviceModal" tabindex="-1" aria-labelledby="discardDeviceModalLabel" aria-hidden="true" style="display:none;">
+  <div class="modal-dialog modal-dialog-centered" style="max-width: 380px;">
+    <div class="modal-content shadow-lg rounded-4" style="background-color: #fff; font-family: 'Segoe UI', sans-serif; box-shadow: 0 8px 20px rgba(0,0,0,0.15);">
+      
+      <!-- Modal Header -->
+      <div class="modal-header" style="border-bottom: none; justify-content: center; padding: 1rem;">
+        <h5 class="modal-title" style="font-size: 1rem; color: #000; text-align: center;">
+          Discard Changes?
+        </h5>
+        <button type="button" class="btn-close" aria-label="Close" id="closeDiscardModalBtn" style="position: absolute; right: 1rem;"></button>
+      </div>
+      
+      <!-- Modal Body -->
+      <div class="modal-body" style="text-align: center; padding: 1rem 1.5rem;">
+        <div style="width: 50px; height: 50px; background-color: #ff6b00; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; margin-bottom: 1rem; box-shadow: 0 4px 12px rgba(0,0,0,0.1);">
+          <i class="fas fa-exclamation-triangle" style="color: #fff; font-size: 1.3rem;"></i>
+        </div>
+        <p style="color: #000; font-size: 0.95rem; margin: 0;">
+          You have unsaved changes. <br>
+          Do you want to discard them?
+        </p>
+      </div>
+      
+      <!-- Modal Footer -->
+      <div class="modal-footer" style="border-top: none; justify-content: center; gap: 0.5rem; padding: 0.75rem 1.5rem;">
+        <button type="button" id="continueDeviceEditBtn" 
+                style="background-color: #e0e0e0; color: #333; font-size: 0.85rem; padding: 0.5rem 1.2rem; border-radius: 0.5rem; border: none; transition: all 0.2s; cursor: pointer;"
+                onmouseover="this.style.backgroundColor='#d5d5d5'" 
+                onmouseout="this.style.backgroundColor='#e0e0e0'">
+          Continue Editing
+        </button>
+        <button type="button" id="discardDeviceChangesBtn" 
+                style="background-color: #ff6b00; color: #fff; font-size: 0.85rem; padding: 0.5rem 1.2rem; border-radius: 0.5rem; border: none; transition: all 0.2s; cursor: pointer;"
+                onmouseover="this.style.backgroundColor='#e65a00'" 
+                onmouseout="this.style.backgroundColor='#ff6b00'">
+          Discard Changes
+        </button>
+      </div>
+      
+    </div>
+  </div>
+</div>
+
+
+
+<!-- Delete Confirmation Modal -->
+<div class="modal fade" id="deleteDeviceModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered" style="max-width: 380px;">
+    <div class="modal-content shadow-lg rounded-3" style="background-color: #fff; font-family: 'Segoe UI', sans-serif;">
+      
+      <!-- Modal Header -->
+      <div class="modal-header" style="border-bottom: none; justify-content: center; padding: 1rem;">
+        <h5 class="modal-title" style="font-size: 1rem; color: #000; text-align: center;">
+          Confirm Deletion
+        </h5>
+        <button type="button" class="btn-close" aria-label="Close" id="cancelDeleteBtn" style="position: absolute; right: 1rem;"></button>
+      </div>
+      
+      <!-- Modal Body -->
+      <div class="modal-body" style="text-align: center; padding: 1rem 1.5rem;">
+        <div style="width: 50px; height: 50px; background-color: #ff6b00; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; margin-bottom: 1rem;">
+          <i class="fas fa-exclamation-triangle" style="color: #fff; font-size: 1.3rem;"></i>
+        </div>
+        <p style="color: #000; font-size: 0.95rem; margin: 0;">
+          Are you sure you want to delete this device? <br>
+          <strong>All related data will be permanently removed!</strong>
+        </p>
+      </div>
+      
+      <!-- Modal Footer -->
+      <div class="modal-footer" style="border-top: none; justify-content: center; gap: 0.5rem; padding: 0.75rem 1.5rem;">
+        <button type="button" class="btn" id="cancelDeleteBtnFooter" 
+                style="background-color: #e0e0e0; color: #333; font-size: 0.85rem; padding: 0.4rem 1rem; border-radius: 0.25rem;">
+          Cancel
+        </button>
+        <button type="button" class="btn" id="confirmDeleteBtns" 
+                style="background-color: #ff6b00; color: #fff; font-size: 0.85rem; padding: 0.4rem 1rem; border-radius: 0.25rem;">
+          <i class="fas fa-trash-alt me-1"></i> Delete
+        </button>
+      </div>
+      
+    </div>
+  </div>
+</div>
+
+
+
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
-// ✅ Toast Functions
-function showSuccess(message = "Success!") {
-  document.getElementById('successToastBody').textContent = message;
-  new bootstrap.Toast(document.getElementById('successToast')).show();
+/* ============================================================
+   GLOBAL CONFIG
+============================================================ */
+
+function showWarning(message) {
+    document.getElementById("warningModalMessage").textContent = message;
+    new bootstrap.Modal(document.getElementById("warningModal")).show();
 }
 
-function showError(message = "Something went wrong.") {
-  document.getElementById('errorToastBody').textContent = message;
-  new bootstrap.Toast(document.getElementById('errorToast')).show();
+
+let editedCell = null;
+let oldValue = '';
+let selectedBankId = null;
+const userId = 4;
+
+const dayFields = [
+  'monday_day','monday_night',
+  'tuesday_day','tuesday_night',
+  'wednesday_day','wednesday_night',
+  'thursday_day','thursday_night',
+  'friday_day','friday_night',
+  'saturday_day','saturday_night',
+  'sunday_day','sunday_night'
+];
+
+let currentWeekDates = [];
+let filteredMonth = null;
+
+/* ============================================================
+   UTILITIES
+============================================================ */
+const isValidNumber = value => /^-?\d*\.?\d+$/.test(String(value).trim());
+
+function setCurrentWeekDates(baseDate = new Date()) {
+  const monday = new Date(baseDate);
+  monday.setDate(baseDate.getDate() - ((baseDate.getDay() + 6) % 7));
+  currentWeekDates = [];
+  for (let i = 0; i < 7; i++) {
+    const d = new Date(monday);
+    d.setDate(monday.getDate() + i);
+    currentWeekDates.push(d);
+  }
 }
 
-// ✅ Populate Department Dropdown dynamically
+function formatDayWithDate(date) {
+  return date.toLocaleDateString(undefined, { weekday: 'short', day: 'numeric', month: 'short' });
+}
+
+function getFieldForCell(cell) {
+  const row = cell.closest('tr');
+  const index = Array.from(row.children).indexOf(cell);
+  if (index <= 0) return null;
+  const field = dayFields[index - 1];
+  return row.classList.contains('ot-row') ? `ot_${field}` : field;
+}
+
+function getBankIdForRow(row) {
+  return row.dataset.bankId ? parseInt(row.dataset.bankId) : selectedBankId || null;
+}
+
+/* ============================================================
+   RENDER HEADERS
+============================================================ */
+function renderTableHeaders() {
+  const headerRow1 = document.querySelector("#qcTable thead tr:first-child");
+  const headerRow2 = document.querySelector("#qcTable thead tr:nth-child(2)");
+  if(!headerRow1 || !headerRow2) return;
+
+  headerRow1.innerHTML = `<th rowspan="2">Bank / Client</th>`;
+  headerRow2.innerHTML = '';
+
+  currentWeekDates.forEach(d => {
+    headerRow1.innerHTML += `<th colspan="2">${formatDayWithDate(d)}</th>`;
+    headerRow2.innerHTML += `<th>Day</th><th>Night</th>`;
+  });
+
+  headerRow1.innerHTML += `<th rowspan="2">Total / Shift</th>`;
+}
+
+/* ============================================================
+   FILTER ELEMENTS
+============================================================ */
+const filterMonth = document.getElementById('filterMonth');
+const filterWeek = document.getElementById('filterWeek');
+const filterBank = document.getElementById('filterBank');
+const applyFilterBtn = document.getElementById('applyFilter');
+const qcBankSelect = document.getElementById('qcBank'); // <-- QC Form select
+
+/* ============================================================
+   MONTH / WEEK FILTER
+============================================================ */
+function parseISOWeek(isoWeekStr) {
+    const [year, week] = isoWeekStr.split('-W').map(Number);
+    if (!year || !week) return null;
+    const jan1 = new Date(year, 0, 1);
+    const dayOffset = ((jan1.getDay() + 6) % 7);
+    const firstMonday = new Date(jan1);
+    firstMonday.setDate(jan1.getDate() + (7 - dayOffset));
+    const mondayOfWeek = new Date(firstMonday);
+    mondayOfWeek.setDate(firstMonday.getDate() + (week - 1) * 7);
+    return mondayOfWeek;
+}
+
+filterMonth?.addEventListener('change', () => {
+    if (!filterMonth.value) return;
+    const [year, month] = filterMonth.value.split('-').map(Number);
+    filteredMonth = { year, month };
+
+    const firstOfMonth = new Date(year, month - 1, 1);
+    const firstMonday = new Date(firstOfMonth);
+    firstMonday.setDate(firstOfMonth.getDate() + ((8 - firstOfMonth.getDay()) % 7));
+
+    setCurrentWeekDates(firstMonday);
+    populateWeekOptions(year, month);
+    renderTableHeaders();
+    loadQcEntries();
+});
+
+filterWeek?.addEventListener('change', () => {
+    if (!filterWeek.value) return;
+    if (!filteredMonth) {
+showWarning("Please select a month first!");
+        filterWeek.value = "";
+        return;
+    }
+
+    const weekStartDate = parseISOWeek(filterWeek.value);
+    if (!weekStartDate) {
+showWarning("Invalid week selected!");
+        filterWeek.value = "";
+        return;
+    }
+
+    if (weekStartDate.getFullYear() !== filteredMonth.year || weekStartDate.getMonth() !== filteredMonth.month - 1) {
+showWarning("Selected week is outside the selected month!");
+        filterWeek.value = "";
+        return;
+    }
+
+    setCurrentWeekDates(weekStartDate);
+    renderTableHeaders();
+    loadQcEntries();
+});
+
+function populateWeekOptions(year, month) {
+    if(!filterWeek) return;
+    filterWeek.innerHTML = '';
+
+    const firstDay = new Date(year, month - 1, 1);
+    const lastDay = new Date(year, month, 0);
+
+    let monday = new Date(firstDay);
+    monday.setDate(firstDay.getDate() + ((8 - firstDay.getDay()) % 7));
+
+    while(monday <= lastDay) {
+        const weekNumber = getWeekNumber(monday);
+        const weekLabel = `Week ${weekNumber} (${monday.toLocaleDateString(undefined,{day:'numeric', month:'short'})} - ${new Date(monday.getTime() + 6*86400000).toLocaleDateString(undefined,{day:'numeric', month:'short'})})`;
+
+        const option = document.createElement('option');
+        option.value = `${monday.getFullYear()}-W${weekNumber}`;
+        option.textContent = weekLabel;
+        filterWeek.appendChild(option);
+
+        monday.setDate(monday.getDate() + 7);
+        if (monday.getMonth() !== month - 1) break;
+    }
+    filterWeek.value = "";
+}
+
+function getWeekNumber(d) {
+    const date = new Date(d.getTime());
+    date.setHours(0,0,0,0);
+    date.setDate(date.getDate() + 4 - (date.getDay()||7));
+    const yearStart = new Date(date.getFullYear(),0,1);
+    return Math.ceil((((date - yearStart) / 86400000) + 1)/7);
+}
+
+/* ============================================================
+   MAP ENTRIES
+============================================================ */
+/* ============================================================
+   MAP ENTRIES (SHOW ALL BANKS)
+============================================================ */
+/* ============================================================
+   MAP ENTRIES TO BANKS (SHOW ALL BANKS)
+============================================================ */
+async function mapEntriesByBank(entries) {
+  const bankMap = {};
+
+  // 1️⃣ Fetch all banks first
+  let allBanks = [];
+  try {
+    const res = await fetch('http://localhost:4000/api/banks');
+    allBanks = await res.json(); // array of all banks
+  } catch(err) {
+    console.error("Failed to fetch all banks:", err);
+  }
+
+  // 2️⃣ Initialize bankMap with all banks
+  allBanks.forEach(bank => {
+    bankMap[bank.bank_id] = { bank_id: bank.bank_id, bank_name: bank.bank_name, qc: {} };
+  });
+
+  // 3️⃣ Filter entries to current week
+  let filteredEntries = entries.filter(e => {
+    const entryDate = new Date(e.entry_date);
+    return entryDate >= currentWeekDates[0] && entryDate <= currentWeekDates[6];
+  });
+
+  // 4️⃣ Apply bank filter if selected
+  if(filterBank?.value){
+    filteredEntries = filteredEntries.filter(e => e.bank_name === filterBank.value);
+  }
+
+  // 5️⃣ Merge QC entries into bankMap
+  filteredEntries.forEach(e => {
+    const date = new Date(e.entry_date);
+    const dayIndex = (date.getDay() + 6) % 7;
+    const field = e.shift === 'day' ? dayFields[dayIndex*2] : dayFields[dayIndex*2+1];
+
+    if(!bankMap[e.bank_id]) {
+      // safety fallback if entry has a bank not in allBanks
+      bankMap[e.bank_id] = { bank_id: e.bank_id, bank_name: e.bank_name, qc: {} };
+    }
+
+    bankMap[e.bank_id].qc[field] = (bankMap[e.bank_id].qc[field] || 0) + e.quantity;
+    if(e.overtime_qty > 0) {
+      bankMap[e.bank_id].qc['ot_'+field] = (bankMap[e.bank_id].qc['ot_'+field] || 0) + e.overtime_qty;
+    }
+  });
+
+  return Object.values(bankMap);
+}
+
+/* ============================================================
+   CREATE BANK ROWS
+============================================================ */
+function createBankRows(tbody, bank) {
+  const qcData = bank.qc;
+
+  const mainRow = document.createElement('tr');
+  mainRow.classList.add('main-row');
+  mainRow.dataset.bankId = bank.bank_id;
+  mainRow.innerHTML =
+    `<td>${bank.bank_name}</td>` +
+    dayFields.map(f => `<td contenteditable="true">${qcData[f] ?? 0}</td>`).join('') +
+    `<td class="row-total">0</td>`;
+  tbody.appendChild(mainRow);
+
+  const otRow = document.createElement('tr');
+  otRow.classList.add('ot-row');
+  otRow.dataset.bankId = bank.bank_id;
+  otRow.style.background = '#fff3d6';
+  otRow.style.fontStyle = 'italic';
+  otRow.style.borderLeft = '4px solid #ff6b00';
+  otRow.innerHTML =
+    `<td>Overtime</td>` +
+    dayFields.map(f => `<td contenteditable="true">${qcData['ot_'+f] ?? 0}</td>`).join('') +
+    `<td class="row-total">0</td>`;
+  tbody.appendChild(otRow);
+}
+
+/* ============================================================
+   LOAD QC ENTRIES
+============================================================ */
+// 1️⃣ Make latestLogsMap global
+let latestLogsMap = {};
+
+async function loadQcEntries() {
+  try {
+    // 1️⃣ Prepare query params
+    const start = currentWeekDates[0].toISOString().split('T')[0];
+    const end = currentWeekDates[6].toISOString().split('T')[0];
+    const bankId = filterBank?.value || '';
+
+    const queryParams = new URLSearchParams({ start_date: start, end_date: end });
+    if (bankId) queryParams.append('bank_id', bankId);
+
+    // 2️⃣ Fetch QC entries from backend
+    const res = await fetch(`/api/qc/qc_entries?${queryParams.toString()}`);
+    if (!res.ok) throw new Error("Failed to fetch QC entries");
+    const { entries } = await res.json();
+
+    // 3️⃣ Fetch logs filtered by the same date range
+    const logRes = await fetch(`/api/qc/logs?start_date=${start}&end_date=${end}`);
+    if (!logRes.ok) throw new Error("Failed to fetch QC logs");
+    const { logs } = await logRes.json();
+
+    // 4️⃣ Create map of latest log per bank_id + field
+    latestLogsMap = {};
+    logs.forEach(log => {
+      const key = `${log.bank_id}_${log.changed_field}`;
+      if (!latestLogsMap[key] || new Date(log.change_date) > new Date(latestLogsMap[key].change_date)) {
+        latestLogsMap[key] = log;
+      }
+    });
+
+    // 5️⃣ Fetch all banks
+    let allBanks = [];
+    try {
+      const bankRes = await fetch('http://localhost:4000/api/banks');
+      allBanks = await bankRes.json();
+    } catch (err) {
+      console.error("Failed to fetch banks:", err);
+    }
+
+    // 6️⃣ Initialize bankMap
+    const bankMap = {};
+    allBanks.forEach(bank => {
+      bankMap[bank.bank_id] = { bank_id: bank.bank_id, bank_name: bank.bank_name, qc: {} };
+    });
+
+    // 7️⃣ Apply latest logs first (ensures edited-only cells are displayed)
+    Object.values(latestLogsMap).forEach(log => {
+      const bankId = log.bank_id;
+      if (!bankMap[bankId]) return;
+      bankMap[bankId].qc[log.changed_field] = parseFloat(log.new_value);
+    });
+
+    // 8️⃣ Merge QC entries on top of logs
+entries.forEach(e => {
+  const entryDate = new Date(e.entry_date);
+  
+  // Only populate if entryDate exists in currentWeekDates
+  const dayIndex = currentWeekDates.findIndex(d =>
+    d.getFullYear() === entryDate.getFullYear() &&
+    d.getMonth() === entryDate.getMonth() &&
+    d.getDate() === entryDate.getDate()
+  );
+
+  if (dayIndex === -1) return; // skip if entry is outside the week
+
+  const field = e.shift === 'day' ? dayFields[dayIndex*2] : dayFields[dayIndex*2+1];
+
+  if (!bankMap[e.bank_id]) {
+    bankMap[e.bank_id] = { bank_id: e.bank_id, bank_name: e.bank_name, qc: {} };
+  }
+
+  bankMap[e.bank_id].qc[field] = e.quantity;
+
+  if (e.overtime_qty > 0) {
+    bankMap[e.bank_id].qc['ot_' + field] = e.overtime_qty;
+  }
+});
+
+    // 9️⃣ Render table
+    const tbody = document.getElementById('qcTableBody');
+    if (!tbody) return;
+    tbody.innerHTML = '';
+
+    generateTotalsRow(); // totals row first
+
+    Object.values(bankMap).forEach(bank => createBankRows(tbody, bank));
+
+    recalcTotals(); // recalc totals after rendering
+
+    // 🔟 Attach hover tooltips to editable cells
+    document.querySelectorAll('#qcTableBody td[contenteditable="true"]').forEach(cell => {
+      cell.addEventListener('mouseenter', () => {
+        const row = cell.closest('tr');
+        const bankId = getBankIdForRow(row);
+        const field = getFieldForCell(cell);
+        if (!bankId || !field) return;
+
+        const log = latestLogsMap[`${bankId}_${field}`];
+        if (!log) return;
+
+        const existing = document.querySelector('.edit-tooltip');
+        if (existing) existing.remove();
+
+        const tooltip = document.createElement('div');
+        tooltip.classList.add('edit-tooltip');
+        tooltip.style.position = 'absolute';
+        tooltip.style.background = '#fff9c4';
+        tooltip.style.border = '1px solid #ffca28';
+        tooltip.style.padding = '4px 8px';
+        tooltip.style.fontSize = '12px';
+        tooltip.style.zIndex = '999';
+        tooltip.style.borderRadius = '4px';
+        tooltip.innerHTML = `
+          <strong>Last edit:</strong><br>
+          Old: ${log.old_value}<br>
+          New: ${log.new_value}<br>
+          By User ID: ${log.user_id}<br>
+          At: ${new Date(log.change_date).toLocaleString()}<br>
+          Reason: ${log.reason || '-'}
+        `;
+        document.body.appendChild(tooltip);
+
+        const rect = cell.getBoundingClientRect();
+        tooltip.style.top = rect.bottom + window.scrollY + 'px';
+        tooltip.style.left = rect.left + window.scrollX + 'px';
+
+        cell.addEventListener('mouseleave', () => tooltip.remove(), { once: true });
+      });
+    });
+
+  } catch (err) {
+    console.error(err);
+    showWarning("Failed to load QC entries");
+  }
+}
+
+
+
+
+
+/* ============================================================
+   FETCH BANKS FOR QC FORM
+============================================================ */
+async function loadBanksForForm() {
+  if(!qcBankSelect) return;
+  try {
+    const res = await fetch('http://localhost:4000/api/banks');
+    const banks = await res.json(); // directly an array
+    console.log("Banks loaded:", banks);
+
+    qcBankSelect.innerHTML = `<option value="">Select Bank</option>`;
+    banks.forEach(bank => {
+      const option = document.createElement('option');
+      option.value = bank.bank_id;
+      option.textContent = bank.bank_name;
+      qcBankSelect.appendChild(option);
+    });
+  } catch(err) {
+    console.error("Error loading banks:", err);
+    qcBankSelect.innerHTML = `<option value="">⚠ Failed to load banks</option>`;
+  }
+}
+
+
+/* ============================================================
+   TOTALS
+============================================================ */
+function generateTotalsRow() {
+  const totalRow = document.querySelector('.totals-row');
+  if(!totalRow) return;
+
+  totalRow.innerHTML =
+    `<td>Total / Shift</td>` +
+    Array.from({length: 14}, (_, i) => `<td class="${i%2?'night':'day'}-total">0</td>`).join('') +
+    `<td class="total-shift">0</td>`;
+}
+
+
+
+function recalcTotals() {
+  const totalRow = document.querySelector('.totals-row');
+  if (!totalRow) return;
+
+  const dayTotals = totalRow.querySelectorAll('.day-total');
+  const nightTotals = totalRow.querySelectorAll('.night-total');
+
+  // Reset row totals
+  document.querySelectorAll('.main-row, .ot-row').forEach(row => {
+    const cells = Array.from(row.querySelectorAll('td[contenteditable="true"]'));
+    const rowTotal = cells.reduce((sum, cell) => sum + (parseFloat(cell.textContent) || 0), 0);
+    row.querySelector('.row-total').textContent = rowTotal;
+  });
+
+  // Calculate column totals
+  for (let i = 0; i < 7; i++) {
+    let daySum = 0, nightSum = 0;
+    document.querySelectorAll('.main-row, .ot-row').forEach(row => {
+      const cells = Array.from(row.querySelectorAll('td[contenteditable="true"]'));
+      daySum += parseFloat(cells[i*2]?.textContent) || 0;
+      nightSum += parseFloat(cells[i*2+1]?.textContent) || 0;
+    });
+    if (dayTotals[i]) dayTotals[i].textContent = daySum;
+    if (nightTotals[i]) nightTotals[i].textContent = nightSum;
+  }
+
+  // Calculate total shift sum
+  const totalShift = Array.from(dayTotals)
+    .concat(Array.from(nightTotals))
+    .reduce((sum, td) => sum + (parseFloat(td.textContent) || 0), 0);
+  totalRow.querySelector('.total-shift').textContent = totalShift;
+}
+
+
+/* ============================================================
+   CELL EDIT + LOG
+============================================================ */
+document.addEventListener('focusin', e=>{
+  if(e.target.matches('[contenteditable="true"]')){
+    oldValue=e.target.textContent.trim();
+    editedCell=e.target;
+  }
+});
+
+document.addEventListener('focusout', e=>{
+  const cell=e.target;
+  if(!cell.matches('[contenteditable="true"]')) return;
+  const newValue=cell.textContent.trim();
+  if(!isValidNumber(newValue)){
+    showWarning("Please enter a valid number.");
+    cell.textContent = oldValue;
+    return;
+}
+
+  if(newValue===oldValue) return;
+
+  const field=getFieldForCell(cell);
+  const bankId=getBankIdForRow(cell.closest('tr'));
+  if(!field||!bankId){ cell.textContent=oldValue; return; }
+
+  const form=document.getElementById('editConfirmForm');
+  form.dataset.field=field;
+  form.dataset.old=oldValue;
+  form.dataset.new=newValue;
+  form.dataset.rowBankId=bankId;
+
+  new bootstrap.Modal(document.getElementById('editConfirmModal')).show();
+});
+
+/* ============================================================
+   SAVE LOG
+============================================================ */
+document.getElementById('editConfirmForm')?.addEventListener('submit', async e => {
+  e.preventDefault();
+  
+  const form = e.currentTarget;
+  const reason = document.getElementById('changeRemark').value.trim();
+
+  if (!reason) {
+    showWarning("Please enter a reason for this change.");
+    return;
+  }
+
+  const payload = {
+    bank_id: parseInt(form.dataset.rowBankId),
+    user_id: userId,
+    changed_field: form.dataset.field,
+    old_value: form.dataset.old,
+    new_value: form.dataset.new,
+    reason
+  };
+
+  try {
+    const res = await fetch('/api/qc/logs', {
+      method: 'POST',
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload)
+    });
+
+    if (!res.ok) throw new Error("Failed to save edit");
+
+    const data = await res.json();
+
+    // ✅ Update the table cell visually
+    if (editedCell) {
+      const isOvertime = form.dataset.field.startsWith('ot_');
+      editedCell.textContent = form.dataset.new; // display new value
+    }
+
+    // ✅ Close modal and reset form
+    const modal = bootstrap.Modal.getInstance(document.getElementById('editConfirmModal'));
+    if (modal) modal.hide();
+    form.reset();
+
+    // ✅ Optionally, recalc totals if needed
+    if (typeof recalcTotals === 'function') recalcTotals();
+
+    // ✅ Show success message
+    showWarning("Change saved successfully!");
+
+  } catch (err) {
+    console.error("Edit save error:", err);
+
+    // Restore old value if something went wrong
+    if (editedCell) editedCell.textContent = form.dataset.old;
+
+    showWarning("Failed to save change. Please try again.");
+  }
+});
+
+
+/* ============================================================
+   APPLY FILTER BUTTON
+============================================================ */
+applyFilterBtn?.addEventListener('click', () => {
+  loadQcEntries();
+});
+
+/* ============================================================
+   INITIAL LOAD
+============================================================ */
+document.addEventListener('DOMContentLoaded', async()=>{
+  setCurrentWeekDates();
+  renderTableHeaders();
+  await loadQcEntries();
+  await loadBanksForForm(); // <-- load banks for QC form
+});
+
+
+/* ============================================================
+   ADD QC ENTRY FORM SUBMIT  (FIXED FOR YOUR MODAL)
+============================================================ */
+document.getElementById('editConfirmForm')?.addEventListener('submit', async e => {
+    e.preventDefault();
+
+    const form = e.currentTarget;
+    const reason = document.getElementById('changeRemark').value.trim();
+
+    if (!reason) {
+        showWarning("Please enter a reason for this change.");
+        return;
+    }
+
+  
+
+    const payload = {
+        bank_id: parseInt(form.dataset.rowBankId),
+        user_id: userId,
+        changed_field: form.dataset.field,
+        old_value: form.dataset.old,
+        new_value: form.dataset.new,
+        reason,
+        entry_date: entryDate
+    };
+
+    try {
+        const res = await fetch('/api/qc/logs', {
+            method: 'POST',
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(payload)
+        });
+
+        if (!res.ok) throw new Error("Server error while saving edit");
+
+        const data = await res.json();
+
+        // Update the cell in the table immediately
+        if (editedCell && data.updatedEntry) {
+            const isOvertime = form.dataset.field.startsWith('ot_');
+            editedCell.textContent = isOvertime
+                ? data.updatedEntry.overtime_qty
+                : data.updatedEntry.quantity;
+        }
+
+        // Close modal and reset form
+        const modal = bootstrap.Modal.getInstance(document.getElementById('editConfirmModal'));
+        if (modal) modal.hide();
+        form.reset();
+
+        // Reload table so changes persist after refresh
+        await loadQcEntries();
+
+        // Show success message
+        showWarning("Change saved successfully!");
+
+    } catch (err) {
+        console.error("Edit save error:", err);
+        if (editedCell) editedCell.textContent = form.dataset.old;
+        showWarning("Failed to save change. Please try again.");
+    }
+});
+
+
+
+
+
+/* ============================================================
+   SHOW/HIDE OVERTIME FIELD
+============================================================ */
+document.getElementById("overtimeSwitch")?.addEventListener("change", function () {
+    document.getElementById("overtimeQtyDiv").style.display = this.checked ? "block" : "none";
+});
+
+</script>
+
+
+<script>
+
+
+  const isLocal = window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1";
+const API_BASE = isLocal ? "http://localhost:4000" : "https://department-app-n2tj";
+
+
+// Show Bootstrap modal when offline/online changes
+function showNetworkModal(status) {
+  const modal = new bootstrap.Modal(document.getElementById('networkStatusModal'));
+  const icon = document.getElementById('networkIcon');
+  const message = document.getElementById('networkMessage');
+  const content = document.getElementById('networkModalContent');
+
+  if (status === 'offline') {
+    icon.className = 'bi bi-wifi-off text-danger fs-1 mb-2';
+    message.textContent = 'You are offline';
+    content.classList.remove('bg-success', 'text-white');
+    content.classList.add('bg-white');
+    modal.show();
+  } else {
+    icon.className = 'bi bi-wifi text-success fs-1 mb-2';
+    message.textContent = 'You are back online';
+    content.classList.remove('bg-white');
+    content.classList.add('bg-success', 'text-white');
+
+    modal.show();
+
+    // Auto close after 2 seconds
+    setTimeout(() => {
+      modal.hide();
+    }, 2000);
+  }
+}
+
+// Detect network changes
+const modal = document.getElementById("networkStatusModal");
+const icon = document.getElementById("networkIcon");
+const message = document.getElementById("networkMessage");
+const subText = document.getElementById("networkSubText");
+const closeBtn = document.getElementById("closeNetworkModal");
+
+function showNetworkModal(status) {
+  modal.style.display = "block";
+
+  if (status === "offline") {
+    modal.classList.remove("online");
+    icon.className = "bi bi-wifi-off text-danger fs-4";
+    message.textContent = "You are offline";
+    message.classList.replace("text-success", "text-danger");
+    subText.textContent = "Please check your connection.";
+  } else {
+    modal.classList.add("online");
+    icon.className = "bi bi-wifi text-success fs-4";
+    message.textContent = "Back online";
+    message.classList.replace("text-danger", "text-success");
+    subText.textContent = "Your connection has been restored.";
+    // Auto-hide after 2 seconds
+    setTimeout(() => {
+      modal.style.display = "none";
+    }, 2000);
+  }
+}
+
+// Listen for offline/online events
+window.addEventListener("offline", () => showNetworkModal("offline"));
+window.addEventListener("online", () => showNetworkModal("online"));
+
+// Close button manually hides the modal
+closeBtn.addEventListener("click", () => {
+  modal.style.display = "none";
+});
+
+// Show if offline on load
+window.addEventListener("load", () => {
+  if (!navigator.onLine) showNetworkModal("offline");
+});
+
+const fetchModal = document.getElementById("fetchStatusModal");
+const fetchIcon = document.getElementById("fetchIcon");
+const fetchMessage = document.getElementById("fetchMessage");
+const fetchSubText = document.getElementById("fetchSubText");
+const fetchClose = document.getElementById("closeFetchModal");
+
+function showFetchModal(type = "loading", message = "", subText = "") {
+  fetchModal.style.display = "flex";
+  fetchModal.classList.remove("error", "success");
+  
+  // Default messages
+  fetchMessage.textContent = message || "Loading data...";
+  fetchSubText.textContent = subText || "Please wait while we process your request.";
+
+  // Loading State
+  if (type === "loading") {
+    fetchModal.classList.remove("error", "success");
+    fetchMessage.classList = "mb-0 fw-semibold text-primary";
+    fetchIcon.innerHTML = `
+      <svg viewBox="0 0 50 50" width="32" height="32">
+        <circle cx="25" cy="25" r="20" stroke="#0d6efd" stroke-width="4" fill="none" stroke-linecap="round" style="animation: spin 1s linear infinite;" />
+      </svg>`;
+  }
+
+  // Success State
+  else if (type === "success") {
+    fetchModal.classList.add("success");
+    fetchMessage.classList = "mb-0 fw-semibold text-success";
+    fetchIcon.innerHTML = `
+      <svg viewBox="0 0 52 52" width="32" height="32">
+        <circle cx="26" cy="26" r="25" fill="none" stroke="#198754" stroke-width="3"/>
+        <path fill="none" stroke="#198754" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"
+              d="M14 27l7 7 16-16"
+              style="stroke-dasharray: 24; stroke-dashoffset: 24; animation: checkmark 0.6s ease forwards;"/>
+      </svg>`;
+    setTimeout(() => (fetchModal.style.display = "none"), 2000);
+  }
+
+  // Error State
+  else if (type === "error") {
+    fetchModal.classList.add("error");
+    fetchMessage.classList = "mb-0 fw-semibold text-danger";
+    fetchIcon.innerHTML = `
+      <svg viewBox="0 0 52 52" width="32" height="32">
+        <circle cx="26" cy="26" r="25" fill="none" stroke="#dc3545" stroke-width="3"/>
+        <path d="M16 16 L36 36 M36 16 L16 36"
+              stroke="#dc3545" stroke-width="4" stroke-linecap="round" />
+      </svg>`;
+  }
+}
+
+fetchClose.addEventListener("click", () => (fetchModal.style.display = "none"));
+
+// Example async call simulation
+async function simulateFetch() {
+  showFetchModal("loading", "Loading user dashboard...", "Fetching latest updates...");
+  try {
+    await new Promise(res => setTimeout(res, 2000));
+    showFetchModal("success", "Data loaded successfully!", "Everything is up to date.");
+  } catch {
+    showFetchModal("error", "Error loading data", "Something went wrong.");
+  }
+}
+
+document.addEventListener("DOMContentLoaded", simulateFetch);
+
+
+// ✅ Populate Department Dropdown dynamically with loading modal
 async function populateDepartmentDropdown() {
   try {
-    const res = await fetch('/api/departments');
-    const departments = await res.json();
+    // Show custom loading modal
+    showFetchModal("loading", "Loading departments...", "Please wait while we fetch the list.");
 
+    const res = await fetch('/api/departments');
+    if (!res.ok) throw new Error("Network response was not ok");
+
+    const departments = await res.json();
     const select = document.getElementById('inviteDepartment');
     select.innerHTML = '<option value="">Select Department</option>';
 
@@ -1698,10 +4339,17 @@ async function populateDepartmentDropdown() {
       option.textContent = dept.name;
       select.appendChild(option);
     });
+
+    // ✅ Success
+    showFetchModal("success", "Departments loaded successfully!", "You can now select a department.");
+
   } catch (err) {
     console.error("Failed to load departments:", err);
+    // ❌ Error
+    showFetchModal("error", "Failed to load departments", "Please check your internet or try again.");
   }
 }
+
 
 // ✅ Load departments whenever modal opens
 const inviteModal = document.getElementById('inviteStaffModal');
@@ -1709,7 +4357,7 @@ if (inviteModal) {
   inviteModal.addEventListener('show.bs.modal', populateDepartmentDropdown);
 }
 
-// ✅ Handle Staff Invite Form Submission
+// ✅ Handle Staff Invite Form Submission with animated modal
 document.getElementById('inviteStaffForm').addEventListener('submit', async function (e) {
   e.preventDefault();
 
@@ -1719,16 +4367,17 @@ document.getElementById('inviteStaffForm').addEventListener('submit', async func
   const position = document.getElementById('invitePosition').value; // 🆕 Added position
 
   try {
+    // 🌀 Show loading modal
+    showFetchModal("loading", "Sending invitation...", "Please wait while we process your request.");
+
     const response = await fetch('/api/staff/invite', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      // 🆕 Include position in JSON body
       body: JSON.stringify({ email, role, department_id, position })
     });
 
     const resultText = await response.text();
     let result;
-
     try {
       result = JSON.parse(resultText);
     } catch {
@@ -1736,18 +4385,23 @@ document.getElementById('inviteStaffForm').addEventListener('submit', async func
     }
 
     if (response.ok) {
-      showSuccess("Invitation email sent successfully!");
+      // ✅ Success modal animation
+      showFetchModal("success", "Invitation sent successfully!", "The staff member will receive an email shortly.");
+
+      // Reset form and close modal after short delay
       document.getElementById('inviteStaffForm').reset();
       const modal = bootstrap.Modal.getInstance(inviteModal);
-      modal.hide();
+      if (modal) setTimeout(() => modal.hide(), 1500);
 
       if (typeof loadStaffList === 'function') loadStaffList();
     } else {
-      const errorMessage = result.error || result.message || 'Something went wrong';
-      showError(errorMessage);
+      // ❌ Error modal animation
+      const errorMessage = result.error || result.message || 'Something went wrong.';
+      showFetchModal("error", "Failed to send invitation", errorMessage);
     }
   } catch (err) {
-    showError('Network or unexpected error: ' + err.message);
+    // ❌ Network or unknown error
+    showFetchModal("error", "Network Error", "Please check your connection and try again.");
     console.error(err);
   }
 });
@@ -2180,28 +4834,428 @@ async function loadBankCustomSummary() {
 </script>
 
 <script>
-    // Sidebar Toggle
-    function toggleSidebar() {
-        const sidebar = document.getElementById('sidebar');
-        const overlay = document.getElementById('overlay');
-        sidebar.classList.toggle('expanded');
-        if (window.innerWidth <= 768) {
-            overlay.classList.toggle('active', sidebar.classList.contains('expanded'));
-        }
-    }
-    
-    // Navigation Panel Switching
-    document.querySelectorAll('.nav-link').forEach(link => {
-        link.addEventListener('click', function(e) {
-            e.preventDefault();
-            const targetId = this.getAttribute('data-target');
-            if (!targetId) return;
-            document.querySelectorAll('.department-panel').forEach(panel => panel.style.display = 'none');
-            document.getElementById(targetId).style.display = 'block';
-            if (window.innerWidth <= 768) toggleSidebar();
-        });
+function toggleSidebar() {
+  const sidebar = document.getElementById('sidebar');
+  const overlay = document.getElementById('overlay');
+
+  // ✅ Only toggle on mobile
+  if (window.innerWidth <= 768) {
+    sidebar.classList.toggle('expanded');
+    overlay.classList.toggle('active', sidebar.classList.contains('expanded'));
+  }
+}
+
+// ✅ Auto remove mobile overlay when resizing to desktop
+window.addEventListener('resize', () => {
+  const sidebar = document.getElementById('sidebar');
+  const overlay = document.getElementById('overlay');
+
+  if (window.innerWidth > 768) {
+    sidebar.classList.add('expanded'); // Always open on desktop
+    overlay.classList.remove('active');
+  } else {
+    sidebar.classList.remove('expanded'); // Start collapsed on mobile
+  }
+});
+
+// ✅ Close sidebar when overlay is clicked (mobile only)
+document.getElementById('overlay')?.addEventListener('click', () => {
+  const sidebar = document.getElementById('sidebar');
+  const overlay = document.getElementById('overlay');
+  sidebar.classList.remove('expanded');
+  overlay.classList.remove('active');
+});
+
+// ✅ Keep submenu toggle behavior
+document.querySelectorAll('.nav-item > .nav-link').forEach(link => {
+  link.addEventListener('click', function (e) {
+    e.preventDefault();
+    const target = this.getAttribute('data-bs-target');
+    const submenu = document.querySelector(target);
+
+    document.querySelectorAll('.nav-item .collapse.show').forEach(openMenu => {
+      if (openMenu !== submenu) openMenu.classList.remove('show');
     });
 
+    submenu.classList.toggle('show');
+  });
+});
+
+// ✅ Keep department panel switching
+document.querySelectorAll('.nav-link[data-target]').forEach(link => {
+  link.addEventListener('click', function (e) {
+    e.preventDefault();
+    const targetId = this.getAttribute('data-target');
+    if (!targetId) return;
+
+    document.querySelectorAll('.department-panel').forEach(panel => {
+      panel.style.display = 'none';
+    });
+
+    document.getElementById(targetId).style.display = 'block';
+
+    // Auto close sidebar on mobile only
+    if (window.innerWidth <= 768) toggleSidebar();
+  });
+});
+
+// ✅ Run once on page load
+window.addEventListener('load', () => {
+  const sidebar = document.getElementById('sidebar');
+
+  // Always expanded on desktop
+  if (window.innerWidth > 768) sidebar.classList.add('expanded');
+
+  // ✅ Add smooth fade-in when page finishes loading
+  sidebar.classList.add('ready');
+});
+
+
+
+//function for job list for stafff dashbpard
+window.addEventListener('DOMContentLoaded', () => {
+    // ✅ DOM Elements
+    const staffSelect = document.getElementById('staffSelect');
+    const jobTableBody = document.getElementById('staffJobsTableBody');
+    const jobSearchInput = document.getElementById('jobSearchjob');
+    const jobSearchBtn = document.getElementById('jobSearchBtnjob');
+    const customDateStart = document.getElementById('customDateStart');
+    const customDateEnd = document.getElementById('customDateEnd');
+    const customDateBtn = document.getElementById('customDateSearchBtnjob');
+    const staffChartCanvas = document.getElementById('staffJobChart');
+
+    if (!staffSelect || !jobTableBody || !staffChartCanvas) {
+        console.error('❌ Missing required DOM elements.');
+        return;
+    }
+
+    let allStaff = [];
+    let allJobs = [];
+    let currentStaff = null;
+
+    // 🔹 Load all staff (Mailer Officers + Machine Operators)
+    async function loadStaff() {
+        try {
+            const res = await fetch('/api/person-team/staff');
+            allStaff = await res.json();
+            staffSelect.innerHTML = '<option value="">-- Select Staff --</option>';
+
+            allStaff.forEach(s => {
+                const opt = document.createElement('option');
+                opt.value = s.id;
+                opt.textContent = `${s.name} (${s.position})`;
+                staffSelect.appendChild(opt);
+            });
+        } catch (err) {
+            console.error('❌ Failed to load staff:', err);
+        }
+    }
+
+    // 🔹 Fetch jobs for selected staff (initial load, no date filter)
+    async function fetchJobsForStaff() {
+        const userId = staffSelect.value;
+        if (!userId) return;
+
+        currentStaff = allStaff.find(s => s.id == userId);
+        if (!currentStaff) return;
+
+        try {
+            let url = currentStaff.position.toLowerCase().includes('operator')
+                ? `/api/person-team/staff/${userId}/cardjobs`
+                : `/api/person-team/staff/${userId}/jobs`;
+
+            console.log('🔹 Fetching jobs for staff:', url);
+
+            const res = await fetch(url);
+            const data = await res.json();
+
+            allJobs = Array.isArray(data) ? data : data.jobs || [];
+
+            renderJobTable(allJobs, data.noJobDays);
+            renderJobChart(allJobs);
+        } catch (err) {
+            console.error('❌ Failed to fetch jobs:', err);
+        }
+    }
+
+    // 🔹 Fetch jobs with custom date filter
+    async function fetchJobsByDate() {
+        const userId = staffSelect.value;
+        if (!userId) {
+            alert('Please select a staff first');
+            return;
+        }
+
+        currentStaff = allStaff.find(s => s.id == userId);
+        if (!currentStaff) return;
+
+        let url = currentStaff.position.toLowerCase().includes('operator')
+            ? `/api/person-team/staff/${userId}/cardjobs`
+            : `/api/person-team/staff/${userId}/jobs`;
+
+        const params = new URLSearchParams();
+        if (customDateStart.value) params.append('startDate', customDateStart.value);
+        if (customDateEnd.value) params.append('endDate', customDateEnd.value);
+        if ([...params].length > 0) url += '?' + params.toString();
+
+        console.log('🔹 Fetching jobs with date filter:', url);
+
+        try {
+            const res = await fetch(url);
+            const data = await res.json();
+            const filteredJobs = Array.isArray(data) ? data : data.jobs || [];
+
+            renderJobTable(filteredJobs, data.noJobDays);
+            renderJobChart(filteredJobs);
+        } catch (err) {
+            console.error('❌ Failed to fetch jobs by date:', err);
+        }
+    }
+
+    // 🔹 Render job table (for both Mailer & Operator)
+    function renderJobTable(jobs, noJobDays = []) {
+        jobTableBody.innerHTML = '';
+        const tableHead = document.querySelector('#jobTable thead');
+        if (!tableHead) return;
+
+        // 🟠 If no jobs but backend provided "no job days"
+        if ((!jobs || jobs.length === 0) && noJobDays.length > 0) {
+            tableHead.innerHTML = `<tr><th>Date</th><th>Status</th></tr>`;
+            noJobDays.forEach(day => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `<td>${day.day}</td><td>${day.message}</td>`;
+                jobTableBody.appendChild(tr);
+            });
+            return;
+        }
+
+        if (!jobs.length) {
+            jobTableBody.innerHTML = `<tr><td colspan="8" class="text-center text-muted">No jobs found</td></tr>`;
+            return;
+        }
+
+        const isCardJob = !!jobs[0].card_job_id;
+
+        if (isCardJob) {
+            // 🟢 Machine Operator jobs
+            tableHead.innerHTML = `
+                <tr>
+                    <th>Time/Date</th>
+                    <th>Job Code</th>
+                    <th>Card Type</th>
+                    <th>Qty</th>
+                    <th>Completed</th>
+                    <th>Rejected</th>
+                    <th>Bank</th>
+                    <th>Device</th>
+                </tr>
+            `;
+            jobs.forEach(j => {
+                const createdAt = new Date(j.created_at);
+                const dateStr = createdAt.toLocaleDateString('en-US', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
+                const timeStr = createdAt.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true });
+                const formatted = `${dateStr} at ${timeStr}`;
+
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td>${formatted}</td>
+                    <td>${j.job_code}</td>
+                    <td>${j.card_type}</td>
+                    <td>${j.card_quantity}</td>
+                    <td>${j.completed_qty}</td>
+                    <td>${j.rejected_qty}</td>
+                    <td>${j.bank_name || j.bank_id}</td>
+                    <td>${j.device_name || j.device_id}</td>
+                `;
+                jobTableBody.appendChild(tr);
+            });
+        } else {
+            // 🔵 Mailer Officer jobs
+            tableHead.innerHTML = `
+                <tr>
+                    <th>Job Code</th>
+                    <th>Time</th>
+                    <th>Date</th>
+                    <th>Qty Printed</th>
+                    <th>Amount</th>
+                    <th>Range</th>
+                    <th>Device</th>
+                    <th>Staff</th>
+                </tr>
+            `;
+            jobs.forEach(j => {
+                const qty = j.range_end != null && j.range_start != null ? j.range_end - j.range_start : 0;
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td>${j.job_code}</td>
+                    <td>${new Date(j.created_at).toLocaleTimeString()}</td>
+                    <td>${new Date(j.created_at).toLocaleDateString()}</td>
+                    <td>${qty}</td>
+                    <td>-</td>
+                    <td>${j.range_start}-${j.range_end}</td>
+                    <td>${j.device_name || j.device_id}</td>
+                    <td>${j.operator_name || currentStaff.name}</td>
+                `;
+                jobTableBody.appendChild(tr);
+            });
+        }
+    }
+
+    // 🔹 Render chart
+    function renderJobChart(jobs) {
+        const ctx = staffChartCanvas.getContext('2d');
+        const days = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+        const data = days.map(() => 0);
+
+        jobs.forEach(j => {
+            const day = new Date(j.created_at).getDay(); // 0=Sun
+            let qty = 0;
+            if (j.range_start != null && j.range_end != null) qty = j.range_end - j.range_start;
+            else if (j.completed_qty != null) qty = j.completed_qty;
+            else if (j.card_quantity != null) qty = j.card_quantity;
+            if (day >= 1 && day <= 6) data[day - 1] += qty;
+        });
+
+        if (window.staffChart) window.staffChart.destroy();
+
+        window.staffChart = new Chart(ctx, {
+            type: 'bar',
+            data: { labels: days, datasets: [{ label: 'Qty', data, backgroundColor: 'rgba(54,162,235,0.6)' }] },
+            options: {
+                responsive: true,
+                plugins: { legend: { display: false } },
+                scales: { y: { beginAtZero: true, title: { display: true, text: 'Quantity' } } },
+            },
+        });
+    }
+
+    // 🔹 Search Job Code
+    jobSearchBtn.addEventListener('click', () => {
+        const val = jobSearchInput.value.trim().toLowerCase();
+        if (!val) {
+            renderJobTable(allJobs); // Reset if input empty
+            return;
+        }
+
+        const filtered = allJobs.filter(j =>
+            (j.job_code || j.job_id || '').toLowerCase().includes(val)
+        );
+
+        if (filtered.length === 0) {
+            jobTableBody.innerHTML = `<tr><td colspan="8" class="text-center text-muted">No job found for "${val}"</td></tr>`;
+            return;
+        }
+
+        renderJobTable(filtered);
+    });
+
+    // 🔹 Event Listeners
+    staffSelect.addEventListener('change', fetchJobsForStaff);
+    customDateBtn.addEventListener('click', fetchJobsByDate);
+
+    // 🔹 Initialize
+    loadStaff();
+});
+
+
+
+// ✅ Fetch summary data for devices (total jobs printed, etc.)
+window.addEventListener("DOMContentLoaded", async () => {
+  const deviceSelect = document.getElementById("totalPrintDevice");
+  const startDateInput = document.getElementById("customStartDate");
+  const endDateInput = document.getElementById("customEndDate");
+  const runBtn = document.getElementById("runCustomQuery");
+  const totalValueEl = document.getElementById("startCustomTotalValue");
+  const rawDataEl = document.getElementById("startCustomRawData");
+
+  // ================================
+  // Load Devices into dropdown
+  // ================================
+  async function loadDevices() {
+    try {
+      showFetchModal("loading", "Loading devices...", "Fetching available devices from the server.");
+      const res = await fetch("/api/devices");
+      if (!res.ok) throw new Error(`Server error: ${res.status}`);
+      const devices = await res.json();
+
+      deviceSelect.innerHTML = `<option value="">-- Select Device --</option>`;
+      devices.forEach(d => {
+        const opt = document.createElement("option");
+        opt.value = d.device_id;
+        opt.textContent = `${d.device_name} (${d.device_type})`;
+        opt.dataset.type = d.device_type.toLowerCase(); // printer or card
+        deviceSelect.appendChild(opt);
+      });
+
+      showFetchModal("success", "Devices loaded successfully!", "You can now select one to view print data.");
+    } catch (err) {
+      console.error("Failed to load devices:", err);
+      showFetchModal("error", "Failed to load devices", err.message || "Please try again later.");
+    }
+  }
+
+  // ================================
+  // Fetch prints for selected device/date range
+  // ================================
+  async function fetchCustomPrints() {
+    const deviceId = deviceSelect.value;
+    const deviceType = deviceSelect.selectedOptions[0]?.dataset.type;
+    const start = startDateInput.value;
+    const end = endDateInput.value;
+
+    if (!deviceId || !start || !end) {
+      showFetchModal("error", "Missing Selection", "Please select a device and date range first.");
+      return;
+    }
+
+    try {
+      showFetchModal("loading", "Fetching data...", "Please wait while we load print summary data.");
+
+      rawDataEl.textContent = "Loading data...";
+      totalValueEl.textContent = "0";
+
+      const url = `/api/checktotal/${deviceId}/custom-prints?start=${start}&end=${end}`;
+      const res = await fetch(url);
+      if (!res.ok) throw new Error(`Server error: ${res.status}`);
+      const data = await res.json();
+
+      const recordsByDay = data.recordsByDay || {};
+      const totalPrints = data.totalPrints || 0;
+
+      // Update total prints
+      totalValueEl.textContent = totalPrints;
+
+      // Build breakdown text
+      let breakdownText = "";
+      Object.keys(recordsByDay).sort().forEach(day => {
+        const dayData = recordsByDay[day];
+        breakdownText += `${day} - Total: ${dayData.dayTotal} prints\n`;
+
+        dayData.jobs.forEach(job => {
+          const jobText = deviceType === "printer"
+            ? `  ${job.job_code}: ${job.prints} prints`
+            : `  ${job.job_code}: ${job.prints} prints (Rejected: ${job.rejected_qty || 0})`;
+          breakdownText += jobText + "\n";
+        });
+      });
+
+      rawDataEl.textContent = breakdownText || "No prints found for this range.";
+      showFetchModal("success", "Data loaded successfully!", "All summary data is now up to date.");
+    } catch (err) {
+      console.error("Failed to fetch custom prints:", err);
+      rawDataEl.textContent = "Error fetching data.";
+      showFetchModal("error", "Error loading data", err.message || "Please check your connection and retry.");
+    }
+  }
+
+  // ================================
+  // Event Listeners
+  // ================================
+  runBtn.addEventListener("click", fetchCustomPrints);
+
+  // Load devices on page load
+  loadDevices();
+});
 
 
 // deviceUsage.js
@@ -2236,8 +5290,7 @@ window.addEventListener("DOMContentLoaded", () => {
 
   // ================================
   // LOAD DEVICES
-  // ================================
-  async function loadDevices() {
+    async function loadDevices() {
     try {
       const res = await fetch("/api/devices");
       const devices = await res.json();
@@ -2519,346 +5572,6 @@ window.addEventListener("DOMContentLoaded", () => {
 });
 
 
-
-
-
-//function for job list for stafff dashbpard
-window.addEventListener('DOMContentLoaded', () => {
-    // ✅ DOM Elements
-    const staffSelect = document.getElementById('staffSelect');
-    const jobTableBody = document.getElementById('staffJobsTableBody');
-    const jobSearchInput = document.getElementById('jobSearchjob');
-    const jobSearchBtn = document.getElementById('jobSearchBtnjob');
-    const customDateStart = document.getElementById('customDateStart');
-    const customDateEnd = document.getElementById('customDateEnd');
-    const customDateBtn = document.getElementById('customDateSearchBtnjob');
-    const staffChartCanvas = document.getElementById('staffJobChart');
-
-    if (!staffSelect || !jobTableBody || !staffChartCanvas) {
-        console.error('❌ Missing required DOM elements.');
-        return;
-    }
-
-    let allStaff = [];
-    let allJobs = [];
-    let currentStaff = null;
-
-    // 🔹 Load all staff (Mailer Officers + Machine Operators)
-    async function loadStaff() {
-        try {
-            const res = await fetch('/api/person-team/staff');
-            allStaff = await res.json();
-            staffSelect.innerHTML = '<option value="">-- Select Staff --</option>';
-
-            allStaff.forEach(s => {
-                const opt = document.createElement('option');
-                opt.value = s.id;
-                opt.textContent = `${s.name} (${s.position})`;
-                staffSelect.appendChild(opt);
-            });
-        } catch (err) {
-            console.error('❌ Failed to load staff:', err);
-        }
-    }
-
-    // 🔹 Fetch jobs for selected staff (initial load, no date filter)
-    async function fetchJobsForStaff() {
-        const userId = staffSelect.value;
-        if (!userId) return;
-
-        currentStaff = allStaff.find(s => s.id == userId);
-        if (!currentStaff) return;
-
-        try {
-            let url = currentStaff.position.toLowerCase().includes('operator')
-                ? `/api/person-team/staff/${userId}/cardjobs`
-                : `/api/person-team/staff/${userId}/jobs`;
-
-            console.log('🔹 Fetching jobs for staff:', url);
-
-            const res = await fetch(url);
-            const data = await res.json();
-
-            allJobs = Array.isArray(data) ? data : data.jobs || [];
-
-            renderJobTable(allJobs, data.noJobDays);
-            renderJobChart(allJobs);
-        } catch (err) {
-            console.error('❌ Failed to fetch jobs:', err);
-        }
-    }
-
-    // 🔹 Fetch jobs with custom date filter
-    async function fetchJobsByDate() {
-        const userId = staffSelect.value;
-        if (!userId) {
-            alert('Please select a staff first');
-            return;
-        }
-
-        currentStaff = allStaff.find(s => s.id == userId);
-        if (!currentStaff) return;
-
-        let url = currentStaff.position.toLowerCase().includes('operator')
-            ? `/api/person-team/staff/${userId}/cardjobs`
-            : `/api/person-team/staff/${userId}/jobs`;
-
-        const params = new URLSearchParams();
-        if (customDateStart.value) params.append('startDate', customDateStart.value);
-        if (customDateEnd.value) params.append('endDate', customDateEnd.value);
-        if ([...params].length > 0) url += '?' + params.toString();
-
-        console.log('🔹 Fetching jobs with date filter:', url);
-
-        try {
-            const res = await fetch(url);
-            const data = await res.json();
-            const filteredJobs = Array.isArray(data) ? data : data.jobs || [];
-
-            renderJobTable(filteredJobs, data.noJobDays);
-            renderJobChart(filteredJobs);
-        } catch (err) {
-            console.error('❌ Failed to fetch jobs by date:', err);
-        }
-    }
-
-    // 🔹 Render job table (for both Mailer & Operator)
-    function renderJobTable(jobs, noJobDays = []) {
-        jobTableBody.innerHTML = '';
-        const tableHead = document.querySelector('#jobTable thead');
-        if (!tableHead) return;
-
-        // 🟠 If no jobs but backend provided "no job days"
-        if ((!jobs || jobs.length === 0) && noJobDays.length > 0) {
-            tableHead.innerHTML = `<tr><th>Date</th><th>Status</th></tr>`;
-            noJobDays.forEach(day => {
-                const tr = document.createElement('tr');
-                tr.innerHTML = `<td>${day.day}</td><td>${day.message}</td>`;
-                jobTableBody.appendChild(tr);
-            });
-            return;
-        }
-
-        if (!jobs.length) {
-            jobTableBody.innerHTML = `<tr><td colspan="8" class="text-center text-muted">No jobs found</td></tr>`;
-            return;
-        }
-
-        const isCardJob = !!jobs[0].card_job_id;
-
-        if (isCardJob) {
-            // 🟢 Machine Operator jobs
-            tableHead.innerHTML = `
-                <tr>
-                    <th>Time/Date</th>
-                    <th>Job Code</th>
-                    <th>Card Type</th>
-                    <th>Qty</th>
-                    <th>Completed</th>
-                    <th>Rejected</th>
-                    <th>Bank</th>
-                    <th>Device</th>
-                </tr>
-            `;
-            jobs.forEach(j => {
-                const createdAt = new Date(j.created_at);
-                const dateStr = createdAt.toLocaleDateString('en-US', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
-                const timeStr = createdAt.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true });
-                const formatted = `${dateStr} at ${timeStr}`;
-
-                const tr = document.createElement('tr');
-                tr.innerHTML = `
-                    <td>${formatted}</td>
-                    <td>${j.job_code}</td>
-                    <td>${j.card_type}</td>
-                    <td>${j.card_quantity}</td>
-                    <td>${j.completed_qty}</td>
-                    <td>${j.rejected_qty}</td>
-                    <td>${j.bank_name || j.bank_id}</td>
-                    <td>${j.device_name || j.device_id}</td>
-                `;
-                jobTableBody.appendChild(tr);
-            });
-        } else {
-            // 🔵 Mailer Officer jobs
-            tableHead.innerHTML = `
-                <tr>
-                    <th>Job Code</th>
-                    <th>Time</th>
-                    <th>Date</th>
-                    <th>Qty Printed</th>
-                    <th>Amount</th>
-                    <th>Range</th>
-                    <th>Device</th>
-                    <th>Staff</th>
-                </tr>
-            `;
-            jobs.forEach(j => {
-                const qty = j.range_end != null && j.range_start != null ? j.range_end - j.range_start : 0;
-                const tr = document.createElement('tr');
-                tr.innerHTML = `
-                    <td>${j.job_code}</td>
-                    <td>${new Date(j.created_at).toLocaleTimeString()}</td>
-                    <td>${new Date(j.created_at).toLocaleDateString()}</td>
-                    <td>${qty}</td>
-                    <td>-</td>
-                    <td>${j.range_start}-${j.range_end}</td>
-                    <td>${j.device_name || j.device_id}</td>
-                    <td>${j.operator_name || currentStaff.name}</td>
-                `;
-                jobTableBody.appendChild(tr);
-            });
-        }
-    }
-
-    // 🔹 Render chart
-    function renderJobChart(jobs) {
-        const ctx = staffChartCanvas.getContext('2d');
-        const days = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
-        const data = days.map(() => 0);
-
-        jobs.forEach(j => {
-            const day = new Date(j.created_at).getDay(); // 0=Sun
-            let qty = 0;
-            if (j.range_start != null && j.range_end != null) qty = j.range_end - j.range_start;
-            else if (j.completed_qty != null) qty = j.completed_qty;
-            else if (j.card_quantity != null) qty = j.card_quantity;
-            if (day >= 1 && day <= 6) data[day - 1] += qty;
-        });
-
-        if (window.staffChart) window.staffChart.destroy();
-
-        window.staffChart = new Chart(ctx, {
-            type: 'bar',
-            data: { labels: days, datasets: [{ label: 'Qty', data, backgroundColor: 'rgba(54,162,235,0.6)' }] },
-            options: {
-                responsive: true,
-                plugins: { legend: { display: false } },
-                scales: { y: { beginAtZero: true, title: { display: true, text: 'Quantity' } } },
-            },
-        });
-    }
-
-    // 🔹 Search Job Code
-    jobSearchBtn.addEventListener('click', () => {
-        const val = jobSearchInput.value.trim().toLowerCase();
-        if (!val) {
-            renderJobTable(allJobs); // Reset if input empty
-            return;
-        }
-
-        const filtered = allJobs.filter(j =>
-            (j.job_code || j.job_id || '').toLowerCase().includes(val)
-        );
-
-        if (filtered.length === 0) {
-            jobTableBody.innerHTML = `<tr><td colspan="8" class="text-center text-muted">No job found for "${val}"</td></tr>`;
-            return;
-        }
-
-        renderJobTable(filtered);
-    });
-
-    // 🔹 Event Listeners
-    staffSelect.addEventListener('change', fetchJobsForStaff);
-    customDateBtn.addEventListener('click', fetchJobsByDate);
-
-    // 🔹 Initialize
-    loadStaff();
-});
-
-
-
-// fetch sumary data for devices total, jobh id printed 
-//for it
-window.addEventListener("DOMContentLoaded", async () => {
-  const deviceSelect = document.getElementById("totalPrintDevice");
-  const startDateInput = document.getElementById("customStartDate");
-  const endDateInput = document.getElementById("customEndDate");
-  const runBtn = document.getElementById("runCustomQuery");
-  const totalValueEl = document.getElementById("startCustomTotalValue");
-  const rawDataEl = document.getElementById("startCustomRawData");
-
-  // ================================
-  // Load Devices into dropdown
-  // ================================
-  async function loadDevices() {
-    try {
-      const res = await fetch("/api/devices");
-      const devices = await res.json();
-
-      deviceSelect.innerHTML = `<option value="">-- Select Device --</option>`;
-      devices.forEach(d => {
-        const opt = document.createElement("option");
-        opt.value = d.device_id;
-        opt.textContent = `${d.device_name} (${d.device_type})`;
-        opt.dataset.type = d.device_type.toLowerCase(); // printer or card
-        deviceSelect.appendChild(opt);
-      });
-    } catch (err) {
-      console.error("Failed to load devices:", err);
-    }
-  }
-
-  // ================================
-  // Fetch prints for selected device/date range
-  // ================================
-  async function fetchCustomPrints() {
-    const deviceId = deviceSelect.value;
-    const deviceType = deviceSelect.selectedOptions[0]?.dataset.type;
-    const start = startDateInput.value;
-    const end = endDateInput.value;
-
-    if (!deviceId || !start || !end) {
-      alert("Please select device, start date, and end date.");
-      return;
-    }
-
-    try {
-      rawDataEl.textContent = "Loading data...";
-      totalValueEl.textContent = "0";
-
-      const url = `/api/checktotal/${deviceId}/custom-prints?start=${start}&end=${end}`;
-      const res = await fetch(url);
-      if (!res.ok) throw new Error(`Server error: ${res.status}`);
-      const data = await res.json();
-
-      const recordsByDay = data.recordsByDay || {};
-      const totalPrints = data.totalPrints || 0;
-
-      // Update the total prints div
-      totalValueEl.textContent = totalPrints;
-
-      // Build breakdown text
-      let breakdownText = "";
-      Object.keys(recordsByDay).sort().forEach(day => {
-        const dayData = recordsByDay[day];
-        breakdownText += `${day} - Total: ${dayData.dayTotal} prints\n`;
-
-        dayData.jobs.forEach(job => {
-          const jobText = deviceType === "printer"
-            ? `  ${job.job_code}: ${job.prints} prints`
-            : `  ${job.job_code}: ${job.prints} prints (Rejected: ${job.rejected_qty || 0})`;
-          breakdownText += jobText + "\n";
-        });
-      });
-
-      rawDataEl.textContent = breakdownText || "No prints found for this range.";
-
-    } catch (err) {
-      console.error("Failed to fetch custom prints:", err);
-      rawDataEl.textContent = "Error fetching data. Check console.";
-    }
-  }
-
-  // ================================
-  // Event Listeners
-  // ================================
-  runBtn.addEventListener("click", fetchCustomPrints);
-
-  // Load devices on page load
-  loadDevices();
-});
 document.addEventListener("DOMContentLoaded", () => {
   const cardPrintingTableBody = document.getElementById("cardPrintingTableBody");
   const mailerPrintingTableBody = document.getElementById("mailerPrintingTableBody");
@@ -3146,15 +5859,646 @@ document.addEventListener("DOMContentLoaded", () => {
   loadBanks();   // ✅ Load dropdown options first
   loadJobData(); // ✅ Then load job data
 });
+// ----------------------
+// Dynamic API Base
+// ----------------------
+
+// ----------------------
+// DOM Elements
+// ----------------------
+const jobForm = document.getElementById("jobForm");
+const jobIdInput = document.getElementById("jobId");
+const bankSelect = document.getElementById("bankSelects");
+const quantityInput = document.getElementById("quantity");
+const modalElement = document.getElementById("jobModal");
+const modalTitle = document.getElementById("jobModalLabel");
+const submitBtn = jobForm.querySelector('button[type="submit"]');
+
+const discardModalEl = document.getElementById("discardModal");
+const discardBtn = document.getElementById("discardChangesBtn");
+const continueBtn = document.getElementById("continueEditBtn");
+
+const deleteModalEl = document.getElementById("deleteModal");
+const confirmDeleteBtn = document.getElementById("confirmDeleteBtn");
+const cancelDeleteBtn = document.getElementById("cancelDeleteBtn");
+const closeDeleteModalBtn = document.getElementById("closeDeleteModal");
+
+// Search Elements
+const searchJobCode = document.getElementById("searchJobCode");
+const searchStartDate = document.getElementById("searchStartDate");
+const searchEndDate = document.getElementById("searchEndDate");
+const applySearchBtn = document.getElementById("applySearch");
+
+// State
+let editingJobId = null;
+let formDirty = false;
+let deleteJobId = null;
+let allJobs = []; // Store fetched jobs for filtering
+
+// ----------------------
+// Track Form Changes
+// ----------------------
+jobForm.addEventListener("input", () => formDirty = true);
+
+// ----------------------
+// Fetch Banks Dynamically
+// ----------------------
+async function fetchBanks(selectElementId) {
+  const selectEl = document.getElementById(selectElementId);
+  if (!selectEl) return console.error(`Element with id "${selectElementId}" not found.`);
+  try {
+    const res = await fetch(`${API_BASE}/api/banks`);
+    if (!res.ok) throw new Error(`HTTP error! Status: ${res.status}`);
+    const banks = await res.json();
+    selectEl.innerHTML = `<option value="">-- Select Bank --</option>`;
+    banks.forEach(bank => {
+      const option = document.createElement("option");
+      option.value = bank.bank_id;
+      option.textContent = bank.bank_name;
+      selectEl.appendChild(option);
+    });
+  } catch (err) {
+    console.error("Error fetching banks:", err);
+    selectEl.innerHTML = `<option value="">⚠️ Failed to load banks</option>`;
+  }
+}
+fetchBanks("bankSelects");
+
+// ----------------------
+// Fetch Jobs
+// ----------------------
+async function fetchJobs() {
+  try {
+    const res = await fetch(`${API_BASE}/api/jobcode`);
+    const jobs = await res.json();
+    allJobs = jobs; // Store all jobs for search
+    populateTable(jobs);
+  } catch (err) {
+    console.error("Error fetching jobs:", err);
+  }
+}
+
+// ----------------------
+// Filter Jobs
+// ----------------------
+function filterJobs(jobs) {
+  const codeQuery = searchJobCode.value.trim().toLowerCase();
+  const startDate = searchStartDate.value ? new Date(searchStartDate.value) : null;
+  const endDate = searchEndDate.value ? new Date(searchEndDate.value) : null;
+
+  return jobs.filter(job => {
+    const jobDate = new Date(job.created_at);
+    const matchesCode = codeQuery ? job.job_id.toLowerCase().includes(codeQuery) : true;
+    const matchesStart = startDate ? jobDate >= startDate : true;
+    const matchesEnd = endDate ? jobDate <= endDate : true;
+    return matchesCode && matchesStart && matchesEnd;
+  });
+}
+
+// ----------------------
+// Apply Search
+// ----------------------
+applySearchBtn.addEventListener("click", () => {
+  const filtered = filterJobs(allJobs);
+  populateTable(filtered);
+});
+
+// ----------------------
+// Populate Table (Grouped by Date, English format)
+// ----------------------
+function populateTable(jobs) {
+  const tableBody = document.getElementById("processedJobsTableBody");
+  tableBody.innerHTML = "";
+
+  if (jobs.length === 0) {
+    tableBody.innerHTML = `<tr><td colspan="6">No jobs found for the selected criteria.</td></tr>`;
+    return;
+  }
+
+  // Group jobs by date
+  const grouped = jobs.reduce((acc, job) => {
+    const dateKey = new Date(job.created_at).toDateString(); // e.g., "Fri Oct 11 2025"
+    if (!acc[dateKey]) acc[dateKey] = [];
+    acc[dateKey].push(job);
+    return acc;
+  }, {});
+
+  let rowIndex = 1;
+
+  Object.keys(grouped).sort((a, b) => new Date(b) - new Date(a)).forEach(date => {
+    const jobsForDate = grouped[date];
+
+    // Add date header row with deep orange background and white text
+    const dateRow = document.createElement("tr");
+    dateRow.style.backgroundColor = "#FF6700"; // deep orange
+    dateRow.style.color = "#ffffff"; // white text
+    dateRow.innerHTML = `<td colspan="6" class="fw-bold text-start">${new Date(date).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}</td>`;
+    tableBody.appendChild(dateRow);
+
+    // Add jobs for this date
+    jobsForDate.forEach(job => {
+      const row = document.createElement("tr");
+      row.innerHTML = `
+        <td>${rowIndex++}</td>
+        <td>${new Date(job.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</td>
+        <td>${job.job_id}</td>
+        <td>${job.bank_name || "N/A"}</td>
+        <td><span class="smart-badge ${job.processed ? 'success' : 'pending'}">
+          ${job.processed ? 'Completed' : 'Pending'}</span></td>
+        <td>
+          <button class="smart-btn view me-1" data-id="${job.id}"><i class="fas fa-eye"></i></button>
+          <button class="smart-btn edit me-1" data-id="${job.id}"><i class="fas fa-edit"></i></button>
+          <button class="smart-btn delete" data-id="${job.id}"><i class="fas fa-trash"></i></button>
+        </td>
+      `;
+      tableBody.appendChild(row);
+    });
+  });
+
+  addTableEventListeners();
+}
+
+// ----------------------
+// Open Job Modal
+// ----------------------
+function openJobModal(mode = "add", job = null) {
+  formDirty = false;
+  if (mode === "add") {
+    editingJobId = null;
+    modalTitle.textContent = "Add Job";
+    jobForm.reset();
+    bankSelect.value = "";
+    submitBtn.textContent = "Save Job";
+  } else if (mode === "edit" && job) {
+    editingJobId = job.id;
+    modalTitle.textContent = "Edit Job";
+    jobIdInput.value = job.job_id;
+    quantityInput.value = job.quantity;
+    bankSelect.value = job.bank_id || "";
+    submitBtn.textContent = "Update Job";
+  }
+  showModal(modalElement);
+}
+
+// ----------------------
+// Show / Close Modals
+// ----------------------
+function showModal(modalEl) {
+  modalEl.classList.add("show");
+  modalEl.style.display = "block";
+  document.body.classList.add("modal-open");
+  if (!document.querySelector(".modal-backdrop")) {
+    const backdrop = document.createElement("div");
+    backdrop.className = "modal-backdrop fade show";
+    document.body.appendChild(backdrop);
+  }
+}
+
+function closeModal(modalEl) {
+  modalEl.classList.remove("show");
+  modalEl.style.display = "none";
+  document.body.classList.remove("modal-open");
+  const backdrop = document.querySelector(".modal-backdrop");
+  if (backdrop) backdrop.remove();
+}
+
+// ----------------------
+// Handle Modal Close
+// ----------------------
+modalElement.addEventListener("click", (e) => { if (e.target === modalElement) handleModalClose(); });
+document.addEventListener("keydown", (e) => { if (e.key === "Escape" && modalElement.classList.contains("show")) handleModalClose(); });
+
+function handleModalClose() {
+  const isFormEmpty = !jobIdInput.value && !bankSelect.value && !quantityInput.value;
+  if (!editingJobId && isFormEmpty) closeModal(modalElement);
+  else showDiscardModal();
+}
+
+// ----------------------
+// Discard Modal
+// ----------------------
+function showDiscardModal() { showModal(discardModalEl); }
+discardBtn.addEventListener("click", () => {
+  formDirty = false;
+  editingJobId = null;
+  jobForm.reset();
+  bankSelect.value = "";
+  modalTitle.textContent = "Add Job";
+  submitBtn.textContent = "Save Job";
+  closeModal(discardModalEl);
+  closeModal(modalElement);
+});
+continueBtn.addEventListener("click", () => closeModal(discardModalEl));
+
+// ----------------------
+// Form Submit
+// ----------------------
+jobForm.addEventListener("submit", async (e) => {
+  e.preventDefault();
+  const jobId = jobIdInput.value.trim().toLowerCase();
+  const bank_id = parseInt(bankSelect.value);
+  const quantity = parseInt(quantityInput.value);
+  const pattern1 = /^j\d{6}$/i;
+  const pattern2 = /^wema_\d+$/i;
+  if (!(pattern1.test(jobId) || (pattern2.test(jobId) && bank_id))) {
+    alert("⚠️ Invalid Job ID. Use J123456 or wema_123456 (Wema Bank only).");
+    return;
+  }
+
+  const payload = { job_id: jobId, bank_id, quantity, processed: true };
+  try {
+    let res;
+    if (editingJobId) {
+      res = await fetch(`${API_BASE}/api/jobcode/edit/${editingJobId}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload)
+      });
+    } else {
+      res = await fetch(`${API_BASE}/api/jobcode/add`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload)
+      });
+    }
+    await res.json();
+    alert(`✅ ${editingJobId ? "Job updated" : "Job added"} successfully`);
+    jobForm.reset();
+    editingJobId = null;
+    formDirty = false;
+    modalTitle.textContent = "Add Job";
+    submitBtn.textContent = "Save Job";
+    closeModal(modalElement);
+    fetchJobs();
+  } catch (err) {
+    console.error("Error saving job:", err);
+  }
+});
+
+// ----------------------
+// Table Event Listeners
+// ----------------------
+function addTableEventListeners() {
+  document.querySelectorAll(".smart-btn.edit").forEach(btn => {
+    btn.addEventListener("click", async () => {
+      const id = btn.dataset.id;
+      const res = await fetch(`${API_BASE}/api/jobcode/${id}`);
+      const job = await res.json();
+      openJobModal("edit", job);
+    });
+  });
+
+  document.querySelectorAll(".smart-btn.delete").forEach(btn => {
+    btn.addEventListener("click", () => {
+      deleteJobId = btn.dataset.id;
+      showModal(deleteModalEl);
+    });
+  });
+
+  document.querySelectorAll(".smart-btn.view").forEach(btn => {
+    btn.addEventListener("click", async () => {
+      const id = btn.dataset.id;
+      const res = await fetch(`${API_BASE}/api/jobcode/${id}`);
+      const job = await res.json();
+      alert(`Job ID: ${job.job_id}\nBank: ${job.bank_name || "N/A"}\nQuantity: ${job.quantity}\nProcessed: ${job.processed ? "Yes" : "No"}`);
+    });
+  });
+}
+
+// ----------------------
+// Delete Modal Behavior
+// ----------------------
+deleteModalEl.addEventListener("click", (e) => { if (e.target === deleteModalEl) { deleteJobId = null; closeModal(deleteModalEl); } });
+if (closeDeleteModalBtn) closeDeleteModalBtn.addEventListener("click", () => { deleteJobId = null; closeModal(deleteModalEl); });
+confirmDeleteBtn.addEventListener("click", async () => {
+  if (!deleteJobId) return;
+  try {
+    await fetch(`${API_BASE}/api/jobcode/delete/${deleteJobId}`, { method: "DELETE" });
+    deleteJobId = null;
+    closeModal(deleteModalEl);
+    fetchJobs();
+  } catch (err) { console.error("Error deleting job:", err); }
+});
+cancelDeleteBtn.addEventListener("click", () => { deleteJobId = null; closeModal(deleteModalEl); });
+
+// ----------------------
+// Initial fetch
+// ----------------------
+fetchJobs();
 
 
+ const batchButton = document.getElementById("batchButton");
+  const jobProcessButton = document.getElementById("jobProcessButton");
+  const batchSection = document.getElementById("batchSection");
+  const jobProcessSection = document.getElementById("jobProcessSection");
 
+  // 🔹 When Batch button is clicked
+  batchButton.addEventListener("click", () => {
+    batchSection.style.display = "block";
+    jobProcessSection.style.display = "none";
 
+    batchButton.classList.add("btn-dark");
+    batchButton.classList.remove("btn-outline-dark");
+    jobProcessButton.classList.remove("btn-dark");
+    jobProcessButton.classList.add("btn-outline-dark");
+  });
 
+  // 🔹 When Job Process button is clicked
+  jobProcessButton.addEventListener("click", () => {
+    batchSection.style.display = "none";
+    jobProcessSection.style.display = "block";
+
+    jobProcessButton.classList.add("btn-dark");
+    jobProcessButton.classList.remove("btn-outline-dark");
+    batchButton.classList.remove("btn-dark");
+    batchButton.classList.add("btn-outline-dark");
+  });
+
+</script>
+
+<script>
+(function() {
+  // ----------------------
+  // DOM Elements
+  // ----------------------
+  const showDevicesModal = document.getElementById("showDevicesModal");
+  const addDeviceForm = document.getElementById("addDeviceForm");
+  const deviceNameInput = document.getElementById("deviceName");
+  const deviceTypeInput = document.getElementById("deviceType");
+  const devicesTableBody = document.getElementById("devicesTableBody");
+  const totalPrintDeviceSelect = document.getElementById("totalPrintDevice");
+
+  const addDeviceModal = document.getElementById("addDeviceModal");
+  const addDeviceModalTitle = document.getElementById("addDeviceModalLabel");
+  const submitBtn = addDeviceForm.querySelector("button[type='submit']");
+
+  const discardModal = document.getElementById("discardDeviceModal");
+  const continueBtn = document.getElementById("continueDeviceEditBtn");
+  const discardBtn = document.getElementById("discardDeviceChangesBtn");
+
+  const deleteDeviceModal = document.getElementById("deleteDeviceModal");
+  const confirmDeleteBtn = document.getElementById("confirmDeleteBtns");
+  const cancelDeleteHeaderBtn = document.getElementById("cancelDeleteBtn");
+  const cancelDeleteFooterBtn = document.getElementById("cancelDeleteBtnFooter");
+  let deviceIdToDelete = null;
+
+  // ----------------------
+  // Device Type Dropdown
+  // ----------------------
+  const predefinedTypes = ["Printer", "Card Machine", "Sms Machine"];
+  const deviceTypeSelect = document.createElement("select");
+  deviceTypeSelect.className = "form-select mb-3";
+
+  predefinedTypes.forEach(type => {
+    const option = document.createElement("option");
+    option.value = type;
+    option.textContent = type;
+    deviceTypeSelect.appendChild(option);
+  });
+
+  const otherOption = document.createElement("option");
+  otherOption.value = "Other";
+  otherOption.textContent = "Other (Enter manually)";
+  deviceTypeSelect.appendChild(otherOption);
+
+  deviceTypeInput.replaceWith(deviceTypeSelect);
+
+  const deviceTypeTextInput = document.createElement("input");
+  deviceTypeTextInput.type = "text";
+  deviceTypeTextInput.className = "form-control mb-3";
+  deviceTypeTextInput.placeholder = "Enter device type";
+  deviceTypeTextInput.style.display = "none";
+  deviceTypeSelect.after(deviceTypeTextInput);
+
+  deviceTypeSelect.addEventListener("change", () => {
+    deviceTypeTextInput.style.display = deviceTypeSelect.value === "Other" ? "block" : "none";
+  });
+
+  // ----------------------
+  // State
+  // ----------------------
+  let editingDeviceId = null;
+  let formDirty = false;
+  let devices = [];
+
+  addDeviceForm.addEventListener("input", () => formDirty = true);
+
+  // ----------------------
+  // Modal Helpers
+  // ----------------------
+  function showModal(modal) {
+    modal.classList.add("show");
+    modal.style.display = "block";
+    document.body.classList.add("modal-open");
+    if (!document.querySelector(".modal-backdrop")) {
+      const backdrop = document.createElement("div");
+      backdrop.className = "modal-backdrop fade show";
+      document.body.appendChild(backdrop);
+    }
+  }
+
+  function closeModal(modal) {
+    modal.classList.remove("show");
+    modal.style.display = "none";
+    document.body.classList.remove("modal-open");
+    const backdrop = document.querySelector(".modal-backdrop");
+    if (backdrop) backdrop.remove();
+  }
+
+  // ----------------------
+  // Open Add/Edit Modal
+  // ----------------------
+  function openDeviceModal(mode = "add", device = null) {
+    formDirty = false;
+
+    if (mode === "add") {
+      editingDeviceId = null;
+      addDeviceModalTitle.textContent = "Add Device";
+      addDeviceForm.reset();
+      deviceTypeTextInput.style.display = "none";
+      submitBtn.textContent = "Save Device";
+    } else if (mode === "edit" && device) {
+      editingDeviceId = device.device_id;
+      addDeviceModalTitle.textContent = "Edit Device";
+      deviceNameInput.value = device.device_name;
+      if (predefinedTypes.includes(device.device_type)) {
+        deviceTypeSelect.value = device.device_type;
+        deviceTypeTextInput.style.display = "none";
+      } else {
+        deviceTypeSelect.value = "Other";
+        deviceTypeTextInput.style.display = "block";
+        deviceTypeTextInput.value = device.device_type;
+      }
+      submitBtn.textContent = "Update Device";
+    }
+
+    closeModal(showDevicesModal); // ✅ Close devices list when opening Add/Edit
+    showModal(addDeviceModal);
+  }
+
+  // ----------------------
+  // Handle Add/Edit Modal Close
+  // ----------------------
+  addDeviceModal.addEventListener("click", e => { if (e.target === addDeviceModal) handleModalClose(); });
+  document.addEventListener("keydown", e => { if (e.key === "Escape" && addDeviceModal.classList.contains("show")) handleModalClose(); });
+
+  function handleModalClose() {
+    const currentData = {
+      deviceName: deviceNameInput.value.trim(),
+      deviceType: deviceTypeSelect.value === "Other" ? deviceTypeTextInput.value.trim() : deviceTypeSelect.value
+    };
+    const isFormEmpty = !currentData.deviceName && !currentData.deviceType;
+
+    if (editingDeviceId || !isFormEmpty) showModal(discardModal);
+    else closeModal(addDeviceModal);
+  }
+
+  // ----------------------
+  // Discard Modal
+  // ----------------------
+  continueBtn.addEventListener("click", () => closeModal(discardModal));
+  discardBtn.addEventListener("click", () => {
+    editingDeviceId = null;
+    addDeviceForm.reset();
+    deviceTypeSelect.value = predefinedTypes[0];
+    deviceTypeTextInput.value = "";
+    deviceTypeTextInput.style.display = "none";
+    addDeviceModalTitle.textContent = "Add Device";
+    submitBtn.textContent = "Save Device";
+    formDirty = false;
+    closeModal(discardModal);
+    closeModal(addDeviceModal);
+  });
+
+  // ----------------------
+  // Delete Modal Handlers
+  // ----------------------
+  function showDeleteModal(id) {
+    deviceIdToDelete = id;
+    closeModal(showDevicesModal); // ✅ Close devices list when opening Delete modal
+    showModal(deleteDeviceModal);
+  }
+
+  function hideDeleteModal() {
+    deviceIdToDelete = null;
+    closeModal(deleteDeviceModal);
+  }
+
+  cancelDeleteHeaderBtn.addEventListener("click", hideDeleteModal);
+  cancelDeleteFooterBtn.addEventListener("click", hideDeleteModal);
+
+  confirmDeleteBtn.addEventListener("click", async () => {
+    if (!deviceIdToDelete) return;
+    try {
+      const response = await fetch(`${API_BASE}/api/device/${deviceIdToDelete}`, { method: "DELETE" });
+      if (!response.ok) return;
+      deviceIdToDelete = null;
+      fetchDevices();
+      hideDeleteModal();
+    } catch (err) { console.error(err); }
+  });
+
+  // ----------------------
+  // Fetch Devices
+  // ----------------------
+  async function fetchDevices() {
+    try {
+      const res = await fetch(`${API_BASE}/api/device`);
+      devices = await res.json();
+
+      devicesTableBody.innerHTML = "";
+      totalPrintDeviceSelect.innerHTML = `<option value="">-- Select Device --</option>`;
+
+      devices.forEach((device, idx) => {
+        const row = document.createElement("tr");
+        row.innerHTML = `
+          <td>${idx + 1}</td>
+          <td>${device.device_name}</td>
+          <td>${device.device_type}</td>
+          <td>
+            <button class="btn btn-sm btn-outline-primary me-2 edit-btn" data-id="${device.device_id}"><i class="fas fa-edit"></i></button>
+            <button class="btn btn-sm btn-outline-danger delete-btn" data-id="${device.device_id}"><i class="fas fa-trash-alt"></i></button>
+          </td>
+        `;
+        devicesTableBody.appendChild(row);
+
+        const option = document.createElement("option");
+        option.value = device.device_id;
+        option.textContent = device.device_name;
+        totalPrintDeviceSelect.appendChild(option);
+      });
+
+      addTableEventListeners();
+    } catch (err) { console.error(err); }
+  }
+
+  // ----------------------
+  // Table Event Listeners
+  // ----------------------
+  function addTableEventListeners() {
+    document.querySelectorAll(".edit-btn").forEach(btn => {
+      btn.addEventListener("click", () => {
+        const device = devices.find(d => d.device_id == btn.dataset.id);
+        openDeviceModal("edit", device); // ✅ closes showDevicesModal inside
+      });
+    });
+
+    document.querySelectorAll(".delete-btn").forEach(btn => {
+      btn.addEventListener("click", () => showDeleteModal(btn.dataset.id)); // ✅ closes showDevicesModal inside
+    });
+  }
+
+  // ----------------------
+  // Add / Update Device
+  // ----------------------
+  addDeviceForm.addEventListener("submit", async (e) => {
+    e.preventDefault();
+
+    const name = deviceNameInput.value.trim();
+    const type = deviceTypeSelect.value === "Other" ? deviceTypeTextInput.value.trim() : deviceTypeSelect.value;
+    if (!name || !type) return alert("Please fill both fields.");
+
+    const payload = { device_name: name, device_type: type };
+
+    try {
+      if (editingDeviceId) {
+        await fetch(`${API_BASE}/api/device/${editingDeviceId}`, {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload)
+        });
+        editingDeviceId = null;
+      } else {
+        await fetch(`${API_BASE}/api/device`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload)
+        });
+      }
+
+      addDeviceForm.reset();
+      deviceTypeTextInput.style.display = "none";
+      addDeviceModalTitle.textContent = "Add Device";
+      submitBtn.textContent = "Save Device";
+      formDirty = false;
+      fetchDevices();
+      closeModal(addDeviceModal);
+    } catch (err) { console.error(err); }
+  });
+
+  // ----------------------
+  // Initial Fetch
+  // ----------------------
+  fetchDevices();
+
+})();
 
 
 </script>
- 
+
+
+
+
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 </body>

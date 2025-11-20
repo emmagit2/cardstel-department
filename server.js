@@ -23,6 +23,10 @@ const machinejobRoutes = require('./routes/machineJobRoute');
 const checkJobRoutes = require('./routes/checkJobRoutes')
 const customPrintsRouter = require("./routes/customPrintRoute");
 const jobManagementRoutes = require('./routes/jobManroute');
+const jobCode = require("./routes/job_code_route");
+const device = require("./routes/devices");
+const qcRoutes = require('./routes/qcRoutes');
+
 
 
 // Middleware
@@ -46,6 +50,9 @@ app.use('/api/jobs', machinejobRoutes);
 app.use('/api/checkjob/', checkJobRoutes);
 app.use("/api/checktotal", customPrintsRouter);
 app.use('/api/hi', jobManagementRoutes);
+app.use("/api/jobcode", jobCode);
+app.use("/api/device", device)
+app.use('/api/qc', qcRoutes);
 
 
 // Serve HTML dashboard

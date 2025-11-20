@@ -1,0 +1,172 @@
+<!-- Modern QC & Card Inventory Block -->
+<div class="container py-4">
+
+  <!-- QC Table Card -->
+  <div class="card shadow-lg border-0 rounded-4 mb-5">
+    <div class="card-body p-4">
+
+      <!-- Add QC Entry Button -->
+      <div class="d-flex justify-content-end mb-3">
+        <button id="openQcModalBtn" class="btn btn-primary shadow-sm" data-bs-toggle="modal" data-bs-target="#qcEntryModalUnique">
+          Add QC Entry
+        </button>
+      </div>
+
+      <!-- Scrollable Table -->
+      <div class="table-responsive" style="max-height:400px; overflow-y:auto; border-radius:8px; border:1px solid #eee;">
+        <table class="table table-bordered text-center mb-0" id="qcTable">
+          <thead class="text-white">
+            <tr style="background:#ff6b00;">
+              <th rowspan="2">Bank / Client</th>
+              <th colspan="2">Monday</th>
+              <th colspan="2">Tuesday</th>
+              <th colspan="2">Wednesday</th>
+              <th colspan="2">Thursday</th>
+              <th colspan="2">Friday</th>
+              <th colspan="2">Saturday</th>
+              <th colspan="2">Sunday</th>
+              <th rowspan="2">Total / Shift</th>
+            </tr>
+            <tr style="background:#ff9a33;">
+              <th>Day</th><th>Night</th>
+              <th>Day</th><th>Night</th>
+              <th>Day</th><th>Night</th>
+              <th>Day</th><th>Night</th>
+              <th>Day</th><th>Night</th>
+              <th>Day</th><th>Night</th>
+              <th>Day</th><th>Night</th>
+            </tr>
+          </thead>
+          <tbody id="qcTableBody"></tbody>
+          <tfoot>
+            <tr class="totals-row fw-bold" style="background:#ffe8cc;">
+              <td>Total / Shift</td>
+            </tr>
+          </tfoot>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- Card Inventory Summary -->
+  <div class="card shadow-lg border-0 rounded-4 mb-5 p-4">
+    <h4 class="fw-bold mb-4" style="color:#e65100;">Card Inventory Summary</h4>
+
+    <!-- Filters -->
+    <div class="row g-3 mb-4">
+      <div class="col-md-3">
+        <label class="form-label fw-semibold" style="color:#e65100;">Search by Bank</label>
+        <select id="searchBank" class="form-select rounded-3 shadow-sm">
+          <option value="">All Banks</option>
+        </select>
+      </div>
+      <div class="col-md-3">
+        <label class="form-label fw-semibold" style="color:#e65100;">Search by Month</label>
+        <input type="month" id="searchMonth" class="form-control rounded-3 shadow-sm">
+      </div>
+      <div class="col-md-3">
+        <label class="form-label fw-semibold" style="color:#e65100;">Start Date</label>
+        <input type="date" id="startDate" class="form-control rounded-3 shadow-sm">
+      </div>
+      <div class="col-md-3">
+        <label class="form-label fw-semibold" style="color:#e65100;">End Date</label>
+        <input type="date" id="endDate" class="form-control rounded-3 shadow-sm">
+      </div>
+    </div>
+
+    <button id="filterBtn" class="btn text-white rounded-3 shadow-sm mb-4" style="background:#e65100;">
+      <i class="bi bi-funnel"></i> Filter
+    </button>
+
+    <!-- Inventory Table -->
+    <div class="table-responsive" style="max-height:420px; overflow-y:auto; border-radius:12px; padding:10px; background:#fff; box-shadow:0 2px 8px rgba(0,0,0,0.05);">
+      <table class="table table-hover table-bordered mb-0" style="border-color:#e65100;">
+        <thead style="position:sticky; top:0; background:#000; color:#fff; z-index:10;">
+          <tr>
+            <th>S/N</th>
+            <th>Bank Name</th>
+            <th>Card Brand</th>
+            <th>Qty in Vault (Good)</th>
+            <th>Qty in Vault (Damaged)</th>
+            <th>Personalized</th>
+            <th>Ongoing</th>
+            <th>Duplicates</th>
+          </tr>
+        </thead>
+        <tbody id="inventoryTableBody"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Modals -->
+  <!-- Add New Card Modal -->
+  <div class="modal fade" id="addCardModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-sm">
+      <div class="modal-content rounded-4 shadow-lg">
+        <div class="modal-header" style="background:#e65100;">
+          <h5 class="modal-title text-white">Add New Card</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body p-4">
+          <form id="addCardForm">
+            <div class="mb-3">
+              <label class="form-label fw-semibold">Card Name</label>
+              <div class="input-group">
+                <select id="cardNameSelect" class="form-select rounded-3">
+                  <option value="">Select Card Name</option>
+                  <option value="Card A">Card A</option>
+                  <option value="Card B">Card B</option>
+                </select>
+                <input type="text" id="cardNameText" class="form-control rounded-3" placeholder="Enter Card Name" style="display:none;">
+                <button class="btn btn-light border" type="button" id="toggleCardName">
+                  <i class="bi bi-pencil-square"></i>
+                </button>
+              </div>
+            </div>
+            <div class="mb-3">
+              <label class="form-label fw-semibold">Card Brand</label>
+              <div class="input-group">
+                <select id="cardBrandSelect" class="form-select rounded-3">
+                  <option value="">Select Card Brand</option>
+                  <option value="Visa">Visa</option>
+                  <option value="MasterCard">MasterCard</option>
+                </select>
+                <input type="text" id="cardBrandText" class="form-control rounded-3" placeholder="Enter Card Brand" style="display:none;">
+                <button class="btn btn-light border" type="button" id="toggleCardBrand">
+                  <i class="bi bi-pencil-square"></i>
+                </button>
+              </div>
+            </div>
+            <div class="mb-3">
+              <label class="form-label fw-semibold">Quantity</label>
+              <input type="number" class="form-control rounded-3 shadow-sm" id="cardQty" min="1" required>
+            </div>
+            <div class="mb-3">
+              <label class="form-label fw-semibold">Vendor</label>
+              <input type="text" class="form-control rounded-3 shadow-sm" id="vendorName" required>
+            </div>
+            <button type="submit" class="btn text-white rounded-3 shadow-sm w-100" style="background:#e65100;">Add Card</button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+// Toggle Inputs
+function toggleInput(selectId, textId){
+  const select = document.getElementById(selectId);
+  const text = document.getElementById(textId);
+  if(select.style.display !== 'none'){
+    select.style.display = 'none';
+    text.style.display = 'block';
+  } else {
+    select.style.display = 'block';
+    text.style.display = 'none';
+  }
+}
+document.getElementById('toggleCardName')?.addEventListener('click', () => toggleInput('cardNameSelect','cardNameText'));
+document.getElementById('toggleCardBrand')?.addEventListener('click', () => toggleInput('cardBrandSelect','cardBrandText'));
+</script>
