@@ -3695,7 +3695,7 @@ async function mapEntriesByBank(entries) {
   // 1️⃣ Fetch all banks first
   let allBanks = [];
   try {
-    const res = await fetch('http://localhost:4000/api/banks');
+    const res = await fetch('/api/banks');
     allBanks = await res.json(); // array of all banks
   } catch(err) {
     console.error("Failed to fetch all banks:", err);
@@ -3803,7 +3803,7 @@ async function loadQcEntries() {
     // 5️⃣ Fetch all banks
     let allBanks = [];
     try {
-      const bankRes = await fetch('http://localhost:4000/api/banks');
+      const bankRes = await fetch('/api/banks');
       allBanks = await bankRes.json();
     } catch (err) {
       console.error("Failed to fetch banks:", err);
@@ -3916,7 +3916,7 @@ entries.forEach(e => {
 async function loadBanksForForm() {
   if(!qcBankSelect) return;
   try {
-    const res = await fetch('http://localhost:4000/api/banks');
+    const res = await fetch('/api/banks');
     const banks = await res.json(); // directly an array
     console.log("Banks loaded:", banks);
 
