@@ -16,5 +16,6 @@ router.get("/multi-bank", controller.getMultiBankReport);
 
 // 🔹 Bank Calendar Summary (Day, Week, Month, or Custom Range)
 router.get("/bank-calendar-summary", controller.getBankCalendarSummary);
+router.get("/all", controller.getAllJobs);
 
 module.exports = router;

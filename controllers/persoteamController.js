@@ -162,3 +162,30 @@ exports.getMachineOperatorCardJobs = async (req, res) => {
     res.status(500).json({ error: 'Failed to fetch machine operator card jobs' });
   }
 };
+//
+
+exports.getStaffByPosition = async (req, res) => {
+  try {
+    const { position } = req.query;
+
+    if (!position) {
+      return res.status(400).json({ error: 'Position is required' });
+    }
+
+    const result = await db.query(
+      `
+      SELECT id, name
+      FROM users
+      WHERE position = $1
+      ORDER BY name ASC
+      `,
+      [position]
+    );
+
+    res.json(result.rows);
+  } catch (err) {
+    console.error('❌ Error fetching staff by position:', err);
+    res.status(500).json({ error: 'Failed to fetch staff' });
+  }
+};
+

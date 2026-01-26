@@ -267,3 +267,22 @@ exports.getDeviceHistory = async (req, res) => {
   }
 };
 
+// controllers/deviceController.js
+exports.getCardMachines = async (req, res) => {
+  try {
+    const result = await db.query(
+      `
+      SELECT device_id, device_name
+      FROM devices
+      WHERE device_type = $1
+      ORDER BY device_name ASC
+      `,
+      ['Card Machine']
+    );
+
+    res.json(result.rows);
+  } catch (err) {
+    console.error('❌ Error fetching card machines:', err);
+    res.status(500).json({ error: 'Failed to fetch card machines' });
+  }
+};

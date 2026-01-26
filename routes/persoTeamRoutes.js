@@ -11,4 +11,7 @@ router.get('/staff/:userId/jobs', personTeamController.getMailerOfficerJobs);
 // 🧰 Card Jobs (Machine Operator)
 router.get('/staff/:userId/cardjobs', personTeamController.getMachineOperatorCardJobs);
 
+
+router.get('/position', personTeamController.getStaffByPosition);
+
 module.exports = router;

@@ -1,0 +1,224 @@
+import React, { useState, useEffect } from "react";
+import { Plus, Loader2, Check } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Badge } from "@/components/ui/badge";
+import { toast } from "sonner";
+import ConflictAlert from "./ConflictAlert";
+
+export default function JobSubmissionPanel({ onJobCreated, currentUser }) {
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [jobStatus, setJobStatus] = useState("Operational");
+  const [banks, setBanks] = useState([]);
+  const [machines, setMachines] = useState([]);
+  const [operators, setOperators] = useState([]);
+  const [conflictJob, setConflictJob] = useState(null);
+  const [showConflictModal, setShowConflictModal] = useState(false);
+  const [submittedJob, setSubmittedJob] = useState(null);
+  const [showSuccessModal, setShowSuccessModal] = useState(false);
+
+  const defaultFormData = {
+    job_code: "",
+    bank_id: "",
+    card_quantity: "",
+    card_type: "",
+    device_id: "",
+    operator_id: currentUser?.id || "",
+    shift: "morning",
+    start_time: "",
+    received_time: "",
+    end_time: "",
+    completed_qty: 0,
+    rejected_qty: 0,
+    error_count: 0,
+    nd_report: "",
+  };
+
+  const [formData, setFormData] = useState(defaultFormData);
+
+  // Load form from localStorage
+  useEffect(() => {
+    const savedForm = localStorage.getItem("jobFormData");
+    if (savedForm) setFormData(JSON.parse(savedForm));
+  }, []);
+
+  // Save form to localStorage
+  useEffect(() => {
+    localStorage.setItem("jobFormData", JSON.stringify(formData));
+  }, [formData]);
+
+  // Fetch banks, machines, operators
+  useEffect(() => {
+    fetch("http://localhost:4000/api/banks").then(r => r.json()).then(setBanks).catch(console.error);
+    fetch("http://localhost:4000/api/devices/machines").then(r => r.json()).then(setMachines).catch(console.error);
+    fetch("http://localhost:4000/api/person-team/position?position=Machine%20Operator").then(r => r.json()).then(setOperators).catch(console.error);
+  }, []);
+
+  const handleChange = (field, value) => setFormData(prev => ({ ...prev, [field]: value }));
+
+  const handleClearForm = () => {
+    setFormData(defaultFormData);
+    localStorage.removeItem("jobFormData");
+  };
+
+  // Check for job conflicts from backend
+  const fetchConflictJob = async () => {
+    if (!formData.job_code || !formData.bank_id) return;
+
+    try {
+      const res = await fetch(
+        `http://localhost:4000/api/jobs/check?job_code=${formData.job_code}&bank_id=${formData.bank_id}`
+      );
+      const data = await res.json();
+      if (data.exists) {
+        setConflictJob({
+          job_code: data.data.job_code,
+          operator: data.data.operator_name,
+          start_time: data.data.start_time,
+          shift: data.data.shift,
+          card_quantity: data.data.card_quantity,
+          completed_qty: data.data.completed_qty,
+          job_date: data.data.created_at,
+          is_completed: data.data.is_completed,
+        });
+        setShowConflictModal(true);
+      }
+    } catch (err) {
+      console.error("Error checking conflict:", err);
+    }
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    const requiredFields = ["job_code", "bank_id", "card_quantity", "card_type", "device_id", "operator_id", "start_time", "received_time"];
+    if (requiredFields.some(f => !formData[f])) {
+      toast.error("Please fill in all required fields");
+      return;
+    }
+
+    // If conflict is open and job is incomplete, allow confirm to continue
+    if (conflictJob && !conflictJob.is_completed && !showConflictModal) {
+      // continue submission
+    } else if (conflictJob && conflictJob.is_completed) {
+      toast.error("Cannot submit. This job is already completed.");
+      return;
+    }
+
+    setIsSubmitting(true);
+    const payload = {
+      ...formData,
+      card_quantity: Number(formData.card_quantity),
+      completed_qty: Number(formData.completed_qty) || 0,
+      rejected_qty: Number(formData.rejected_qty) || 0,
+      error_count: Number(formData.error_count) || 0,
+      job_status: jobStatus,
+    };
+
+    try {
+      const res = await fetch("http://localhost:4000/api/jobs/submit", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+
+      if (!res.ok) throw new Error("Failed to submit job");
+      const newJob = await res.json();
+      setSubmittedJob(newJob);
+      setShowSuccessModal(true);
+      onJobCreated(newJob);
+      handleClearForm();
+      setConflictJob(null);
+    } catch (err) {
+      toast.error(err.message || "Something went wrong");
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  return (
+    <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden max-w-lg mx-auto">
+      {/* Form Header */}
+      <div className="bg-gradient-to-r from-slate-800 to-slate-700 px-4 py-3">
+        <h2 className="text-white font-semibold flex items-center gap-2 text-sm">
+          <Plus className="h-5 w-5" /> Submit Job
+        </h2>
+      </div>
+
+      {/* Job Form */}
+      <form onSubmit={handleSubmit} className="p-6 space-y-6 text-sm">
+        {/* Job Code */}
+        <div className="space-y-1">
+          <Label>Job Code *</Label>
+          <Input
+            placeholder="J123456"
+            value={formData.job_code}
+            onChange={e => handleChange("job_code", e.target.value)}
+            onBlur={fetchConflictJob}
+            required
+          />
+        </div>
+
+        {/* Bank Select */}
+        <div className="space-y-1">
+          <Label>Bank *</Label>
+          <Select
+            value={formData.bank_id}
+            onValueChange={v => { handleChange("bank_id", Number(v)); fetchConflictJob(); }}
+            required
+          >
+            <SelectTrigger className="w-full">
+              <SelectValue placeholder="Select bank" />
+            </SelectTrigger>
+            <SelectContent>
+              {banks.map(b => <SelectItem key={b.bank_id} value={b.bank_id}>{b.bank_name}</SelectItem>)}
+            </SelectContent>
+          </Select>
+        </div>
+
+        {/* Card Quantity */}
+        <div className="space-y-1">
+          <Label>Card Quantity *</Label>
+          <Input type="number" placeholder="0" value={formData.card_quantity} onChange={e => handleChange("card_quantity", e.target.value)} required />
+        </div>
+
+        {/* Other inputs like card type, machine, operator, shift, start/received/end time */}
+        {/* ... keep all other inputs same as your previous JobSubmissionPanel ... */}
+
+        {/* Buttons */}
+        <div className="flex gap-3">
+          <Button type="submit" disabled={isSubmitting || (conflictJob?.is_completed)} className="flex-1 h-11 bg-emerald-600 hover:bg-emerald-700">
+            {isSubmitting ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : <Plus className="h-4 w-4 mr-2" />}
+            Submit Job
+          </Button>
+          <Button type="button" onClick={handleClearForm} variant="outline" className="flex-1 h-11">
+            Clear Form
+          </Button>
+        </div>
+      </form>
+
+      {/* ✅ Success Modal */}
+      {showSuccessModal && submittedJob && (
+        <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
+          <div className="bg-white p-6 rounded-lg shadow-lg max-w-sm w-full text-center">
+            <Check className="mx-auto h-8 w-8 text-emerald-500 mb-2" />
+            <h2 className="font-semibold text-lg mb-2">Job Submitted Successfully!</h2>
+            <p className="text-sm text-slate-600 mb-4">Job Code: {submittedJob.job_code}</p>
+            <p className="text-sm text-slate-600 mb-4">Submitted at: {new Date(submittedJob.created_at).toLocaleTimeString()}</p>
+            <Button onClick={() => setShowSuccessModal(false)} className="mt-2 w-full">Close</Button>
+          </div>
+        </div>
+      )}
+
+      {/* ⚠ Conflict Modal */}
+      <ConflictAlert
+        isOpen={showConflictModal}
+        conflictJob={conflictJob}
+        onClose={() => setShowConflictModal(false)}
+        onConfirm={() => setShowConflictModal(false)} // allow continue submission
+      />
+    </div>
+  );
+}

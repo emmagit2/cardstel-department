@@ -1416,6 +1416,153 @@
   margin-top: 10%;
 }
 
+/* MAIN TABLE */
+.cs-main-table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0 10px; /* space between rows */
+}
+
+.cs-main-table .cs-toggle { width: 30px; }
+
+.cs-main-row {
+  cursor: pointer;
+  background-color: #fff1eb; /* soft peach */
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+  transition: transform 0.3s, box-shadow 0.3s, background 0.3s;
+}
+.cs-main-row:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 18px rgba(0,0,0,0.1);
+  background-color: #ffe8df; /* slightly brighter on hover */
+}
+
+/* COLLAPSE ROW */
+.cs-collapse-row { 
+  display: none; 
+  overflow: hidden; 
+  transition: all 0.4s ease; 
+}
+
+/* SUB TABLE */
+.cs-sub-table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0 10px;
+}
+
+.cs-sub-table th {
+  background-color: #fff; /* white header */
+  text-align: left;
+  font-weight: 600;
+  padding: 12px;
+  border-bottom: 2px solid #f0f0f0;
+}
+
+.cs-sub-table td {
+  vertical-align: middle;
+  padding: 12px;
+
+  transition: all 0.3s ease;
+}
+.sub-row-hover{
+    background-color: #fff1eb !important; /* soft peach for sub rows */
+  border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+
+}
+.sub-row-hover:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 18px rgba(0,0,0,0.1);
+}
+
+/* AVATAR */
+.avatar-text {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.avatar-img {
+  border-radius: 50%;
+  width: 35px;
+  height: 35px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+}
+
+/* BADGE */
+.badge {
+  font-size: 0.85rem;
+  padding: 0.4em 0.6em;
+  border-radius: 8px;
+}
+
+/* INPUTS */
+.cs-sub-input {
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  border-radius: 8px;
+}
+
+/* BUTTONS */
+button {
+  transition: all 0.3s;
+}
+button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+}
+
+/* Modern filter bar wrapper */
+.filter-bar {
+    background: #ffffff;
+    border-radius: 14px;
+    box-shadow: 0 6px 20px rgba(0,0,0,0.07);
+    display: flex;
+    flex-wrap: wrap;
+}
+
+/* Each filter block */
+.filter-item {
+    position: relative;
+    flex: 1;
+    min-width: 180px;
+}
+
+/* Input/Icon Styling */
+.custom-input {
+    padding-left: 40px !important;
+    border-radius: 10px;
+    border: 1px solid #e0e0e0;
+    height: 46px;
+}
+
+/* Icon inside input */
+.filter-icon {
+    position: absolute;
+    top: 50%;
+    left: 12px;
+    transform: translateY(-50%);
+    font-size: 18px;
+    color: #ff7a21;
+    opacity: 0.9;
+}
+
+/* Smaller, neat button */
+.filter-btn {
+    background: #ff7a21;
+    color: white;
+    height: 38px;            /* smaller height */
+    padding: 0 18px;         /* compact width */
+    border-radius: 8px;      /* softer round */
+    font-weight: 600;
+    font-size: 14px;         /* smaller text */
+    transition: 0.2s;
+    border: none;
+}
+.filter-btn:hover {
+    background: #ff954e;
+}
+ 
 </style>
 
 
@@ -1526,8 +1673,106 @@
 
     <!-- Panels -->
     <div id="homePanel" class="p-3 department-panel">
-        <h3>🏠 Home</h3>
-        <p>Welcome to the Department Management Dashboard. Select a menu option to view details.</p>
+      <div class="container-fluid p-4">
+
+    <!-- Row: Two Side-by-Side Tables -->
+    <div class="row g-4">
+
+        <!-- Left Table: Recent Jobs -->
+        <div class="col-lg-6">
+            <div class="card shadow-sm border-0 rounded-4 h-100">
+                <div class="card-body">
+
+                    <!-- Header with Dropdown -->
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h5 class="fw-bold mb-0">Recent Job IDs</h5>
+
+                        <select class="form-select w-auto rounded-pill">
+                            <option>Weekly</option>
+                            <option>Monthly</option>
+                        </select>
+                    </div>
+
+                    <table class="table table-hover align-middle">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Job ID</th>
+                                <th>Status</th>
+                                <th>Date</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>#JOB-2211</td>
+                                <td><span class="badge bg-success">Completed</span></td>
+                                <td>21 Nov</td>
+                            </tr>
+                            <tr>
+                                <td>#JOB-2199</td>
+                                <td><span class="badge bg-warning text-dark">Pending</span></td>
+                                <td>21 Nov</td>
+                            </tr>
+                            <tr>
+                                <td>#JOB-2184</td>
+                                <td><span class="badge bg-danger">Failed</span></td>
+                                <td>20 Nov</td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                </div>
+            </div>
+        </div>
+
+        <!-- Right Table: Card Totals -->
+        <div class="col-lg-6">
+            <div class="card shadow-sm border-0 rounded-4 h-100">
+                <div class="card-body">
+
+                    <!-- Header with Dropdown -->
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h5 class="fw-bold mb-0">Card Totals</h5>
+
+                        <select class="form-select w-auto rounded-pill">
+                            <option>Weekly</option>
+                            <option>Monthly</option>
+                        </select>
+                    </div>
+
+                    <table class="table table-hover align-middle">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Bank</th>
+                                <th>Cards Made</th>
+                                <th>Success</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>GTBank</td>
+                                <td>54</td>
+                                <td><span class="badge bg-success">96%</span></td>
+                            </tr>
+                            <tr>
+                                <td>Access Bank</td>
+                                <td>35</td>
+                                <td><span class="badge bg-success">92%</span></td>
+                            </tr>
+                            <tr>
+                                <td>UBA</td>
+                                <td>29</td>
+                                <td><span class="badge bg-warning text-dark">84%</span></td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+
     </div>
 
 <div id="deviceUsagePanel" class="p-4 bg-light rounded-4 shadow-sm department-panel">
@@ -2582,45 +2827,62 @@
 
       <!-- Body -->
       <div class="modal-body px-4 py-3">
-        <form id="jobForm">
-          <!-- Notice -->
-          <div class="alert alert-warning alert-dismissible fade show mb-4" role="alert"
-               style="background-color: #FF7F32; color: black; border-radius: 8px;">
-            <i class="fas fa-exclamation-triangle me-2"></i>
-            <strong>Notice:</strong> Once Job ID is created, it can be edited.
-            Please ensure it’s correct before saving.
-            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-          </div>
+       <form id="jobForm">
+  <!-- Notice -->
+  <div class="alert alert-warning alert-dismissible fade show mb-4" role="alert"
+       style="background-color: #FF7F32; color: black; border-radius: 8px;">
+    <i class="fas fa-exclamation-triangle me-2"></i>
+    <strong>Notice:</strong> Once Job ID is created, it can be edited.
+    Please ensure it’s correct before saving.
+    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+  </div>
 
-          <!-- Select Bank -->
-          <div class="mb-3">
-            <label for="bankSelects" class="form-label fw-semibold">Select Bank</label>
-            <select id="bankSelects" class="form-select shadow-sm custom-select"></select>
-          </div>
+  <!-- Select Bank -->
+  <div class="mb-3">
+    <label for="bankSelects" class="form-label fw-semibold">Select Bank</label>
+    <select id="bankSelects" class="form-select shadow-sm custom-select"></select>
+  </div>
 
-          <!-- Job ID -->
-          <div class="mb-3">
-            <label for="jobId" class="form-label fw-semibold">Job ID</label>
-            <input type="text" id="jobId" class="form-control shadow-sm" placeholder="Enter job ID" required>
-            <small class="text-muted fst-italic">
-              Format auto-detects (e.g. <strong>wema_12345</strong> or <strong>J123456</strong>)
-            </small>
-          </div>
+  <!-- Job ID -->
+  <div class="mb-3">
+    <label for="jobId" class="form-label fw-semibold">Job ID</label>
+    <input type="text" id="jobId" class="form-control shadow-sm" placeholder="Enter job ID" required>
+    <small class="text-muted fst-italic">
+      Format auto-detects (e.g. <strong>wema_12345</strong> or <strong>J123456</strong>)
+    </small>
+  </div>
 
-          <!-- Quantity -->
-          <div class="mb-4">
-            <label for="quantity" class="form-label fw-semibold">Quantity</label>
-            <input type="number" id="quantity" class="form-control shadow-sm" placeholder="Enter quantity" required>
-          </div>
+  <!-- Quantity -->
+  <div class="mb-3">
+    <label for="quantity" class="form-label fw-semibold">Quantity</label>
+    <input type="number" id="quantity" class="form-control shadow-sm" placeholder="Enter quantity" required>
+  </div>
 
-          <!-- Submit Button -->
-          <div class="text-center">
-            <button type="submit" class="btn btn-sm text-white px-4 py-2 rounded-3 shadow-sm"
-                    style="background-color: #FF7F32; font-weight: bold;">
-              <i class="fas fa-save me-2"></i> Save Job
-            </button>
-          </div>
-        </form>
+  <!-- Priority -->
+  <div class="mb-3">
+    <label for="priority" class="form-label fw-semibold">Priority</label>
+    <select id="priority" class="form-select shadow-sm" required>
+      <option value="high">High</option>
+      <option value="medium" selected>Medium</option>
+      <option value="low">Low</option>
+    </select>
+  </div>
+
+  <!-- Processed -->
+  <div class="mb-4 form-check">
+    <input type="checkbox" id="processed" class="form-check-input">
+    <label for="processed" class="form-check-label fw-semibold">Processed</label>
+  </div>
+
+  <!-- Submit Button -->
+  <div class="text-center">
+    <button type="submit" class="btn btn-sm text-white px-4 py-2 rounded-3 shadow-sm"
+            style="background-color: #FF7F32; font-weight: bold;">
+      <i class="fas fa-save me-2"></i> Save Job
+    </button>
+  </div>
+</form>
+
       </div>
     </div>
   </div>
@@ -2841,237 +3103,425 @@
 
 
 
-<!-- Modal -->
+<div class="container my-5">
+  <h2 class="mb-4 text-center">Bank Cards Dashboard</h2>
+
+   <div class="d-flex flex-wrap align-items-center gap-3 mb-4 p-3 shadow-sm rounded bg-white">
+
+        <!-- ACTION BUTTONS LEFT -->
+     <button class="btn btn-warning btn-sm"
+        data-bs-toggle="modal"
+        data-bs-target="#releaseCardModal">
+    <i class="bi bi-box-arrow-up-right me-1"></i> Release Card
+</button>
+
+<button class="btn btn-primary btn-sm"
+        data-bs-toggle="modal"
+        data-bs-target="#addCardModal">
+    <i class="bi bi-plus-circle me-1"></i> Add Bank Card
+</button>
+
+<button class="btn btn-success btn-sm"
+        data-bs-toggle="modal"
+        data-bs-target="#updateStatusModal">
+    <i class="bi bi-pencil-square me-1"></i> Update Status
+</button>
+
+        <!-- FILTER BAR RIGHT -->
+        <div class="d-flex flex-wrap align-items-center gap-2 flex-grow-1 ms-auto">
+
+            <!-- Bank Filter -->
+            <div class="filter-item d-flex align-items-center gap-1">
+                <i class="bi bi-bank2 filter-icon"></i>
+                <select id="filterBank" class="form-select form-select-sm custom-input">
+                    <option value="">All Banks</option>
+                    <option value="1">Bank A</option>
+                    <option value="2">Bank B</option>
+                </select>
+            </div>
+
+            <!-- Card Brand -->
+            <div class="filter-item d-flex align-items-center gap-1">
+                <i class="bi bi-credit-card-2-front filter-icon"></i>
+                <select id="filterBrand" class="form-select form-select-sm custom-input">
+                    <option value="">All Brands</option>
+                    <option value="Verve">Verve</option>
+                    <option value="Mastercard">Mastercard</option>
+                </select>
+            </div>
+
+            <!-- Start Date -->
+            <div class="filter-item d-flex align-items-center gap-1">
+                <i class="bi bi-calendar-date filter-icon"></i>
+                <input type="date" id="startDate" class="form-control form-control-sm custom-input">
+            </div>
+
+            <!-- End Date -->
+            <div class="filter-item d-flex align-items-center gap-1">
+                <i class="bi bi-calendar-week filter-icon"></i>
+                <input type="date" id="endDate" class="form-control form-control-sm custom-input">
+            </div>
+
+            <!-- Apply Filter Button -->
+            <button class="btn btn-dark btn-sm ms-2">
+                <i class="bi bi-funnel-fill me-1"></i> Apply Filters
+            </button>
+        </div>
+
+    </div>
+
+  <!-- MAIN TABLE -->
+  <div class="table-container shadow-sm rounded bg-white overflow-auto">
+    <div class="table-responsive">
+      <table class="table table-hover align-middle mb-0 cs-main-table">
+        <thead class="table-light">
+          <tr>
+            <th></th>
+            <th>Bank</th>
+            <th>Card Brand</th>
+            <th>Qty Good</th>
+            <th>Qty Damaged</th>
+            <th>Personalized</th>
+            <th>Ongoing</th>
+            <th>Duplicate</th>
+          </tr>
+        </thead>
+        <tbody>
+          <!-- MAIN ROW -->
+          <tr class="cursor-pointer cs-main-row">
+            <td class="text-center cs-toggle"><i class="bi bi-chevron-right"></i></td>
+            <td>Bank A</td>
+            <td><span class="brand-badge">Verve</span></td>
+            <td>120</td>
+            <td>5</td>
+            <td>60</td>
+            <td>10</td>
+            <td>2</td>
+          </tr>
+
+          <!-- SUB ROW -->
+          <tr class="cs-collapse-row">
+            <td colspan="8">
+              <div class="sub-container shadow-sm rounded bg-white p-3">
+            <!-- SUB FILTER + EXPORT ALL ON ONE LINE -->
+<div class="d-flex align-items-center gap-2 mb-3 flex-nowrap">
+  <!-- Start Date -->
+  <input type="date" class="form-control form-control-sm cs-sub-input" placeholder="Start Date" style="width:150px;">
+  
+  <!-- End Date -->
+  <input type="date" class="form-control form-control-sm cs-sub-input" placeholder="End Date" style="width:150px;">
+
+  <!-- Filter Button -->
+  <button class="btn btn-dark btn-sm">Filter</button>
+
+  <!-- Export Buttons (aligned to right) -->
+  <div class="ms-auto d-flex gap-2">
+    <button class="btn btn-outline-secondary btn-sm">CSV</button>
+    <button class="btn btn-outline-secondary btn-sm">Excel</button>
+    <button class="btn btn-outline-secondary btn-sm">PDF</button>
+  </div>
+</div>
+
+
+            <!-- SUB TABLE: Modern Card Issue Table -->
+<table class="table cs-sub-table table-borderless mb-0">
+  <thead class="table-white">
+    <tr>
+      <th>Job Code</th>
+      <th>Operator</th>
+      <th>Date & Time</th>
+      <th>Collected By</th>
+      <th>Qty</th>
+      <th>Card Issue</th>
+      <th>Action</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr class="sub-row-hover">
+      <td>J123456</td>
+      <td>
+        <span class="avatar-text">
+          <img src="https://randomuser.me/api/portraits/men/32.jpg" class="avatar-img">
+          John Doe
+        </span>
+      </td>
+      <td>2025-11-23 14:35</td>
+      <td>
+        <span class="avatar-text">
+          <img src="https://randomuser.me/api/portraits/men/45.jpg" class="avatar-img">
+          Michael Smith
+        </span>
+      </td>
+      <td>1</td>
+      <td><span class="badge bg-danger">Damaged</span></td>
+      <td>
+        <div class="d-flex gap-1">
+          <button class="btn btn-sm btn-primary"><i class="bi bi-pencil-square"></i></button>
+          <button class="btn btn-sm btn-danger"><i class="bi bi-trash"></i></button>
+        </div>
+      </td>
+    </tr>
+
+    <tr class="sub-row-hover">
+      <td>J123457</td>
+      <td>
+        <span class="avatar-text">
+          <img src="https://randomuser.me/api/portraits/women/65.jpg" class="avatar-img">
+          Sarah Smith
+        </span>
+      </td>
+      <td>2025-11-22 09:20</td>
+      <td>
+        <span class="avatar-text">
+          <img src="https://randomuser.me/api/portraits/women/72.jpg" class="avatar-img">
+          Linda Johnson
+        </span>
+      </td>
+      <td>3</td>
+      <td><span class="badge bg-warning text-dark">Duplicate</span></td>
+      <td>
+        <div class="d-flex gap-1">
+          <button class="btn btn-sm btn-primary"><i class="bi bi-pencil-square"></i></button>
+          <button class="btn btn-sm btn-danger"><i class="bi bi-trash"></i></button>
+        </div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+              </div>
+            </td>
+          </tr>
+
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+
+
+
+<!-- Add Card Modal -->
 <div class="modal fade" id="addCardModal" tabindex="-1" aria-labelledby="addCardModalLabel" aria-hidden="true">
   <div class="modal-dialog modal-dialog-centered">
-    <div class="modal-content rounded-4 shadow-lg">
+    <div class="modal-content">
+
+      <div class="modal-header">
+        <h5 class="modal-title" id="addCardModalLabel">Add Bank Card</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+
+      <div class="modal-body">
+        <form id="addCardForm">
+          <!-- Bank Dropdown -->
+          <div class="mb-3">
+            <label class="form-label">Bank</label>
+            <select class="form-select" id="addBankName">
+              <option value="">Select Bank</option>
+            </select>
+          </div>
+
+          <!-- Card Brand -->
+          <div class="mb-3">
+            <label class="form-label">Card Brand</label>
+            <select class="form-select" id="addCardBrand">
+              <option value="">Select Brand</option>
+              <option value="Verve">Verve</option>
+              <option value="Mastercard">Mastercard</option>
+              <option value="Visa">Visa</option>
+            </select>
+          </div>
+
+          <!-- Quantity -->
+          <div class="mb-3">
+            <label class="form-label">Quantity</label>
+            <input type="number" class="form-control" id="addCardQty" placeholder="Enter Quantity">
+          </div>
+        </form>
+      </div>
+
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+        <button type="button" class="btn btn-primary" id="saveAddCard">Save</button>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+
+<!-- Update Card Status Modal -->
+<div class="modal fade" id="updateStatusModal" tabindex="-1" aria-labelledby="updateStatusLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered modal-md">
+    <div class="modal-content rounded-3 shadow-sm">
+
+      <!-- Header -->
+      <div class="modal-header">
+        <h5 class="modal-title" id="updateStatusLabel">Update Card Processing Status</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+
+      <!-- Body -->
+      <div class="modal-body">
+        <form id="cardIssueForm" class="row g-3">
+
+          <!-- LEFT SIDE -->
+          <div class="col-md-6">
+
+            <!-- Bank Name -->
+            <div class="mb-3">
+              <label class="form-label">Bank Name</label>
+              <select class="form-select" id="issueBankName">
+                <option selected disabled>Select Bank</option>
+                <option value="Access Bank">Access Bank</option>
+                <option value="GTBank">GTBank</option>
+                <option value="UBA">UBA</option>
+                <option value="First Bank">First Bank</option>
+                <option value="Zenith Bank">Zenith Bank</option>
+              </select>
+            </div>
+
+            <!-- Card Brand -->
+            <div class="mb-3">
+              <label class="form-label">Card Brand</label>
+              <select class="form-select" id="issueCardBrand">
+                <option selected disabled>Select Card Brand</option>
+                <option value="Visa">Visa</option>
+                <option value="Mastercard">Mastercard</option>
+                <option value="Verve">Verve</option>
+                <option value="UnionPay">UnionPay</option>
+              </select>
+            </div>
+
+            <!-- Job Code -->
+            <div class="mb-3">
+  <label class="form-label">Job Code</label>
+  <select class="form-select" id="issueJobDropdown">
+    <option selected disabled>Select Job</option>
+    <!-- Jobs will be loaded dynamically -->
+  </select>
+  <div id="jobBadgeContainer" class="mt-2"></div>
+</div>
+
+
+          </div>
+
+          <!-- RIGHT SIDE -->
+          <div class="col-md-6">
+
+            <!-- Ongoing Personalization -->
+            <div class="mb-3">
+              <label class="form-label">Ongoing Personalization</label>
+              <input type="number" class="form-control" id="ongoingPersonalization" placeholder="Enter Ongoing Personalization">
+            </div>
+
+            <!-- Personalized -->
+            <div class="mb-3">
+              <label class="form-label">Personalized</label>
+              <input type="number" class="form-control" id="personalizedQty" placeholder="Enter Personalized Quantity">
+            </div>
+
+            <!-- Damaged Quantity -->
+            <div class="mb-3">
+              <label class="form-label">Damaged Quantity</label>
+              <input type="number" class="form-control" id="damagedQty" placeholder="Enter Damaged Quantity">
+            </div>
+
+            <!-- Duplicate Quantity -->
+            <div class="mb-3">
+              <label class="form-label">Duplicate Quantity</label>
+              <input type="number" class="form-control" id="duplicateQty" placeholder="Enter Duplicate Quantity">
+            </div>
+
+          </div>
+
+        </form>
+      </div>
+
+      <!-- Footer -->
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+        <button type="button" class="btn btn-warning" id="saveCardIssue">Update</button>
+      </div>
+
+    </div>
+  </div>
+
+  
+  
+
+</div>
+
+
+
+
+<!-- Release Card Modal -->
+<div class="modal fade" id="releaseCardModal" tabindex="-1" aria-labelledby="releaseCardModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
 
       <!-- Modal Header -->
-      <div class="modal-header" style="background:#e65100;">
-        <h5 class="modal-title text-white" id="addCardModalLabel">Add New Card</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      <div class="modal-header">
+        <h5 class="modal-title" id="releaseCardModalLabel">Release Card</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
       </div>
 
       <!-- Modal Body -->
       <div class="modal-body">
-        <form id="addCardForm">
+        <form id="releaseCardForm">
           
-          <!-- Card Name -->
+          <!-- Bank Name (Dropdown) -->
           <div class="mb-3">
-            <label for="cardName" class="form-label fw-semibold">Card Name</label>
-            <input type="text" class="form-control rounded-3" id="cardName" placeholder="Enter Card Name" required>
+            <label class="form-label">Bank Name</label>
+            <select class="form-select" id="releaseBankName">
+              <option value="">Select Bank</option>
+              <!-- Options will be populated dynamically -->
+            </select>
           </div>
 
           <!-- Card Brand -->
           <div class="mb-3">
-            <label for="cardBrand" class="form-label fw-semibold">Card Brand</label>
-            <input type="text" class="form-control rounded-3" id="cardBrand" placeholder="Enter Card Brand" required>
+            <label class="form-label">Card Brand</label>
+            <select class="form-select" id="releaseCardBrand">
+              <option value="">Select Brand</option>
+              <option value="Verve">Verve</option>
+              <option value="Mastercard">Mastercard</option>
+            </select>
           </div>
 
-          <!-- Card Quantity -->
+          <!-- Job Code -->
           <div class="mb-3">
-            <label for="cardQty" class="form-label fw-semibold">Card Quantity</label>
-            <input type="number" class="form-control rounded-3" id="cardQty" placeholder="Enter Quantity" min="1" required>
+            <label class="form-label">Job Code</label>
+            <input type="text" class="form-control" placeholder="Enter Job Code" id="releaseJobCode">
           </div>
 
-          <!-- Vendor/Brand -->
+          <!-- Quantity -->
           <div class="mb-3">
-            <label for="vendorName" class="form-label fw-semibold">Received From (Vendor/Brand)</label>
-            <input type="text" class="form-control rounded-3" id="vendorName" placeholder="Enter Vendor Name" required>
+            <label class="form-label">Quantity</label>
+            <input type="number" class="form-control" placeholder="Enter Quantity" id="releaseQty">
           </div>
 
-          <button type="submit" class="btn text-white rounded-3" 
-                  style="background:#e65100; width:100%; padding:10px;">Add Card</button>
+          <!-- Released To (Machine Operator) -->
+          <div class="mb-3">
+            <label class="form-label">Release To</label>
+            <select class="form-select" id="releaseToUser">
+              <option value="">Select Machine Operator</option>
+              <!-- Machine Operators will be populated dynamically -->
+            </select>
+          </div>
+
         </form>
+      </div>
+
+      <!-- Modal Footer -->
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+        <button type="button" class="btn btn-warning" id="saveReleaseCard">Submit</button>
       </div>
 
     </div>
   </div>
 </div>
-<script>
-document.getElementById('addCardForm').addEventListener('submit', async (e) => {
-  e.preventDefault();
-
-  const payload = {
-    card_name: document.getElementById('cardName').value,
-    card_brand: document.getElementById('cardBrand').value,
-    quantity: parseInt(document.getElementById('cardQty').value),
-    vendor: document.getElementById('vendorName').value
-  };
-
-  try {
-    const res = await fetch('/api/cards/add', {
-      method: 'POST',
-      headers: {'Content-Type':'application/json'},
-      body: JSON.stringify(payload)
-    });
-
-    if(res.ok){
-      alert('Card added successfully!');
-      // Close modal
-      const modalEl = document.getElementById('addCardModal');
-      const modal = bootstrap.Modal.getInstance(modalEl);
-      modal.hide();
-      // Optionally reload table
-    } else {
-      alert('Failed to add card.');
-    }
-  } catch(err){
-    console.error(err);
-    alert('Error occurred while adding card.');
-  }
-});
-</script>
-<!-- Button to Open Modal -->
-
-
-<!-- Modal -->
-<div class="modal fade" id="postProcessModal" tabindex="-1" aria-labelledby="postProcessModalLabel" aria-hidden="true">
-  <div class="modal-dialog modal-dialog-centered modal-sm">
-    <div class="modal-content rounded-4 shadow-lg">
-
-      <!-- Modal Header -->
-      <div class="modal-header" style="background:#e65100;">
-        <h5 class="modal-title text-white" id="postProcessModalLabel">Update Card Status</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-      </div>
-
-      <!-- Modal Body -->
-      <div class="modal-body p-4">
-        <form id="postProcessForm">
-
-          <!-- Card Name -->
-          <div class="mb-3">
-            <label class="form-label fw-semibold">Card Name</label>
-            <select id="cardNameSelect" class="form-select mb-2 rounded-3">
-              <option value="">Select Card Name</option>
-              <option value="Card A">Card A</option>
-              <option value="Card B">Card B</option>
-            </select>
-            <input type="text" id="cardNameText" class="form-control rounded-3" placeholder="Or enter Card Name manually" style="display:none;">
-            <button class="btn btn-light border mt-1 w-100" type="button" id="toggleCardName" title="Switch Input">
-              <i class="bi bi-pencil-square text-dark"></i> Switch Input
-            </button>
-          </div>
-
-          <!-- Card Brand -->
-          <div class="mb-3">
-            <label class="form-label fw-semibold">Card Brand</label>
-            <select id="cardBrandSelect" class="form-select mb-2 rounded-3">
-              <option value="">Select Card Brand</option>
-              <option value="Visa">Visa</option>
-              <option value="MasterCard">MasterCard</option>
-            </select>
-            <input type="text" id="cardBrandText" class="form-control rounded-3" placeholder="Or enter Card Brand manually" style="display:none;">
-            <button class="btn btn-light border mt-1 w-100" type="button" id="toggleCardBrand" title="Switch Input">
-              <i class="bi bi-pencil-square text-dark"></i> Switch Input
-            </button>
-          </div>
-
-          <!-- Personalized Quantity -->
-          <div class="mb-3">
-            <label class="form-label fw-semibold">Personalized Quantity</label>
-            <input type="number" class="form-control rounded-3 shadow-sm" id="personalizedQty" placeholder="Enter number" min="0" required>
-          </div>
-
-          <!-- Ongoing Quantity -->
-          <div class="mb-3">
-            <label class="form-label fw-semibold">Ongoing Quantity</label>
-            <input type="number" class="form-control rounded-3 shadow-sm" id="ongoingQty" placeholder="Enter number" min="0" required>
-          </div>
-
-          <!-- Duplicates Quantity -->
-          <div class="mb-3">
-            <label class="form-label fw-semibold">Duplicates Quantity</label>
-            <input type="number" class="form-control rounded-3 shadow-sm" id="duplicatesQty" placeholder="Enter number" min="0" required>
-          </div>
-
-          <!-- Shift -->
-          <div class="mb-3">
-            <label class="form-label fw-semibold">Shift</label>
-            <select id="shiftSelect" class="form-select rounded-3" required>
-              <option value="">Select Shift</option>
-              <option value="Day">Day</option>
-              <option value="Night">Night</option>
-            </select>
-          </div>
-
-          <!-- Submit Button -->
-          <button type="submit" class="btn text-white rounded-3 shadow-sm" style="background:#e65100; width:100%; padding:10px;">
-            Update Status
-          </button>
-        </form>
-      </div>
-
-    </div>
-  </div>
-</div>
-<script>
-// Toggle Card Name Input
-document.getElementById('toggleCardName').addEventListener('click', () => {
-  const select = document.getElementById('cardNameSelect');
-  const text = document.getElementById('cardNameText');
-  if(select.style.display !== 'none'){
-    select.style.display = 'none';
-    text.style.display = 'block';
-  } else {
-    select.style.display = 'block';
-    text.style.display = 'none';
-  }
-});
-
-// Toggle Card Brand Input
-document.getElementById('toggleCardBrand').addEventListener('click', () => {
-  const select = document.getElementById('cardBrandSelect');
-  const text = document.getElementById('cardBrandText');
-  if(select.style.display !== 'none'){
-    select.style.display = 'none';
-    text.style.display = 'block';
-  } else {
-    select.style.display = 'block';
-    text.style.display = 'none';
-  }
-});
-
-// Form Submission
-document.getElementById('postProcessForm').addEventListener('submit', async (e) => {
-  e.preventDefault();
-
-  const cardName = document.getElementById('cardNameSelect').value || document.getElementById('cardNameText').value;
-  const cardBrand = document.getElementById('cardBrandSelect').value || document.getElementById('cardBrandText').value;
-
-  const payload = {
-    card_name: cardName,
-    card_brand: cardBrand,
-    personalized: parseInt(document.getElementById('personalizedQty').value),
-    ongoing: parseInt(document.getElementById('ongoingQty').value),
-    duplicates: parseInt(document.getElementById('duplicatesQty').value),
-    shift: document.getElementById('shiftSelect').value
-    // Optionally include batch ID or server timestamp
-  };
-
-  try {
-    const res = await fetch('/api/cards/update-status', {
-      method: 'POST',
-      headers: {'Content-Type':'application/json'},
-      body: JSON.stringify(payload)
-    });
-
-    if(res.ok){
-      alert('Card status updated!');
-      const modalEl = document.getElementById('postProcessModal');
-      const modal = bootstrap.Modal.getInstance(modalEl);
-      modal.hide();
-      // Optionally refresh table dynamically
-    } else {
-      alert('Failed to update status.');
-    }
-  } catch(err){
-    console.error(err);
-    alert('Error updating card status.');
-  }
-});
-</script>
 
 
 
@@ -3099,50 +3549,6 @@ document.getElementById('postProcessForm').addEventListener('submit', async (e) 
 
 
 
-<!-- Add QC Entry Modal -->
-<div class="modal fade" id="qcEntryModalUnique" tabindex="-1" aria-hidden="true">
-  <div class="modal-dialog modal-dialog-centered">
-    <div class="modal-content shadow-sm rounded-4 border-0 bg-white">
-      <div class="modal-header">
-        <h5 class="modal-title"><i class="bi bi-plus-circle me-2"></i>Add QC Entry</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-      </div>
-      <div class="modal-body">
-        <form id="addQCForm">
-          <div class="mb-3">
-            <label class="form-label fw-semibold" for="qcBank">Select Bank</label>
-            <select class="form-select" id="qcBank" required>
-              <option value="">-- Select Bank --</option>
-            </select>
-          </div>
-          <div class="mb-3">
-            <label class="form-label fw-semibold" for="qcShift">Select Shift</label>
-            <select class="form-select" id="qcShift" required>
-              <option value="">-- Select Shift --</option>
-              <option value="day">Day</option>
-              <option value="night">Night</option>
-            </select>
-          </div>
-          <div class="mb-3">
-            <label class="form-label fw-semibold" for="qcTotal">Total Prints</label>
-            <input type="number" class="form-control" id="qcTotal" placeholder="Enter total" required>
-          </div>
-          <div class="form-check form-switch mb-3">
-            <input class="form-check-input" type="checkbox" id="overtimeSwitch">
-            <label class="form-check-label" for="overtimeSwitch">Overtime?</label>
-          </div>
-          <div class="mb-3" id="overtimeQtyDiv" style="display:none;">
-            <label class="form-label fw-semibold" for="overtimeQty">Overtime Quantity</label>
-            <input type="number" class="form-control" id="overtimeQty" placeholder="Enter overtime quantity">
-          </div>
-          <div class="text-end">
-            <button type="submit" class="btn btn-dark w-100">Add Entry</button>
-          </div>
-        </form>
-      </div>
-    </div>
-  </div>
-</div>
 
 <!-- MODERN WARNING MODAL -->
 <div class="modal fade" id="warningModal" tabindex="-1" aria-hidden="true">
@@ -6010,7 +6416,7 @@ async function fetchBanks(selectElementId) {
   const selectEl = document.getElementById(selectElementId);
   if (!selectEl) return console.error(`Element with id "${selectElementId}" not found.`);
   try {
-    const res = await fetch(`https://department-app-n2tj.onrender.com/api/banks`);
+    const res = await fetch(`/api/banks`);
     if (!res.ok) throw new Error(`HTTP error! Status: ${res.status}`);
     const banks = await res.json();
     selectEl.innerHTML = `<option value="">-- Select Bank --</option>`;
@@ -6198,9 +6604,21 @@ continueBtn.addEventListener("click", () => closeModal(discardModalEl));
 // ----------------------
 jobForm.addEventListener("submit", async (e) => {
   e.preventDefault();
+
   const jobId = jobIdInput.value.trim().toLowerCase();
   const bank_id = parseInt(bankSelect.value);
   const quantity = parseInt(quantityInput.value);
+  const priority = document.getElementById("priority").value; // new
+  const processed = document.getElementById("processed").checked; // new
+
+  console.log("=== Job Form Submission ===");
+  console.log("Job ID:", jobId);
+  console.log("Bank ID:", bank_id);
+  console.log("Quantity:", quantity);
+  console.log("Priority:", priority);
+  console.log("Processed:", processed);
+
+  // Validate Job ID patterns
   const pattern1 = /^j\d{6}$/i;
   const pattern2 = /^wema_\d+$/i;
   if (!(pattern1.test(jobId) || (pattern2.test(jobId) && bank_id))) {
@@ -6208,35 +6626,55 @@ jobForm.addEventListener("submit", async (e) => {
     return;
   }
 
-  const payload = { job_id: jobId, bank_id, quantity, processed: true };
+  const payload = { job_id: jobId, bank_id, quantity, priority, processed }; 
+  console.log("Payload to send:", payload);
+
   try {
     let res;
     if (editingJobId) {
+      // Edit existing job
+      console.log("Editing Job ID:", editingJobId);
       res = await fetch(`${API_BASE}/api/jobcode/edit/${editingJobId}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload)
       });
     } else {
+      // Add new job
+      console.log("Adding new job...");
       res = await fetch(`${API_BASE}/api/jobcode/add`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload)
       });
     }
-    await res.json();
+
+    const data = await res.json();
+    console.log("Server Response:", data);
+
+    if (!res.ok) {
+      alert(`❌ Error: ${data.message || "Failed to save job"}`);
+      return;
+    }
+
     alert(`✅ ${editingJobId ? "Job updated" : "Job added"} successfully`);
+    
     jobForm.reset();
     editingJobId = null;
     formDirty = false;
     modalTitle.textContent = "Add Job";
     submitBtn.textContent = "Save Job";
     closeModal(modalElement);
-    fetchJobs();
+
+    fetchJobs(); // refresh table
+
   } catch (err) {
     console.error("Error saving job:", err);
+    alert("❌ Check console for error details");
   }
 });
+
+
 
 // ----------------------
 // Table Event Listeners
@@ -6604,5 +7042,524 @@ fetchJobs();
 
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+
+  // --- 1. Toggle subtable rows ---
+  document.querySelectorAll('.cs-main-row').forEach(row => {
+    row.addEventListener('click', () => {
+      const subRow = row.nextElementSibling;
+      const toggleIcon = row.querySelector('.cs-toggle i');
+
+      if(subRow.style.display === 'table-row') {
+        const fullHeight = subRow.scrollHeight;
+        subRow.style.height = fullHeight + 'px';
+        requestAnimationFrame(() => {
+          subRow.style.transition = 'height 0.4s ease';
+          subRow.style.height = '0';
+        });
+        setTimeout(() => { subRow.style.display = 'none'; subRow.style.height = ''; }, 400);
+        toggleIcon.classList.replace('bi-chevron-down','bi-chevron-right');
+      } else {
+        subRow.style.display = 'table-row';
+        const height = subRow.scrollHeight;
+        subRow.style.height = '0';
+        requestAnimationFrame(() => { subRow.style.transition = 'height 0.4s ease'; subRow.style.height = height + 'px'; });
+        setTimeout(() => { subRow.style.height = ''; }, 400);
+        toggleIcon.classList.replace('bi-chevron-right','bi-chevron-down');
+      }
+    });
+  });
+
+  // --- 2. Populate Bank dropdowns (Vanilla JS Fetch) ---
+  const populateBanks = (selectElement) => {
+    if(selectElement) {
+      fetch('/api/banks')
+        .then(res => res.json())
+        .then(data => {
+          selectElement.innerHTML = '<option value="">Select Bank</option>';
+          data.forEach(bank => {
+            const opt = document.createElement('option');
+            opt.value = bank.bank_id;
+            opt.textContent = bank.bank_name;
+            selectElement.appendChild(opt);
+          });
+        })
+        .catch(err => console.error('Error fetching banks:', err));
+    }
+  };
+
+  populateBanks(document.getElementById('issueBankName')); // Card Issue Modal
+  populateBanks(document.getElementById('addBankName'));   // Add Card Modal
+  populateBanks(document.getElementById('releaseBankName'));
+
+// --- 6. Submit Release Card form ---
+// --- 6. Submit Release Card form (support multiple job codes) ---
+const saveReleaseCardBtn = document.getElementById('saveReleaseCard');
+const releaseJobCodeInput = document.getElementById('releaseJobCode');
+const releaseQtyInput = document.getElementById('releaseQty');
+const releaseToSelect = document.getElementById('releaseToUser');
+
+// --- Disable quantity if any job code contains -number ---
+const checkJobCodesForQuantity = () => {
+  const job_codes_raw = releaseJobCodeInput.value;
+  const job_codes = job_codes_raw.split(',').map(code => code.trim()).filter(Boolean);
+  const hasInlineQty = job_codes.some(code => code.includes('-'));
+  releaseQtyInput.disabled = hasInlineQty;
+};
+
+// Run on typing
+if (releaseJobCodeInput) {
+  releaseJobCodeInput.addEventListener('input', checkJobCodesForQuantity);
+}
+
+const saveAddCardBtn = document.getElementById('saveAddCard');
+
+if (saveAddCardBtn) {
+  saveAddCardBtn.addEventListener('click', () => {
+    const bank_id = document.getElementById('addBankName').value;
+    const card_brand = document.getElementById('addCardBrand').value;
+    const quantity = document.getElementById('addCardQty').value;
+
+    // Validate fields
+    const missing = [];
+    if (!bank_id) missing.push("Bank");
+    if (!card_brand) missing.push("Card Brand");
+    if (!quantity) missing.push("Quantity");
+
+    if (missing.length > 0) {
+      alert("Please fill in: " + missing.join(", "));
+      return;
+    }
+
+    const payload = {
+      bank_id: parseInt(bank_id),
+      card_brand,
+      qty_in_vault_good: parseInt(quantity),
+      submitted_by: 4 // or current user ID
+    };
+
+    console.log("Submitting Add Card:", payload);
+
+    fetch('/api/bank-cards', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    })
+      .then(res => res.json())
+      .then(data => {
+        if (data.success) {
+          alert("Card added successfully!");
+          document.getElementById('addCardForm').reset();
+          bootstrap.Modal.getInstance(document.getElementById('addCardModal')).hide();
+        } else {
+          alert("Error: " + (data.error || "Failed to add card"));
+        }
+      })
+      .catch(err => {
+        console.error('Error submitting add card:', err);
+        alert("Submission error");
+      });
+  });
+}
+// --- Load Machine Operators for "Release To" dropdown ---
+const loadMachineOperators = () => {
+  fetch('/api/users/machine-operators')
+    .then(res => res.json())
+    .then(users => {
+      releaseToSelect.innerHTML = '<option value="">Select Machine Operator</option>';
+      users.forEach(user => {
+        const option = document.createElement('option');
+        option.value = user.id;
+        option.textContent = user.name;
+        releaseToSelect.appendChild(option);
+      });
+    })
+    .catch(err => {
+      console.error('Error fetching machine operators:', err);
+      releaseToSelect.innerHTML = '<option disabled>Error loading users</option>';
+    });
+};
+
+const releaseModalEl = document.getElementById('releaseCardModal');
+releaseModalEl.addEventListener('show.bs.modal', () => {
+  loadMachineOperators();
+});
+// --- Integrate into your submit handler ---
+if (saveReleaseCardBtn) {
+  saveReleaseCardBtn.addEventListener('click', () => {
+    const bank_id = document.getElementById('releaseBankName').value;
+    const card_brand = document.getElementById('releaseCardBrand').value;
+    const job_codes_raw = releaseJobCodeInput.value;
+    const released_to = releaseToSelect.value; // <- new field
+    let qty = releaseQtyInput.value;
+
+    // Collect missing fields
+    const missingFields = [];
+    if (!bank_id) missingFields.push('Bank');
+    if (!card_brand) missingFields.push('Card Brand');
+    if (!job_codes_raw) missingFields.push('Job Code(s)');
+    if (!released_to) missingFields.push('Release To'); // check operator selection
+    if (!qty && !releaseQtyInput.disabled) missingFields.push('Quantity');
+
+    if (missingFields.length > 0) {
+      alert('Please fill in the following field(s): ' + missingFields.join(', '));
+      console.log('Frontend missing fields (Release Card):', missingFields);
+      return;
+    }
+
+    // Split job codes by comma and trim whitespace
+    const job_codes = job_codes_raw.split(',').map(code => code.trim()).filter(Boolean);
+    if (job_codes.length === 0) {
+      alert('Please enter at least one valid Job Code.');
+      return;
+    }
+
+    // Prepare jobs array with individual quantities
+    const jobs = job_codes.map(code => {
+      const parts = code.split('-').map(p => p.trim());
+      return {
+        job_code: parts[0],
+        quantity: parts[1] ? parseInt(parts[1]) : parseInt(qty)
+      };
+    });
+
+    const payload = {
+      bank_id: parseInt(bank_id),
+      card_brand,
+      jobs, // array of job codes with quantities
+      submitted_by: 4, // QC Officer
+      released_to: parseInt(released_to) // <- include selected Machine Operator
+    };
+
+    console.log('Submitting Release Card payload (multiple job codes):', payload);
+
+    fetch('/api/release-cards', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    })
+      .then(res => res.json())
+      .then(resData => {
+        console.log('Response from server (Release Card):', resData);
+        if (resData.success) {
+          alert('Cards released successfully!');
+          const modalEl = document.getElementById('releaseCardModal');
+          const modal = bootstrap.Modal.getInstance(modalEl);
+          modal.hide();
+          document.getElementById('releaseCardForm').reset();
+          releaseQtyInput.disabled = false;
+        } else {
+          alert('Error: ' + (resData.error || 'Failed to release cards.'));
+        }
+      })
+      .catch(err => {
+        console.error('Fetch error (Release Card):', err);
+        alert('Error submitting form.');
+      });
+  });
+}
+
+
+  // --- 3. Pre-fill Job Code on row button click ---
+  document.querySelectorAll('.cs-sub-table button.btn-primary').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      const jobCode = e.target.closest('tr').querySelector('td:first-child').textContent;
+      document.getElementById('issueJobCode').value = jobCode;
+      // Show the modal
+      const updateModal = new bootstrap.Modal(document.getElementById('updateStatusModal'));
+      updateModal.show();
+    });
+  });
+
+ 
+ 
+
+
+const issueBankSelect = document.getElementById('issueBankName');
+const issueCardBrandSelect = document.getElementById('issueCardBrand');
+const issueJobCodeSelect = document.getElementById('issueJobCode'); // use select for multiple jobs
+
+// --- Load today's job codes from released_cards, fallback to card_issues ---
+const loadTodayJobCodes = () => {
+  const bank_id = issueBankSelect.value;
+  const card_brand = issueCardBrandSelect.value;
+
+  if (!bank_id || !card_brand) {
+    issueJobCodeSelect.innerHTML = '<option disabled selected>Select Job Code</option>';
+    return;
+  }
+
+  fetch(`/api/today?bank_id=${bank_id}&card_brand=${card_brand}`)
+    .then(res => res.json())
+    .then(data => {
+      issueJobCodeSelect.innerHTML = ''; // clear previous options
+
+      if (!Array.isArray(data) || data.length === 0) {
+        fetch(`/api/today?bank_id=${bank_id}&card_brand=${card_brand}`)
+          .then(res => res.json())
+          .then(issues => {
+            if (!Array.isArray(issues) || issues.length === 0) {
+              issueJobCodeSelect.innerHTML = '<option disabled selected>No job today</option>';
+            } else {
+              issues.forEach(issue => {
+                const option = document.createElement('option');
+                option.value = issue.job_code;
+                option.textContent = issue.job_code + (issue.card_status ? ` (${issue.card_status})` : '');
+                issueJobCodeSelect.appendChild(option);
+              });
+            }
+          })
+          .catch(err => {
+            console.error('Error fetching card issues:', err);
+            issueJobCodeSelect.innerHTML = '<option disabled selected>Error loading</option>';
+          });
+      } else {
+        data.forEach(job => {
+          const option = document.createElement('option');
+          option.value = job.job_code;
+          option.textContent = job.job_code + (job.recorded ? ' (Recorded)' : '');
+          if (job.recorded) option.disabled = true;
+          issueJobCodeSelect.appendChild(option);
+        });
+      }
+    })
+    .catch(err => {
+      console.error('Error fetching released job codes:', err);
+      issueJobCodeSelect.innerHTML = '<option disabled selected>Error loading</option>';
+    });
+};
+
+if (issueBankSelect) issueBankSelect.addEventListener('change', loadTodayJobCodes);
+if (issueCardBrandSelect) issueCardBrandSelect.addEventListener('change', loadTodayJobCodes);
+
+// --- Update Card Issue only if damaged or duplicate exist ---
+const updateCardIssueBtn = document.getElementById('saveCardIssue');
+
+if (updateCardIssueBtn) {
+  updateCardIssueBtn.addEventListener('click', () => {
+    // Save active job values to localStorage before submit
+    const activeBadge = document.querySelector('#jobBadgeContainer .active');
+    if (activeBadge) {
+      const prevJob = activeBadge.textContent;
+      const jobValues = JSON.parse(localStorage.getItem('jobValues') || '{}');
+      jobValues[prevJob] = {
+        ongoing: document.getElementById('ongoingPersonalization').value,
+        personalized: document.getElementById('personalizedQty').value,
+        damaged: document.getElementById('damagedQty').value,
+        duplicate: document.getElementById('duplicateQty').value
+      };
+      localStorage.setItem('jobValues', JSON.stringify(jobValues));
+    }
+
+    const jobValues = JSON.parse(localStorage.getItem('jobValues') || '{}');
+
+    if (Object.keys(jobValues).length === 0) {
+      alert('No damaged or duplicate cards to report. Card issue not created.');
+      return;
+    }
+
+    fetch('/api/today', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(jobValues)
+    })
+      .then(res => res.json())
+      .then(resData => {
+        if (resData.success) {
+          alert('Card issue updated successfully!');
+          const modalEl = document.getElementById('updateStatusModal');
+          const modal = bootstrap.Modal.getInstance(modalEl);
+          modal.hide();
+          document.getElementById('cardIssueForm').reset();
+          releaseJobCodeInput.value = '';
+          jobBadgeContainer.innerHTML = '';
+          localStorage.removeItem('jobValues'); // clear temporary storage
+          loadTodayJobCodes();
+        } else {
+          alert('Error: ' + (resData.error || 'Failed to update card issue.'));
+        }
+      })
+      .catch(err => {
+        console.error('Fetch error:', err);
+        alert('Error submitting update.');
+      });
+  });
+}
+
+const issueJobDropdown = document.getElementById('issueJobDropdown');
+const jobBadgeContainer = document.getElementById('jobBadgeContainer');
+const inputsToEnable = {
+  ongoing: document.getElementById('ongoingPersonalization'),
+  personalized: document.getElementById('personalizedQty'),
+  damaged: document.getElementById('damagedQty'),
+  duplicate: document.getElementById('duplicateQty')
+};
+
+// Load stored job values from localStorage
+const jobValues = JSON.parse(localStorage.getItem('jobValues') || '{}');
+
+// Disable inputs initially
+Object.values(inputsToEnable).forEach(input => input.disabled = true);
+
+const loadJobs = () => {
+  const bank_id = issueBankSelect.value;
+  const card_brand = issueCardBrandSelect.value;
+
+  if (!bank_id || !card_brand) {
+    issueJobDropdown.innerHTML = '<option selected disabled>Select Job</option>';
+    return;
+  }
+
+  fetch(`/api/today?bank_id=${bank_id}&card_brand=${card_brand}`)
+    .then(res => res.json())
+    .then(data => {
+      issueJobDropdown.innerHTML = '<option selected disabled>Select Job</option>';
+      data.forEach(job => {
+        const opt = document.createElement('option');
+        opt.value = job.job_code;
+        opt.textContent = job.job_code;
+        issueJobDropdown.appendChild(opt);
+      });
+    })
+    .catch(err => console.error('Error loading jobs:', err));
+};
+
+// Render badges and make them clickable
+const renderBadges = () => {
+  jobBadgeContainer.innerHTML = '';
+  const selectedJobs = releaseJobCodeInput.value.split(',').map(j => j.trim()).filter(Boolean);
+
+  selectedJobs.forEach(jobCode => {
+    const badge = document.createElement('button');
+    badge.type = 'button';
+    badge.className = 'btn btn-outline-primary btn-sm me-1 mb-1';
+    badge.textContent = jobCode;
+
+    badge.addEventListener('click', () => {
+      // Save current input values of previous active badge
+      const activeBadge = jobBadgeContainer.querySelector('.active');
+      if (activeBadge) {
+        const prevJob = activeBadge.textContent;
+        jobValues[prevJob] = {
+          ongoing: inputsToEnable.ongoing.value,
+          personalized: inputsToEnable.personalized.value,
+          damaged: inputsToEnable.damaged.value,
+          duplicate: inputsToEnable.duplicate.value
+        };
+        localStorage.setItem('jobValues', JSON.stringify(jobValues));
+      }
+
+      // Activate clicked badge
+      Array.from(jobBadgeContainer.children).forEach(b => b.classList.remove('active'));
+      badge.classList.add('active');
+
+      // Load values for this job if present
+      const vals = jobValues[jobCode] || { ongoing: '', personalized: '', damaged: '', duplicate: '' };
+      inputsToEnable.ongoing.value = vals.ongoing;
+      inputsToEnable.personalized.value = vals.personalized;
+      inputsToEnable.damaged.value = vals.damaged;
+      inputsToEnable.duplicate.value = vals.duplicate;
+
+      Object.values(inputsToEnable).forEach(input => input.disabled = false);
+    });
+
+    jobBadgeContainer.appendChild(badge);
+  });
+};
+
+// Add selected job from dropdown
+issueJobDropdown.addEventListener('change', () => {
+  const selectedJob = issueJobDropdown.value;
+  if (!selectedJob) return;
+
+  const currentJobs = releaseJobCodeInput.value.split(',').map(j => j.trim()).filter(Boolean);
+  if (!currentJobs.includes(selectedJob)) {
+    currentJobs.push(selectedJob);
+    releaseJobCodeInput.value = currentJobs.join(', ');
+  }
+
+  renderBadges();
+});
+
+// Re-load jobs when bank or card brand changes
+if (issueBankSelect) issueBankSelect.addEventListener('change', loadJobs);
+if (issueCardBrandSelect) issueCardBrandSelect.addEventListener('change', loadJobs);
+
+// Initial load
+loadJobs();
+renderBadges();
+
+
+const saveCardIssueBtn = document.getElementById('saveCardIssue');
+
+if (saveCardIssueBtn) {
+  saveCardIssueBtn.addEventListener('click', async () => {
+    // 1️⃣ Get bank and card brand
+    const bank_id = parseInt(issueBankSelect.value);
+    const card_brand = issueCardBrandSelect.value;
+    const submitted_by = 4; // replace with actual logged-in user id
+
+    if (!bank_id || !card_brand) {
+      alert('Please select Bank and Card Brand');
+      return;
+    }
+
+    // 2️⃣ Gather all jobs and their quantities from localStorage
+    let jobValues = JSON.parse(localStorage.getItem('jobValues') || '{}');
+
+    // ✅ Only include jobs still in releaseJobCodeInput.value
+    const currentJobs = releaseJobCodeInput.value
+      .split(',')
+      .map(j => j.trim())
+      .filter(Boolean);
+
+    const jobs = currentJobs.map(job_code => {
+      if (jobValues[job_code]) {
+        return {
+          job_code,
+          ongoing: parseInt(jobValues[job_code].ongoing) || 0,
+          personalized: parseInt(jobValues[job_code].personalized) || 0,
+          damaged: parseInt(jobValues[job_code].damaged) || 0,
+          duplicate: parseInt(jobValues[job_code].duplicate) || 0
+        };
+      }
+      return null;
+    }).filter(Boolean);
+
+    if (jobs.length === 0) {
+      alert('No job selected to process');
+      return;
+    }
+
+    try {
+      const res = await fetch('/api/card-issues', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ bank_id, card_brand, jobs, submitted_by })
+      });
+
+      const data = await res.json();
+      if (data.success) {
+        alert('Jobs processed successfully!');
+        localStorage.removeItem('jobValues'); // clear after submit
+        document.getElementById('cardIssueForm').reset();
+        jobBadgeContainer.innerHTML = '';
+        renderBadges();
+        loadJobs();
+      } else {
+        alert('Error: ' + (data.error || 'Failed to process jobs'));
+      }
+    } catch (err) {
+      console.error('Submit error:', err);
+      alert('Error submitting jobs');
+    }
+  });
+}
+
+})
+
+</script>
+
 </body>
 </html>

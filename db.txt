@@ -216,3 +216,73 @@ CREATE TABLE qc_change_logs (
   reason TEXT,
   change_date TIMESTAMP DEFAULT NOW()
 );
+
+CREATE TABLE IF NOT EXISTS card_issues (
+    id SERIAL PRIMARY KEY,
+    job_code_id INTEGER NOT NULL,
+    bank_card_id INTEGER NOT NULL,
+    assigned_to VARCHAR(100) NOT NULL,
+    card_status VARCHAR(20) DEFAULT 'Damaged',
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+
+    -- CHECK constraint for card_status
+    CONSTRAINT card_status_check
+        CHECK (card_status IN ('Damaged', 'Duplicate')),
+
+    -- Foreign keys
+    CONSTRAINT damaged_cards_bank_card_id_fkey
+        FOREIGN KEY (bank_card_id) REFERENCES bank_cards(id) ON DELETE CASCADE,
+
+    CONSTRAINT damaged_cards_job_code_id_fkey
+        FOREIGN KEY (job_code_id) REFERENCES job_code(id) ON DELETE CASCADE
+);
+
+CREATE TABLE IF NOT EXISTS bank_cards (
+    id SERIAL PRIMARY KEY,
+    bank_id INTEGER NOT NULL,
+    card_brand VARCHAR(50) NOT NULL,
+    qty_in_vault_good INTEGER DEFAULT 0,
+    qty_in_vault_damaged INTEGER DEFAULT 0,
+    personalized INTEGER DEFAULT 0,
+    ongoing_personalization INTEGER DEFAULT 0,
+    duplicate INTEGER DEFAULT 0,
+    created_at TIMESTAMP DEFAULT NOW(),
+    updated_at TIMESTAMP DEFAULT NOW(),
+    submitted_by INTEGER,
+
+    CONSTRAINT bank_cards_bank_id_fkey
+        FOREIGN KEY (bank_id) REFERENCES bank(bank_id) ON DELETE CASCADE,
+
+    CONSTRAINT bank_cards_submitted_by_fkey
+        FOREIGN KEY (submitted_by) REFERENCES users(id)
+);
+
+
+CREATE TABLE IF NOT EXISTS released_cards (
+    id SERIAL PRIMARY KEY,
+    card_issue_id INTEGER,
+    job_code_id INTEGER,
+    bank_card_id INTEGER,
+    quantity INTEGER NOT NULL,
+    released_by INTEGER,
+    released_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    released_to INTEGER,
+    processed BOOLEAN DEFAULT FALSE,
+    processed_at TIMESTAMP,
+
+    CONSTRAINT released_cards_card_issue_id_fkey
+        FOREIGN KEY (card_issue_id) REFERENCES card_issues(id) ON DELETE CASCADE,
+
+    CONSTRAINT released_cards_job_code_id_fkey
+        FOREIGN KEY (job_code_id) REFERENCES job_code(id) ON DELETE CASCADE,
+
+    CONSTRAINT released_cards_bank_card_id_fkey
+        FOREIGN KEY (bank_card_id) REFERENCES bank_cards(id) ON DELETE CASCADE,
+
+    CONSTRAINT released_cards_released_by_fkey
+        FOREIGN KEY (released_by) REFERENCES users(id),
+
+    CONSTRAINT released_cards_released_to_fkey
+        FOREIGN KEY (released_to) REFERENCES users(id) ON DELETE SET NULL
+);

@@ -1,78 +1,71 @@
-const db = require('../config/db'); // your database connection
+// Import PostgreSQL pool using CommonJS
+const pool = require('../config/db');
 
-// Set or update a user's monthly target
-exports.setMonthlyTarget = async (req, res) => {
-    const { user_id, month_year, target_amount } = req.body;
+// ===========================
+// GET MONTHLY TARGET
+// ===========================
+const getMonthlyTarget = async (req, res) => {
+  try {
+    const { month } = req.params; // Example: "2026-01"
 
-    try {
-        const existing = await pool.query(
-            'SELECT * FROM user_monthly_targets WHERE user_id=$1 AND month_year=$2',
-            [user_id, month_year]
-        );
+    const { rows } = await pool.query(
+      `SELECT * 
+       FROM production_target
+       WHERE period_type = 'month' AND period_value = $1
+       LIMIT 1`,
+      [month]
+    );
 
-        if (existing.rows.length) {
-            await pool.query(
-                'UPDATE user_monthly_targets SET target_amount=$1 WHERE user_id=$2 AND month_year=$3',
-                [target_amount, user_id, month_year]
-            );
-        } else {
-            await pool.query(
-                'INSERT INTO user_monthly_targets (user_id, month_year, target_amount) VALUES ($1,$2,$3)',
-                [user_id, month_year, target_amount]
-            );
-        }
-
-        res.json({ message: 'Monthly target set successfully.' });
-    } catch (err) {
-        console.error(err);
-        res.status(500).json({ error: 'Server error' });
+    if (rows.length === 0) {
+      return res.status(404).json({ message: 'Monthly target not set' });
     }
+
+    res.json(rows[0]);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: 'Failed to fetch monthly target' });
+  }
 };
 
-// Get a user's target and progress
-exports.getMonthlyTarget = async (req, res) => {
-    const { user_id, month_year } = req.params;
+// ===========================
+// SET OR UPDATE MONTHLY TARGET
+// ===========================
+const setMonthlyTarget = async (req, res) => {
+  try {
+    const { month, target_quantity } = req.body; // Example: { month: "2026-01", target_quantity: 60000 }
 
-    try {
-        const result = await pool.query(
-            'SELECT * FROM user_monthly_targets WHERE user_id=$1 AND month_year=$2',
-            [user_id, month_year]
-        );
+    // Check if target already exists
+    const { rows } = await pool.query(
+      `SELECT * FROM production_target WHERE period_type = 'month' AND period_value = $1`,
+      [month]
+    );
 
-        if (!result.rows.length) return res.status(404).json({ error: 'Target not found' });
-
-        const target = result.rows[0];
-        const progressPercent = ((target.current_amount / target.target_amount) * 100).toFixed(0);
-
-        res.json({
-            user_id: target.user_id,
-            month_year: target.month_year,
-            target_amount: target.target_amount,
-            current_amount: target.current_amount,
-            progress_percent: progressPercent
-        });
-    } catch (err) {
-        console.error(err);
-        res.status(500).json({ error: 'Server error' });
+    if (rows.length > 0) {
+      // Update existing target
+      const result = await pool.query(
+        `UPDATE production_target
+         SET target_quantity = $1, created_at = NOW()
+         WHERE period_type = 'month' AND period_value = $2
+         RETURNING *`,
+        [target_quantity, month]
+      );
+      return res.json({ message: 'Monthly target updated', target: result.rows[0] });
     }
+
+    // Insert new target
+    const result = await pool.query(
+      `INSERT INTO production_target (period_type, period_value, target_quantity)
+       VALUES ('month', $1, $2)
+       RETURNING *`,
+      [month, target_quantity]
+    );
+
+    res.json({ message: 'Monthly target set', target: result.rows[0] });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: 'Failed to set monthly target' });
+  }
 };
 
-// Update progress for a user's target
-exports.updateProgress = async (req, res) => {
-    const { user_id, month_year } = req.params;
-    const { amount } = req.body;
-
-    try {
-        const result = await pool.query(
-            'UPDATE user_monthly_targets SET current_amount = current_amount + $1 WHERE user_id=$2 AND month_year=$3 RETURNING *',
-            [amount, user_id, month_year]
-        );
-
-        if (!result.rows.length) return res.status(404).json({ error: 'Target not found' });
-
-        res.json({ message: 'Progress updated.', target: result.rows[0] });
-    } catch (err) {
-        console.error(err);
-        res.status(500).json({ error: 'Server error' });
-    }
-};
+// Export as CommonJS
+module.exports = { getMonthlyTarget, setMonthlyTarget };

@@ -1,14 +1,13 @@
 const express = require('express');
 const router = express.Router();
-const targetController = require('../controllers/targetController');
 
-// Set or update monthly target
-router.post('/target', targetController.setMonthlyTarget);
+// Import controller using CommonJS
+const { getMonthlyTarget, setMonthlyTarget } = require('../controllers/targetController');
 
-// Get target and progress for a user
-router.get('/target/:user_id/:month_year', targetController.getMonthlyTarget);
+// GET monthly target
+router.get('/month/:month', getMonthlyTarget);
 
-// Update progress for a user
-router.post('/target/:user_id/:month_year/progress', targetController.updateProgress);
+// POST set/update monthly target
+router.post('/month', setMonthlyTarget);
 
 module.exports = router;

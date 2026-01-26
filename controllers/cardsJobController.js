@@ -380,3 +380,27 @@ exports.getMultiBankReport = async (req, res) => {
   }
 };
 
+// ============ Get All Jobs ============
+exports.getAllJobs = async (req, res) => {
+  try {
+    const query = `
+      SELECT 
+        c.*,                                   -- ✅ ALL card_job columns
+        u.name AS staff,                      -- from users
+        d.device_name,                        -- from devices
+        b.bank_name                           -- from bank
+      FROM card_job c
+      LEFT JOIN users u ON c.operator_id = u.id
+      LEFT JOIN devices d ON c.device_id = d.device_id
+      LEFT JOIN bank b ON c.bank_id = b.bank_id
+      ORDER BY c.created_at DESC
+    `;
+
+    const result = await pool.query(query);
+    res.json(result.rows); // returns EVERYTHING
+  } catch (err) {
+    console.error("Error fetching all jobs:", err);
+    res.status(500).json({ error: "Server error" });
+  }
+};
+
